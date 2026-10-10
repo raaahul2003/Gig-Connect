@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import Login from './pages/auth/ Login'
 import Register from './pages/auth/Register'
 import NotFound from './pages/NotFound'
 import BrowseTasks from './pages/public/BrowseTasks'
@@ -20,14 +19,24 @@ import ActiveWork from './pages/freelancer/ActiveWork'
 import SubmitWork from './pages/freelancer/SubmitWork'
 import Earnings from './pages/freelancer/Earnings'
 import FreelancerProfile from './pages/freelancer/FreelancerProfile'
-import ClientTasks from './pages/freelancer/ClientTasks'
-
-
-
-
-
-
-
+import ClientApplications from './pages/client/ClientApplications'
+import ClientActiveWork from './pages/client/ClientActiveWork'
+import ClientReviews from './pages/client/ClientReviews'
+import ClientPayments from './pages/client/ClientPayments'
+import Notifications from './pages/shared/Notifications'
+import Messages from './pages/shared/Messages'
+import Settings from './pages/shared/Settings'
+import AdminLayout from './layouts/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminTasks from './pages/admin/AdminTasks'
+import AdminDisputes from './pages/admin/AdminDisputes'
+import AdminSettings from './pages/admin/AdminSettings'
+import ClientWorkProgress from './pages/client/ClientWorkProgress'
+import ClientSubmissionReview from './pages/client/ClientSubmissionReview'
+import MySubmissions from './pages/freelancer/MySubmissions'
+import Login from './pages/auth/ Login'
+import ClientTasks from './pages/client/ClienTasks'
 function App() {
 
   return (
@@ -36,14 +45,24 @@ function App() {
       <Route element={<PublicLayout />} >
         <Route path='/' element={<Landing />} />
         <Route path="/browse" element={<BrowseTasks />} />
-        <Route path="/tasks/:tasksId" element={<TaskDetails />} />
-        <Route path="/tasks/:tasksId/apply" element={<ApplyTask />} />
+        <Route path="/tasks/:taskId" element={<TaskDetails />} />
+        <Route path="/tasks/:taskId/apply" element={<ApplyTask />} />
         <Route path="/post-task" element={<PostTask />} />
       </Route>
 
       <Route path='/client' element={<DashboardLayout />}>
         <Route path='dashboard' element={<ClientDashboard />} />
         <Route path='tasks' element={<ClientTasks />} />
+        <Route path='applications' element={<ClientApplications />} />
+        <Route path='active-work' element={<ClientActiveWork />} />
+        <Route path='reviews' element={<ClientReviews />} />
+        <Route path='payments' element={<ClientPayments />} />
+        <Route path='notifications' element={<Notifications />} />
+        <Route path='messages' element={<Messages />} />
+        <Route path='settings' element={<Settings />} />
+        <Route path='progress' element={<ClientWorkProgress />} />
+        <Route path='submissions' element={<ClientSubmissionReview />} />
+
       </Route>
 
       <Route path='/freelancer' element={<FreelancerLayout />}>
@@ -53,6 +72,19 @@ function App() {
         <Route path='tasks/:taskId/submit' element={<SubmitWork />} />
         <Route path='earnings' element={<Earnings />} />
         <Route path='profile' element={<FreelancerProfile />} />
+        <Route path='notifications' element={<Notifications />} />
+        <Route path='messages' element={<Messages />} />
+        <Route path='settings' element={<Settings />} />
+        <Route path='submissions' element={<MySubmissions />} />
+
+      </Route>
+
+      <Route path='/admin' element={<AdminLayout />}>
+        <Route path='dashboard' element={<AdminDashboard />} />
+        <Route path='users' element={<AdminUsers />} />
+        <Route path='tasks' element={<AdminTasks />} />
+        <Route path='disputes' element={<AdminDisputes />} />
+        <Route path='settings' element={<AdminSettings />} />
 
       </Route>
 

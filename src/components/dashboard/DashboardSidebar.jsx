@@ -44,7 +44,7 @@ function DashboardSidebar() {
 
       <div className="hidden border-t border-gray-200 p-4 md:block">
         <NavLink
-          to="/settings"
+          to="/client/settings"
           className="block rounded-lg px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50"
         >
           Settings

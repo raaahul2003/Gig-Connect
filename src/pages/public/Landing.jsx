@@ -1,46 +1,51 @@
-import Navbar from "../../components/layout/Navbar"
+
+import { Link } from "react-router-dom";
 
 function Landing() {
   return (
     <div className="min-h-screen bg-white">
       <main>
         {/* Hero */}
-        <section className="mx-auto max-w-7xl px-6 pb-24 pt-20">
+        <section className="mx-auto max-w-7xl px-4 pb-16 pt-16 sm:px-6 sm:pb-24 sm:pt-20">
           <div className="mx-auto max-w-3xl text-center">
-
             <div className="mb-6 inline-flex rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">
               Find the right person for every task
             </div>
 
-            <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
               Get Tasks Done.
               <span className="block text-blue-600">
                 Fast &amp; Simple.
               </span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-600">
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
               GigConnect connects people who need tasks completed with
               skilled freelancers ready to get the work done.
             </p>
 
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <button className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+            {/* Hero Actions */}
+            <div className="mt-8 flex w-full flex-col justify-center gap-3 sm:flex-row">
+              <Link
+                to="/post-task"
+                className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
+              >
                 Post a Task
-              </button>
+              </Link>
 
-              <button className="rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+              <Link
+                to="/browse"
+                className="inline-flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 sm:w-auto"
+              >
                 Find Tasks
-              </button>
+              </Link>
             </div>
-
           </div>
         </section>
 
         {/* Features */}
         <section className="border-y border-gray-200 bg-gray-50">
-          <div className="mx-auto grid max-w-7xl gap-8 px-6 py-16 md:grid-cols-3">
-
+          <div className="mx-auto grid max-w-7xl gap-5 px-4 py-10 sm:gap-8 sm:px-6 sm:py-16 md:grid-cols-3">
             <Feature
               title="Quick Tasks"
               description="Find and complete tasks that can be finished quickly."
@@ -55,26 +60,23 @@ function Landing() {
               title="Secure Workflow"
               description="Track applications, submissions and payments in one place."
             />
-
           </div>
         </section>
       </main>
     </div>
-  )
+  );
 }
 
 function Feature({ title, description }) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-6">
-      <h2 className="text-lg font-semibold text-gray-900">
-        {title}
-      </h2>
+      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
 
       <p className="mt-2 text-sm leading-6 text-gray-600">
         {description}
       </p>
     </div>
-  )
+  );
 }
 
-export default Landing
+export default Landing;
