@@ -1,6 +1,8 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../../api/axios";
+import { toast } from 'sonner'
 
 function Register() {
   const [form, setForm] = useState({
@@ -15,6 +17,8 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
   function updateField(event) {
     const { name, value, type, checked } = event.target;
 
@@ -24,10 +28,12 @@ function Register() {
     }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+
     setError("");
 
+    // Frontend validation
     if (form.name.trim().length < 2) {
       setError("Enter your full name.");
       return;
@@ -53,9 +59,41 @@ function Register() {
       return;
     }
 
-    setError(
-      "Registration isn't connected yet. Your account hasn't been created."
-    );
+    try {
+      setLoading(true);
+
+      const response = await api.post("/auth/register", {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        role: form.role,
+      });
+
+      // Show success notification
+      toast.success(
+        response.data.message || "Account created successfully!"
+      );
+
+      // Reset form
+      setForm({
+        name: "",
+        email: "",
+        role: "freelancer",
+        password: "",
+        confirmPassword: "",
+        acceptedTerms: false,
+      });
+
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Registration failed. Please try again.";
+
+      toast.error(errorMessage);
+
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -129,11 +167,10 @@ function Register() {
                 ].map((option) => (
                   <label
                     key={option.value}
-                    className={`cursor-pointer rounded-xl border p-4 transition ${
-                      form.role === option.value
-                        ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
+                    className={`cursor-pointer rounded-xl border p-4 transition ${form.role === option.value
+                      ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
+                      : "border-gray-200 hover:border-gray-300"
+                      }`}
                   >
                     <input
                       type="radio"
@@ -221,12 +258,12 @@ function Register() {
                 {error}
               </p>
             )}
-
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200"
+              disabled={loading}
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Create account
+              {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
 
