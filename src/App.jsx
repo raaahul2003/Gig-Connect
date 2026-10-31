@@ -35,69 +35,77 @@ import AdminSettings from './pages/admin/AdminSettings'
 import ClientWorkProgress from './pages/client/ClientWorkProgress'
 import ClientSubmissionReview from './pages/client/ClientSubmissionReview'
 import MySubmissions from './pages/freelancer/MySubmissions'
-import Login from './pages/auth/ Login'
+import Login from './pages/auth/Login'
 import ClientTasks from './pages/client/ClienTasks'
 import { Toaster } from 'sonner'
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import ProtectedRoute from './components/auth/ProtectedRoute'
 
 function App() {
 
   return (
-    <>
-     <Toaster position="top-right" richColors />
-      <Routes>
-        <Route element={<PublicLayout />} >
-          <Route path='/' element={<Landing />} />
-          <Route path="/browse" element={<BrowseTasks />} />
-          <Route path="/tasks/:taskId" element={<TaskDetails />} />
-          <Route path="/tasks/:taskId/apply" element={<ApplyTask />} />
-          <Route path="/post-task" element={<PostTask />} />
-        </Route>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <>
+        <Toaster position="top-right" richColors />
+        <Routes>
+          <Route element={<PublicLayout />} >
+            <Route path='/' element={<Landing />} />
+            <Route path="/browse" element={<BrowseTasks />} />
+            <Route path="/tasks/:taskId" element={<TaskDetails />} />
+            <Route path="/tasks/:taskId/apply" element={<ApplyTask />} />
+            <Route path="/post-task" element={<PostTask />} />
+          </Route>
 
-        <Route path='/client' element={<DashboardLayout />}>
-          <Route path='dashboard' element={<ClientDashboard />} />
-          <Route path='tasks' element={<ClientTasks />} />
-          <Route path='applications' element={<ClientApplications />} />
-          <Route path='active-work' element={<ClientActiveWork />} />
-          <Route path='reviews' element={<ClientReviews />} />
-          <Route path='payments' element={<ClientPayments />} />
-          <Route path='notifications' element={<Notifications />} />
-          <Route path='messages' element={<Messages />} />
-          <Route path='settings' element={<Settings />} />
-          <Route path='progress' element={<ClientWorkProgress />} />
-          <Route path='submissions' element={<ClientSubmissionReview />} />
+          <Route element={<ProtectedRoute allowedRole="client" />}>
+            <Route path='/client' element={<DashboardLayout />}>
+              <Route path='dashboard' element={<ClientDashboard />} />
+              <Route path='tasks' element={<ClientTasks />} />
+              <Route path='applications' element={<ClientApplications />} />
+              <Route path='active-work' element={<ClientActiveWork />} />
+              <Route path='reviews' element={<ClientReviews />} />
+              <Route path='payments' element={<ClientPayments />} />
+              <Route path='notifications' element={<Notifications />} />
+              <Route path='messages' element={<Messages />} />
+              <Route path='settings' element={<Settings />} />
+              <Route path='progress' element={<ClientWorkProgress />} />
+              <Route path='submissions' element={<ClientSubmissionReview />} />
+            </Route>
+          </Route>
 
-        </Route>
+          <Route element={<ProtectedRoute allowedRole="freelancer" />}>
+            <Route path='/freelancer' element={<FreelancerLayout />}>
+              <Route path='dashboard' element={<FreelancerDashboard />} />
+              <Route path='applications' element={<MyApplications />} />
+              <Route path='active-work' element={<ActiveWork />} />
+              <Route path='tasks/:taskId/submit' element={<SubmitWork />} />
+              <Route path='earnings' element={<Earnings />} />
+              <Route path='profile' element={<FreelancerProfile />} />
+              <Route path='notifications' element={<Notifications />} />
+              <Route path='messages' element={<Messages />} />
+              <Route path='settings' element={<Settings />} />
+              <Route path='submissions' element={<MySubmissions />} />
+            </Route>
+          </Route>
 
-        <Route path='/freelancer' element={<FreelancerLayout />}>
-          <Route path='dashboard' element={<FreelancerDashboard />} />
-          <Route path='applications' element={<MyApplications />} />
-          <Route path='active-work' element={<ActiveWork />} />
-          <Route path='tasks/:taskId/submit' element={<SubmitWork />} />
-          <Route path='earnings' element={<Earnings />} />
-          <Route path='profile' element={<FreelancerProfile />} />
-          <Route path='notifications' element={<Notifications />} />
-          <Route path='messages' element={<Messages />} />
-          <Route path='settings' element={<Settings />} />
-          <Route path='submissions' element={<MySubmissions />} />
+          <Route element={<ProtectedRoute allowedRole="admin" />}>
+            <Route path='/admin' element={<AdminLayout />}>
+              <Route path='dashboard' element={<AdminDashboard />} />
+              <Route path='users' element={<AdminUsers />} />
+              <Route path='tasks' element={<AdminTasks />} />
+              <Route path='disputes' element={<AdminDisputes />} />
+              <Route path='settings' element={<AdminSettings />} />
+            </Route>
+          </Route>
 
-        </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-email" element={<EmailVerification />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </>
+    </GoogleOAuthProvider>
 
-        <Route path='/admin' element={<AdminLayout />}>
-          <Route path='dashboard' element={<AdminDashboard />} />
-          <Route path='users' element={<AdminUsers />} />
-          <Route path='tasks' element={<AdminTasks />} />
-          <Route path='disputes' element={<AdminDisputes />} />
-          <Route path='settings' element={<AdminSettings />} />
-
-        </Route>
-
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/verify-email" element={<EmailVerification />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </>
   )
 }
 
