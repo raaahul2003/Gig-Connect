@@ -16,6 +16,23 @@ function BrowseTasks() {
   const [category, setCategory] = useState("All Tasks");
   const [sort, setSort] = useState("newest");
 
+  const [user, setUser] = useState(() =>
+    JSON.parse(localStorage.getItem("user") || "null")
+  );
+
+  // useEffect(() => {
+  //   const syncUser = () =>
+  //     setUser(JSON.parse(localStorage.getItem("user") || "null"));
+
+  //   window.addEventListener("storage", syncUser);
+  //   window.addEventListener("auth-changed", syncUser);
+
+  //   return () => {
+  //     window.removeEventListener("storage", syncUser);
+  //     window.removeEventListener("auth-changed", syncUser);
+  //   };
+  // }, []);
+
   // Task data will come from our API later.
   const tasks = [];
 
@@ -56,12 +73,14 @@ function BrowseTasks() {
               className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
 
-            <Link
-              to="/login"
-              className="rounded-xl bg-blue-600 px-6 py-3 text-center font-semibold text-white transition hover:bg-blue-700"
-            >
-              Post a Task
-            </Link>
+            {user?.role === "client" && (
+              <Link
+                to="/client/post-task"
+                className="rounded-xl bg-blue-600 px-6 py-3 text-center font-semibold text-white transition hover:bg-blue-700"
+              >
+                Post a Task
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -75,11 +94,10 @@ function BrowseTasks() {
                 type="button"
                 onClick={() => setCategory(item)}
                 aria-pressed={category === item}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  category === item
-                    ? "bg-blue-600 text-white"
-                    : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:text-blue-600"
-                }`}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${category === item
+                  ? "bg-blue-600 text-white"
+                  : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:text-blue-600"
+                  }`}
               >
                 {item}
               </button>

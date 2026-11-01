@@ -81,17 +81,6 @@ function Login() {
     }
   }
 
-  function finishLogin(data) {
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-
-    navigate(
-      data.user.role === "client"
-        ? "/client/dashboard"
-        : "/freelancer/dashboard"
-    );
-  }
-
   async function completeGoogleRegistration() {
     if (!googleCredential) {
       setError("Please sign in with Google again.");
@@ -117,6 +106,20 @@ function Login() {
       setLoading(false);
     }
   }
+
+  function finishLogin(data) {
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
+  window.dispatchEvent(new Event("auth-changed"));
+
+  navigate(
+    data.user.role === "client"
+      ? "/client/dashboard"
+      : data.user.role === "admin"
+        ? "/admin/dashboard"
+        : "/freelancer/dashboard"
+  );
+}
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-5 py-12">

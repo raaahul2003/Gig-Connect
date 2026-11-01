@@ -1,7 +1,26 @@
 
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 function Landing() {
+
+  const [user, setUser] = useState(() =>
+    JSON.parse(localStorage.getItem("user") || "null")
+  );
+
+  useEffect(() => {
+    const syncUser = () =>
+      setUser(JSON.parse(localStorage.getItem("user") || "null"));
+
+    window.addEventListener("storage", syncUser);
+    window.addEventListener("auth-changed", syncUser);
+
+    return () => {
+      window.removeEventListener("storage", syncUser);
+      window.removeEventListener("auth-changed", syncUser);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <main>
@@ -26,12 +45,14 @@ function Landing() {
 
             {/* Hero Actions */}
             <div className="mt-8 flex w-full flex-col justify-center gap-3 sm:flex-row">
+              {user?.role === "client" && (
               <Link
                 to="/post-task"
                 className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
               >
                 Post a Task
               </Link>
+              )}
 
               <Link
                 to="/browse"

@@ -38,6 +38,8 @@ import MySubmissions from './pages/freelancer/MySubmissions'
 import Login from './pages/auth/Login'
 import ClientTasks from './pages/client/ClienTasks'
 import { Toaster } from 'sonner'
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ProtectedRoute from './components/auth/ProtectedRoute'
 
@@ -103,6 +105,7 @@ function App() {
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <ToastContainer position="top-right" autoClose={3000} />
       </>
     </GoogleOAuthProvider>
 

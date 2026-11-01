@@ -1,10 +1,12 @@
 
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 function DashboardHeader() {
 
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -23,20 +25,23 @@ function DashboardHeader() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Link
-          to="/post-task"
-          className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
-        >
-          + Post a task
-        </Link>
+        {user?.role === "client" && (
+          <Link
+            to="/client/post-task"
+            className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            + Post a task
+          </Link>
+        )}
 
         <button
           type="button"
           onClick={handleLogout}
-          aria-label="Sign out"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-gray-50 font-semibold text-gray-700 hover:bg-gray-100"
+          aria-label="Log out"
+          title="Log out"
+          className="rounded-lg p-2 text-gray-600 transition hover:bg-gray-100 hover:text-red-600 border"
         >
-          U
+          <LogOut size={20} />
         </button>
       </div>
     </header>

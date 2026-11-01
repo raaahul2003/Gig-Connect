@@ -1,6 +1,9 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { createTask } from "../../services/taskService";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const initialForm = {
   title: "",
@@ -26,6 +29,10 @@ function PostTask() {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
 
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  const navigate = useNavigate();
+
   function updateField(event) {
     const { name, value, type, checked } = event.target;
 
@@ -37,41 +44,70 @@ function PostTask() {
     setErrors((current) => ({ ...current, [name]: "" }));
   }
 
+  function validateAllSteps() {
+    const nextErrors = {};
+
+    if (form.title.trim().length < 5) {
+      nextErrors.title = "Enter a title with at least 5 characters.";
+    }
+
+    if (!form.category) {
+      nextErrors.category = "Choose a category.";
+    }
+
+    if (form.description.trim().length < 30) {
+      nextErrors.description = "Description must contain at least 30 characters.";
+    }
+
+    if (!form.skills.trim()) {
+      nextErrors.skills = "Enter at least one required skill.";
+    }
+
+    if (!form.deliverables.trim()) {
+      nextErrors.deliverables = "Describe the expected deliverables.";
+    }
+
+    if (
+      !form.budget ||
+      !Number.isFinite(Number(form.budget)) ||
+      Number(form.budget) <= 0
+    ) {
+      nextErrors.budget = "Enter a valid budget greater than zero.";
+    }
+
+    if (!form.deadline) {
+      nextErrors.deadline = "Choose a deadline.";
+    } else if (
+      new Date(`${form.deadline}T23:59:59`).getTime() <= Date.now()
+    ) {
+      nextErrors.deadline = "Choose a future deadline.";
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
   function validateStep() {
     const nextErrors = {};
 
     if (step === 0) {
-      if (form.title.trim().length < 5) {
-        nextErrors.title = "Enter a title with at least 5 characters.";
-      }
-
-      if (!form.category) {
-        nextErrors.category = "Choose a category.";
-      }
-
-      if (form.description.trim().length < 30) {
-        nextErrors.description =
-          "Description must contain at least 30 characters.";
+      if (!form.title.trim()) nextErrors.title = "Task title is required.";
+      if (!form.category) nextErrors.category = "Select a category.";
+      if (!form.description.trim()) {
+        nextErrors.description = "Task description is required.";
       }
     }
 
     if (step === 1) {
-      if (!form.skills.trim()) {
-        nextErrors.skills = "Enter at least one required skill.";
-      }
-
+      if (!form.skills.trim()) nextErrors.skills = "Add required skills.";
       if (!form.deliverables.trim()) {
-        nextErrors.deliverables = "Describe the expected deliverables.";
+        nextErrors.deliverables = "Describe the deliverables.";
       }
     }
 
     if (step === 2) {
-      if (
-        !form.budget ||
-        !Number.isFinite(Number(form.budget)) ||
-        Number(form.budget) <= 0
-      ) {
-        nextErrors.budget = "Enter a valid budget greater than zero.";
+      if (!form.budget || Number(form.budget) <= 0) {
+        nextErrors.budget = "Enter a budget greater than zero.";
       }
 
       if (!form.deadline) {
@@ -93,12 +129,48 @@ function PostTask() {
     }
   }
 
-  function publishTask() {
-    // Publishing will be implemented when the Express API is ready.
-    setErrors({
-      publish:
-        "Your task has not been published. Backend integration is still pending.",
-    });
+  async function publishTask() {
+    if (!validateAllSteps()) return;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setErrors({ publish: "Please log in as a client to publish a task." });
+      return;
+    }
+
+    setIsPublishing(true);
+    setErrors({});
+
+    try {
+      const response = await createTask(
+        {
+          ...form,
+          budget: Number(form.budget),
+          estimatedMinutes: Number(form.estimatedMinutes),
+          deadline: new Date(`${form.deadline}T23:59:59`).toISOString(),
+        },
+        token
+      );
+
+      const createdTask = response.data.task ?? response.data;
+
+      toast.success("Task published successfully!");
+
+      setTimeout(() => {
+        navigate(`/tasks/${createdTask._id ?? createdTask.id}`);
+      }, 1500);
+    } catch (error) {
+      console.error("Publish task failed:", error.response?.data || error.message);
+      setErrors({
+        publish:
+          error.response?.data?.message ||
+          error.message ||
+          "Could not publish the task. Please try again.",
+      });
+    } finally {
+      setIsPublishing(false);
+    }
   }
 
   function FieldError({ name }) {
@@ -135,16 +207,14 @@ function PostTask() {
           {steps.map((label, index) => (
             <div key={label}>
               <div
-                className={`h-1.5 rounded-full ${
-                  index <= step ? "bg-blue-600" : "bg-gray-200"
-                }`}
+                className={`h-1.5 rounded-full ${index <= step ? "bg-blue-600" : "bg-gray-200"
+                  }`}
               />
               <p
-                className={`mt-2 text-xs sm:text-sm ${
-                  index === step
-                    ? "font-semibold text-blue-700"
-                    : "text-gray-500"
-                }`}
+                className={`mt-2 text-xs sm:text-sm ${index === step
+                  ? "font-semibold text-blue-700"
+                  : "text-gray-500"
+                  }`}
               >
                 {String(index + 1).padStart(2, "0")}
                 <span className="hidden sm:inline"> {label}</span>
@@ -437,7 +507,7 @@ function PostTask() {
           </div>
 
           <p className="mt-4 text-center text-xs leading-5 text-gray-500">
-            Frontend preview only. Your task will not be saved until backend integration.
+            Your task will be saved when you publish.
           </p>
         </form>
       </div>
