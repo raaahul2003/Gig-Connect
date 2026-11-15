@@ -8,6 +8,7 @@ const links = [
   { label: "Active Work", to: "/freelancer/active-work" },
   { label: "Submissions", to: "/freelancer/submissions" },
   { label: "Earnings", to: "/freelancer/earnings" },
+  { label: "Notifications", to: "/freelancer/notifications" },
   { label: "My Profile", to: "/freelancer/profile" },
 ];
 

@@ -1,31 +1,90 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../../api/axios";
 
 export default function Notifications() {
-  // Real notifications will be loaded from the backend later.
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Fetch notifications from backend
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await api.get("/notifications");
+
+        setNotifications(response.data.notifications || []);
+      } catch (err) {
+        setError(
+          err.response?.data?.message ||
+            "Failed to load notifications."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   const filteredNotifications =
     filter === "Unread"
-      ? notifications.filter((item) => !item.read)
+      ? notifications.filter((item) => !item.isRead)
       : notifications;
 
-  function markAsRead(id) {
-    setNotifications((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, read: true } : item
-      )
-    );
+  // Mark one notification as read
+  async function markAsRead(id) {
+    try {
+      await api.patch(`/notifications/${id}/read`);
+
+      setNotifications((current) =>
+        current.map((item) =>
+          item._id === id ? { ...item, isRead: true } : item
+        )
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Failed to mark notification as read."
+      );
+    }
   }
 
-  function markAllAsRead() {
-    setNotifications((current) =>
-      current.map((item) => ({ ...item, read: true }))
-    );
+  // Mark all notifications as read
+  async function markAllAsRead() {
+    try {
+      await api.patch("/notifications/read-all");
+
+      setNotifications((current) =>
+        current.map((item) => ({ ...item, isRead: true }))
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Failed to mark all notifications as read."
+      );
+    }
   }
 
-  const unreadCount = notifications.filter((item) => !item.read).length;
+  const unreadCount = notifications.filter(
+    (item) => !item.isRead
+  ).length;
+
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    return new Date(date).toLocaleString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -71,8 +130,18 @@ export default function Notifications() {
         ))}
       </div>
 
+      {error && (
+        <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-        {filteredNotifications.length === 0 ? (
+        {loading ? (
+          <div className="px-6 py-14 text-center text-sm text-gray-500">
+            Loading notifications...
+          </div>
+        ) : filteredNotifications.length === 0 ? (
           <div className="px-6 py-14 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
               <svg
@@ -96,6 +165,7 @@ export default function Notifications() {
                 ? "You're all caught up"
                 : "No notifications yet"}
             </h2>
+
             <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-gray-500">
               {filter === "Unread"
                 ? "You have no unread notifications."
@@ -106,34 +176,36 @@ export default function Notifications() {
           <div className="divide-y divide-gray-100">
             {filteredNotifications.map((item) => (
               <article
-                key={item.id}
+                key={item._id}
                 className={`flex items-start gap-3 p-5 ${
-                  item.read ? "bg-white" : "bg-blue-50/50"
+                  item.isRead ? "bg-white" : "bg-blue-50/50"
                 }`}
               >
                 <div
                   className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${
-                    item.read ? "bg-gray-300" : "bg-blue-600"
+                    item.isRead ? "bg-gray-300" : "bg-blue-600"
                   }`}
-                  aria-label={item.read ? "Read" : "Unread"}
+                  aria-label={item.isRead ? "Read" : "Unread"}
                 />
 
                 <div className="min-w-0 flex-1">
                   <h3 className="font-medium text-gray-900">
                     {item.title}
                   </h3>
+
                   <p className="mt-1 text-sm leading-6 text-gray-600">
                     {item.message}
                   </p>
+
                   <p className="mt-2 text-xs text-gray-400">
-                    {item.time}
+                    {formatDate(item.createdAt)}
                   </p>
                 </div>
 
-                {!item.read && (
+                {!item.isRead && (
                   <button
                     type="button"
-                    onClick={() => markAsRead(item.id)}
+                    onClick={() => markAsRead(item._id)}
                     className="shrink-0 text-sm font-medium text-blue-600 hover:text-blue-700"
                   >
                     Mark read

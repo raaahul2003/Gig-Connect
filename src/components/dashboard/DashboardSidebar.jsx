@@ -9,6 +9,7 @@ const links = [
   { label: "Work Progress", to: "/client/progress" },
   { label: "Submissions", to: "/client/submissions" },
   { label: "Payments", to: "/client/payments" },
+  { label: "Notifications", to: "/client/notifications" },
 ];
 
 function DashboardSidebar() {

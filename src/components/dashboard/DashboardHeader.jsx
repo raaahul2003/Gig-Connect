@@ -1,12 +1,32 @@
 
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut, Bell } from "lucide-react";
+import { useEffect, useState } from "react";
+import api from "../../api/axios";
 
 function DashboardHeader() {
 
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await api.get("/notifications/unread-count");
+        setUnreadCount(response.data.unreadCount);
+      } catch (error) {
+        console.error("Failed to fetch unread notifications:", error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    const interval = setInterval(fetchUnreadCount, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -25,6 +45,24 @@ function DashboardHeader() {
       </div>
 
       <div className="flex items-center gap-3">
+        <Link
+          to={
+            user?.role === "client"
+              ? "/client/notifications"
+              : "/freelancer/notifications"
+          }
+          className="relative rounded-lg border p-2 text-gray-600 transition hover:bg-gray-100"
+          aria-label="Notifications"
+          title="Notifications"
+        >
+          <Bell size={20} />
+
+          {unreadCount > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-semibold text-white">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </Link>
         {user?.role === "client" && (
           <Link
             to="/post-task"
