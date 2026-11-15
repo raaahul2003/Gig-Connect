@@ -1,9 +1,65 @@
 
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { getMySubmissions, downloadSubmissionFile } from "../../services/submissionService";
 
 export default function MySubmissions() {
-  // Real submissions will be loaded from the backend later.
-  const submissions = [];
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [downloadingFile, setDownloadingFile] = useState("");
+
+  const handleDownload = async (submissionId, file) => {
+    try {
+      setDownloadingFile(file._id);
+
+      const blob = await downloadSubmissionFile(
+        submissionId,
+        file._id
+      );
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = file.originalName;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+        "Failed to download file."
+      );
+    } finally {
+      setDownloadingFile("");
+    }
+  };
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      try {
+        const data = await getMySubmissions();
+        setSubmissions(data);
+      } catch (error) {
+        setError(
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to load submissions."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubmissions();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -17,7 +73,18 @@ export default function MySubmissions() {
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-6 sm:p-10">
-        {submissions.length === 0 ? (
+        {loading ? (
+          <p className="py-8 text-center text-sm text-gray-500">
+            Loading submissions...
+          </p>
+        ) : error ? (
+          <p
+            role="alert"
+            className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+          >
+            {error}
+          </p>
+        ) : submissions.length === 0 ? (
           <div className="mx-auto flex max-w-md flex-col items-center py-8 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
               <svg
@@ -55,26 +122,26 @@ export default function MySubmissions() {
           <div className="space-y-4">
             {submissions.map((submission) => (
               <article
-                key={submission.id}
+                key={submission._id}
                 className="rounded-xl border border-gray-200 p-5"
               >
                 <div className="flex flex-col justify-between gap-3 sm:flex-row">
                   <div>
                     <h2 className="font-semibold text-gray-900">
-                      {submission.taskTitle}
+                      {submission.task?.title || "Untitled task"}
                     </h2>
                     <p className="mt-1 text-sm text-gray-500">
-                      Submitted on {submission.submittedAt}
+                      Submitted on {submission.createdAt ? new Date(submission.createdAt).toLocaleDateString() : "Date unavailable"}
                     </p>
                   </div>
 
                   <span className="h-fit rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-                    {submission.status}
+                    {submission.status?.replaceAll("_", " ")}
                   </span>
                 </div>
 
                 <p className="mt-4 text-sm leading-6 text-gray-700">
-                  {submission.deliveryNote}
+                  {submission.description}
                 </p>
 
                 {submission.files?.length > 0 && (
@@ -84,10 +151,23 @@ export default function MySubmissions() {
                     </h3>
                     {submission.files.map((file) => (
                       <div
-                        key={file.id}
+                        key={file._id || file.filename}
                         className="rounded-lg border border-gray-200 p-3 text-sm text-gray-600"
                       >
-                        {file.name}
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="break-all">{file.originalName}</span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDownload(submission._id, file)}
+                            disabled={downloadingFile === file._id}
+                            className="shrink-0 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+                          >
+                            {downloadingFile === file._id
+                              ? "Downloading..."
+                              : "Download"}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -102,6 +182,15 @@ export default function MySubmissions() {
                       {submission.feedback}
                     </p>
                   </div>
+                )}
+
+                {submission.status === "revision_requested" && submission.task?._id && (
+                  <Link
+                    to={`/freelancer/tasks/${submission.task._id}/submit?revisionOf=${submission._id}`}
+                    className="mt-4 inline-flex rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    Resubmit Work
+                  </Link>
                 )}
               </article>
             ))}

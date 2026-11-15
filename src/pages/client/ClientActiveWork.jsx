@@ -1,9 +1,42 @@
 
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getClientActiveWork } from "../../services/applicationService";
 
 export default function ClientActiveWork() {
-  // Connect to the API when the backend is ready.
-  const activeTasks = [];
+
+  const [activeTasks, setActiveTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+
+    const fetchActiveWork = async () => {
+      try {
+        const applications = await getClientActiveWork();
+
+        const tasks = applications.map((application) => ({
+          id: application._id,
+          title: application.task?.title || "Untitled Task",
+          freelancerName: application.freelancer?.name || "Freelancer",
+          deadline: application.task?.deadline
+            ? new Date(application.task.deadline).toLocaleDateString()
+            : "Not specified",
+          status: application.task?.status || "in_progress",
+        }));
+
+        setActiveTasks(tasks);
+      } catch (err) {
+        setError(
+          err.response?.data?.message || "Failed to load active work."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActiveWork();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -18,7 +51,7 @@ export default function ClientActiveWork() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          { label: "Active Tasks", value: "—" },
+          { label: "Active Tasks", value: activeTasks.length },
           { label: "Awaiting Review", value: "—" },
           { label: "Completed", value: "—" },
         ].map((item) => (
@@ -35,7 +68,15 @@ export default function ClientActiveWork() {
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-6 sm:p-10">
-        {activeTasks.length === 0 ? (
+        {loading ? (
+          <p className="py-8 text-center text-sm text-gray-500">
+            Loading active work...
+          </p>
+        ) : error ? (
+          <p className="py-8 text-center text-sm text-red-600">
+            {error}
+          </p>
+        ) : activeTasks.length === 0 ? (
           <div className="mx-auto flex max-w-md flex-col items-center py-8 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
               <svg

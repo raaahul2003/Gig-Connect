@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { submitApplication } from "../../services/applicationService";
 
 function ApplyTask() {
   const { taskId } = useParams();
@@ -10,8 +10,10 @@ function ApplyTask() {
   const [bidAmount, setBidAmount] = useState("");
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const nextErrors = {};
@@ -34,10 +36,37 @@ function ApplyTask() {
     }
 
     setErrors(nextErrors);
+    setSubmitError("");
 
-    if (Object.keys(nextErrors).length === 0) {
-      // UI-only for now. We'll save applications through our API later.
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setSubmitError("Please log in before applying for this task.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      await submitApplication(taskId, {
+        proposal: proposal.trim(),
+        bidAmount: Number(bidAmount),
+        deliveryHours: Number(deliveryHours),
+      });
+
       setSubmitted(true);
+    } catch (error) {
+      setSubmitError(
+        error.response?.data?.message ||
+        error.message ||
+        "Could not submit your application. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -50,12 +79,11 @@ function ApplyTask() {
           </div>
 
           <h1 className="mt-5 text-2xl font-bold text-gray-900">
-            Application form completed
+            Application submitted
           </h1>
 
           <p className="mt-3 text-sm leading-6 text-gray-600">
-            Your application hasn't been sent to a client yet. We'll enable
-            submission when the backend is connected.
+            Your application has been sent successfully.
           </p>
 
           <Link
@@ -191,16 +219,23 @@ function ApplyTask() {
             )}
           </div>
 
+          {submitError && (
+            <p role="alert" className="text-sm text-red-600">
+              {submitError}
+            </p>
+          )}
+
           <div className="border-t border-gray-200 pt-6">
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200"
+              disabled={isSubmitting}
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Review application
+              {isSubmitting ? "Submitting..." : "Submit application"}
             </button>
 
             <p className="mt-3 text-center text-xs leading-5 text-gray-500">
-              This is a frontend preview. No application is stored or sent yet.
+              Your application will be sent to the client for review.
             </p>
           </div>
         </form>

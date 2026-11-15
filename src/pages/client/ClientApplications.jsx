@@ -1,15 +1,89 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { getApplicationsForClient, updateApplicationStatus } from "../../services/applicationService";
+import { useEffect } from "react";
+import { useState } from "react";
 
 export default function ClientApplications() {
-  // Real application data will come from the backend later.
-  const applications = [];
-  const [status, setStatus] = React.useState("All");
+
+  const [applications, setApplications] = useState([]);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [actionError, setActionError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [status, setStatus] = useState("All");
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getApplicationsForClient();
+        setApplications(data);
+      } catch (err) {
+        setError(
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to load applications."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, []);
+
+  const handleApplicationAction = async (applicationId, newStatus) => {
+  try {
+    setUpdatingId(applicationId);
+    setActionError("");
+
+    await updateApplicationStatus(applicationId, newStatus);
+
+    const selectedApplication = applications.find(
+      (application) => application._id === applicationId
+    );
+
+    setApplications((prevApplications) =>
+      prevApplications.map((application) => {
+        // Update the selected application
+        if (application._id === applicationId) {
+          return { ...application, status: newStatus };
+        }
+
+        // Reject other pending applications for the same task
+        if (
+          newStatus === "accepted" &&
+          String(application.task?._id) ===
+            String(selectedApplication?.task?._id) &&
+          application.status === "pending"
+        ) {
+          return { ...application, status: "rejected" };
+        }
+
+        return application;
+      })
+    );
+  } catch (err) {
+    setActionError(
+      err.response?.data?.message ||
+      err.message ||
+      "Failed to update application."
+    );
+  } finally {
+    setUpdatingId(null);
+  }
+};
 
   const filteredApplications =
     status === "All"
       ? applications
-      : applications.filter((application) => application.status === status);
+      : applications.filter(
+        (application) =>
+          application.status === status.toLowerCase()
+      );
 
   return (
     <div className="space-y-6">
@@ -28,11 +102,10 @@ export default function ClientApplications() {
             key={item}
             type="button"
             onClick={() => setStatus(item)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              status === item
-                ? "bg-blue-600 text-white"
-                : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
-            }`}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${status === item
+              ? "bg-blue-600 text-white"
+              : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+              }`}
           >
             {item}
           </button>
@@ -40,7 +113,20 @@ export default function ClientApplications() {
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-6 sm:p-10">
-        {filteredApplications.length === 0 ? (
+        {actionError && (
+          <p className="mb-4 text-sm text-red-500">
+            {actionError}
+          </p>
+        )}
+        {loading ? (
+          <p className="py-8 text-center text-gray-500">
+            Loading applications...
+          </p>
+        ) : error ? (
+          <p className="py-8 text-center text-red-500">
+            {error}
+          </p>
+        ) : filteredApplications.length === 0 ? (
           <div className="mx-auto flex max-w-md flex-col items-center py-8 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
               <svg
@@ -77,43 +163,48 @@ export default function ClientApplications() {
           <div className="space-y-4">
             {filteredApplications.map((application) => (
               <article
-                key={application.id}
+                key={application._id}
                 className="rounded-lg border border-gray-200 p-5"
               >
                 <h2 className="font-semibold text-gray-900">
-                  {application.freelancerName}
+                  {application.freelancer?.name || "Freelancer"}
                 </h2>
                 <p className="mt-1 text-sm text-gray-500">
-                  {application.taskTitle}
+                  {application.task?.title || "Task"}
                 </p>
                 <p className="mt-3 text-sm text-gray-700">
                   {application.proposal}
                 </p>
                 <p className="mt-3 text-sm text-gray-600">
-                  Proposed price: {application.proposedPrice}
+                  Proposed price: ₹{application.bidAmount}
                   {" · "}
-                  Delivery: {application.deliveryTime}
+                  Delivery: {application.deliveryHours} hours
                 </p>
                 <p className="mt-2 text-sm text-gray-500">
-                  Status: {application.status}
+                  Status: {application.status?.charAt(0).toUpperCase() +
+                    application.status?.slice(1)}
                 </p>
-                {application.status === "Pending" && (
+                {application.status === "pending" && (
                   <div className="mt-4 flex gap-3">
                     <button
                       type="button"
-                      disabled
-                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white opacity-60"
-                      title="Available after backend integration"
+                      disabled={updatingId === application._id}
+                      onClick={() =>
+                        handleApplicationAction(application._id, "accepted")
+                      }
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-60"
                     >
-                      Accept
+                      {updatingId === application._id ? "Processing..." : "Accept"}
                     </button>
                     <button
                       type="button"
-                      disabled
-                      className="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-500 opacity-60"
-                      title="Available after backend integration"
+                      disabled={updatingId === application._id}
+                      onClick={() =>
+                        handleApplicationAction(application._id, "rejected")
+                      }
+                      className="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-60"
                     >
-                      Reject
+                      {updatingId === application._id ? "Processing..." : "Reject"}
                     </button>
                   </div>
                 )}

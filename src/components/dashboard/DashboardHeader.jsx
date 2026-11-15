@@ -27,7 +27,7 @@ function DashboardHeader() {
       <div className="flex items-center gap-3">
         {user?.role === "client" && (
           <Link
-            to="/client/post-task"
+            to="/post-task"
             className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
           >
             + Post a task

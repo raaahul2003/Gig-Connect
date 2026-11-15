@@ -1,18 +1,24 @@
 
 import { useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { submitWork } from "../../services/submissionService";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_FILES = 5;
 
 function SubmitWork() {
   const { taskId } = useParams();
+  const [searchParams] = useSearchParams();
+  const revisionOf = searchParams.get("revisionOf");
+
   const fileInputRef = useRef(null);
 
   const [note, setNote] = useState("");
   const [files, setFiles] = useState([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleFiles(event) {
     setError("");
@@ -51,10 +57,16 @@ function SubmitWork() {
     );
   }
 
-  function handleSubmit(event) {
+
+  async function handleSubmit(event) {
     event.preventDefault();
     setError("");
     setMessage("");
+
+    if (!taskId) {
+      setError("Task ID is missing.");
+      return;
+    }
 
     if (note.trim().length < 20) {
       setError("Please provide a delivery note of at least 20 characters.");
@@ -66,10 +78,37 @@ function SubmitWork() {
       return;
     }
 
-    setMessage(
-      "Your submission has not been sent. File uploads and delivery will be enabled when the backend is connected."
-    );
+    const formData = new FormData();
+
+    formData.append("description", note.trim());
+
+    if (revisionOf) {
+      formData.append("revisionOf", revisionOf);
+    }
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await submitWork(taskId, formData);
+
+      setMessage(response.message || "Work submitted successfully.");
+      setNote("");
+      setFiles([]);
+    } catch (error) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to submit work. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
 
   return (
     <main className="min-h-screen bg-gray-50 px-5 py-10 sm:px-6">
@@ -86,7 +125,7 @@ function SubmitWork() {
             TASK DELIVERY
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
-            Submit completed work
+            {revisionOf ? "Resubmit revised work" : "Submit completed work"}
           </h1>
           <p className="mt-3 text-sm leading-6 text-gray-600">
             Provide a delivery note and attach the files the client needs to
@@ -211,12 +250,19 @@ function SubmitWork() {
           <div className="border-t border-gray-200 pt-6">
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+              disabled={isSubmitting}
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Submit for review
+              {isSubmitting
+                ? "Submitting..."
+                : revisionOf
+                  ? "Resubmit for review"
+                  : "Submit for review"}
             </button>
             <p className="mt-3 text-center text-xs text-gray-500">
-              This is a frontend preview. Nothing is uploaded or saved yet.
+              {revisionOf
+                ? "Your revised work will be sent to the client for another review."
+                : "Your submitted work will be sent to the client for review."}
             </p>
           </div>
         </form>

@@ -5,6 +5,7 @@ const links = [
   { label: "Overview", to: "/client/dashboard" },
   { label: "My Tasks", to: "/client/tasks" },
   { label: "Applications", to: "/client/applications" },
+  { label: "Active Work", to: "/client/active-work" },
   { label: "Work Progress", to: "/client/progress" },
   { label: "Submissions", to: "/client/submissions" },
   { label: "Payments", to: "/client/payments" },
@@ -30,10 +31,9 @@ function DashboardSidebar() {
             to={link.to}
             end={link.to === "/client/dashboard"}
             className={({ isActive }) =>
-              `shrink-0 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              `shrink-0 rounded-lg px-3 py-2.5 text-sm font-medium transition ${isActive
+                ? "bg-blue-50 text-blue-700"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`
             }
           >

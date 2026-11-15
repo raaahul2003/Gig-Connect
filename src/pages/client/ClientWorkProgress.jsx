@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+import { getClientActiveWork } from "../../services/applicationService";
+import { getSubmissionsForClient } from "../../services/submissionService";
+
 const statusStyles = {
   Completed: "bg-green-50 text-green-700",
   "In Progress": "bg-blue-50 text-blue-700",
@@ -5,7 +9,136 @@ const statusStyles = {
 };
 
 export default function ClientWorkProgress() {
-  const tasks = []
+
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchWorkProgress = async () => {
+      try {
+        const [applications, submissions] = await Promise.all([
+          getClientActiveWork(),
+          getSubmissionsForClient(),
+        ]);
+
+        // Get the latest submission for each task
+        const latestSubmissions = new Map();
+
+        submissions.forEach((submission) => {
+          const taskId = submission.task?._id;
+
+          if (!taskId) return;
+
+          const existing = latestSubmissions.get(taskId);
+
+          if (
+            !existing ||
+            new Date(submission.createdAt) >
+            new Date(existing.createdAt)
+          ) {
+            latestSubmissions.set(taskId, submission);
+          }
+        });
+
+        // Include active and completed tasks
+        const taskMap = new Map();
+
+        applications.forEach((application) => {
+          const task = application.task;
+
+          if (!task?._id) return;
+
+          taskMap.set(task._id, {
+            id: task._id,
+            title: task.title || "Untitled Task",
+            freelancer: application.freelancer?.name || "Freelancer",
+            deadline: task.deadline,
+            status: task.status,
+          });
+        });
+
+        // Add completed tasks from submission history
+        submissions.forEach((submission) => {
+          const task = submission.task;
+
+          if (!task?._id || taskMap.has(task._id)) return;
+
+          taskMap.set(task._id, {
+            id: task._id,
+            title: task.title || "Untitled Task",
+            freelancer: submission.freelancer?.name || "Freelancer",
+            deadline: task.deadline,
+            status: task.status,
+          });
+        });
+
+        const formattedTasks = Array.from(taskMap.values()).map((task) => {
+          const submission = latestSubmissions.get(task.id);
+
+          let progress = 0;
+
+          if (submission?.status === "approved") {
+            progress = 100;
+          } else if (
+            submission?.status === "submitted" ||
+            submission?.status === "revision_requested"
+          ) {
+            progress = 50;
+          }
+
+          const status =
+            task.status === "completed"
+              ? "Completed"
+              : task.status === "in_progress"
+                ? "In Progress"
+                : "Pending";
+
+          const milestones = [
+            {
+              id: "assigned",
+              title: "Task assigned to freelancer",
+              status: "Completed",
+            },
+            {
+              id: "submitted",
+              title: "Work submitted for review",
+              status: submission ? "Completed" : "Pending",
+            },
+            {
+              id: "approved",
+              title: "Client approval",
+              status:
+                submission?.status === "approved"
+                  ? "Completed"
+                  : submission?.status === "revision_requested"
+                    ? "In Progress"
+                    : "Pending",
+            },
+          ];
+
+          return {
+            ...task,
+            status,
+            progress,
+            milestones,
+          };
+        });
+
+        setTasks(formattedTasks);
+      } catch (err) {
+        setError(
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to load work progress."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkProgress();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -18,7 +151,17 @@ export default function ClientWorkProgress() {
         </p>
       </div>
 
-      {tasks.length === 0 ? (
+      {loading ? (
+        <div className="rounded-xl border border-gray-200 bg-white px-6 py-14 text-center">
+          <p className="text-sm text-gray-500">
+            Loading work progress...
+          </p>
+        </div>
+      ) : error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-14 text-center">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      ) : tasks.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white px-6 py-14 text-center">
           <h2 className="font-semibold text-gray-900">
             No active tasks
@@ -44,11 +187,16 @@ export default function ClientWorkProgress() {
                   </p>
                   <p className="mt-1 text-sm text-gray-500">
                     Deadline:{" "}
-                    {new Date(task.deadline + "T00:00:00").toLocaleDateString()}
+                    {task.deadline && !isNaN(new Date(task.deadline).getTime())
+                      ? new Date(task.deadline).toLocaleDateString()
+                      : "Not set"}
                   </p>
                 </div>
 
-                <span className="h-fit w-fit rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                <span
+                  className={`h-fit w-fit rounded-full px-3 py-1 text-xs font-medium ${statusStyles[task.status] || "bg-gray-100 text-gray-600"
+                    }`}
+                >
                   {task.status}
                 </span>
               </div>
@@ -86,13 +234,12 @@ export default function ClientWorkProgress() {
                   {task.milestones.map((milestone, index) => (
                     <div key={milestone.id} className="flex gap-3">
                       <div
-                        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                          milestone.status === "Completed"
-                            ? "bg-green-100 text-green-700"
-                            : milestone.status === "In Progress"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-gray-100 text-gray-500"
-                        }`}
+                        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${milestone.status === "Completed"
+                          ? "bg-green-100 text-green-700"
+                          : milestone.status === "In Progress"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-100 text-gray-500"
+                          }`}
                       >
                         {milestone.status === "Completed" ? "✓" : index + 1}
                       </div>
@@ -102,10 +249,9 @@ export default function ClientWorkProgress() {
                           {milestone.title}
                         </p>
                         <span
-                          className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                            statusStyles[milestone.status] ??
+                          className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[milestone.status] ??
                             "bg-gray-100 text-gray-600"
-                          }`}
+                            }`}
                         >
                           {milestone.status}
                         </span>

@@ -1,8 +1,39 @@
 
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getMyActiveWork } from "../../services/applicationService";
+
 
 function ActiveWork() {
-  const activeTasks = [];
+
+  const [activeTasks, setActiveTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchActiveWork = async () => {
+      try {
+        const applications = await getMyActiveWork();
+
+        const tasks = applications.map((application) => ({
+          id: application._id,
+          taskId: application.task?._id,
+          title: application.task?.title || "Untitled Task",
+          status: application.task?.status || "in_progress",
+        }));
+
+        setActiveTasks(tasks);
+      } catch (err) {
+        setError(
+          err.response?.data?.message || "Failed to load active work."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActiveWork();
+  }, []);
 
   return (
     <main>
@@ -20,7 +51,7 @@ function ActiveWork() {
 
       <section className="mt-8 grid gap-4 sm:grid-cols-3">
         {[
-          { label: "In progress", value: "—" },
+          { label: "In progress", value: activeTasks.length },
           { label: "Awaiting review", value: "—" },
           { label: "Revisions requested", value: "—" },
         ].map((item) => (
@@ -46,7 +77,15 @@ function ActiveWork() {
           </h2>
         </div>
 
-        {activeTasks.length === 0 ? (
+        {loading ? (
+          <p className="px-6 py-16 text-center text-sm text-gray-500">
+            Loading active work...
+          </p>
+        ) : error ? (
+          <p className="px-6 py-16 text-center text-sm text-red-600">
+            {error}
+          </p>
+        ) : activeTasks.length === 0 ? (
           <div className="px-6 py-16 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-2xl text-gray-500">
               ✓
@@ -73,9 +112,14 @@ function ActiveWork() {
             {activeTasks.map((task) => (
               <article key={task.id} className="p-5">
                 <h3 className="font-semibold text-gray-900">{task.title}</h3>
-                <p className="mt-2 text-sm text-gray-500">
-                  Status: {task.status}
-                </p>
+                {task.status === "in_progress" && task.taskId && (
+                  <Link
+                    to={`/freelancer/tasks/${task.taskId}/submit`}
+                    className="mt-4 inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    Submit Work
+                  </Link>
+                )}
               </article>
             ))}
           </div>
