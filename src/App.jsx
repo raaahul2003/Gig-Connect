@@ -42,6 +42,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import HowItWorks from './pages/public/HowItWorks'
 
 function App() {
 
@@ -53,6 +54,7 @@ function App() {
           <Route element={<PublicLayout />} >
             <Route path='/' element={<Landing />} />
             <Route path="/browse" element={<BrowseTasks />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/tasks/:taskId" element={<TaskDetails />} />
             <Route path="/tasks/:taskId/apply" element={<ApplyTask />} />
             <Route path="/post-task" element={<PostTask />} />

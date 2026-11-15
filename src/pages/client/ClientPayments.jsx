@@ -1,14 +1,142 @@
 
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  getClientPayments,
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+} from "../../services/paymentService";
 
 export default function ClientPayments() {
-  // Real payment records will come from the backend later.
-  const transactions = [];
+
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [payingId, setPayingId] = useState(null);
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const data = await getClientPayments();
+        setTransactions(data.payments || []);
+      } catch (err) {
+        setError(
+          err.response?.data?.message || "Failed to load payment history."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPayments();
+  }, []);
+
+
+  const handlePayment = async (payment) => {
+    try {
+      setPayingId(payment._id);
+
+      // 1. Create or reuse Razorpay order
+      const data = await createRazorpayOrder(payment._id);
+
+      if (!window.Razorpay) {
+        throw new Error("Razorpay Checkout failed to load. Please refresh.");
+      }
+
+      // 2. Configure Razorpay Checkout
+      const options = {
+        key: data.key,
+        amount: data.order.amount,
+        currency: data.order.currency,
+        name: "GigConnect",
+        description: payment.task?.title || "Task Payment",
+        order_id: data.order.id,
+
+
+        // 3. Handle successful checkout
+        handler: async function (response) {
+          try {
+            const result = await verifyRazorpayPayment({
+              paymentId: payment._id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            alert(result.message || "Payment successful!");
+
+            // Refresh payment history
+            const updatedData = await getClientPayments();
+            setTransactions(updatedData.payments || []);
+
+          } catch (error) {
+            alert(
+              error.response?.data?.message ||
+              "Payment verification failed. Please contact support."
+            );
+          } finally {
+            setPayingId(null);
+          }
+        },
+
+        modal: {
+          ondismiss: function () {
+            setPayingId(null);
+          },
+        },
+
+        theme: {
+          color: "#2563eb",
+        },
+      };
+
+      // 4. Open Razorpay Checkout
+      const checkout = new window.Razorpay(options);
+
+      checkout.on("payment.failed", function (response) {
+        alert(
+          response.error?.description || "Payment failed. Please try again."
+        );
+        setPayingId(null);
+      });
+
+      checkout.open();
+
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+        error.message ||
+        "Unable to start payment."
+      );
+
+      setPayingId(null);
+    }
+  };
+
+
+  const totalSpent = transactions
+    .filter((payment) => payment.status === "paid")
+    .reduce((total, payment) => total + payment.amount, 0);
+
+  const processingPayments = transactions
+    .filter((payment) => payment.status === "processing")
+    .reduce((total, payment) => total + payment.amount, 0);
+
+  const pendingPayments = transactions
+    .filter((payment) => payment.status === "pending")
+    .reduce((total, payment) => total + payment.amount, 0);
+
+  const formatINR = (amount) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(amount);
 
   const summaries = [
-    { label: "Total Spent", value: "—" },
-    { label: "Funds in Escrow", value: "—" },
-    { label: "Pending Payments", value: "—" },
+    { label: "Total Spent", value: formatINR(totalSpent) },
+    { label: "Processing Payments", value: formatINR(processingPayments) },
+    { label: "Pending Payments", value: formatINR(pendingPayments) },
   ];
 
   return (
@@ -46,7 +174,15 @@ export default function ClientPayments() {
           </p>
         </div>
 
-        {transactions.length === 0 ? (
+        {loading ? (
+          <div className="px-6 py-14 text-center text-gray-500">
+            Loading payment history...
+          </div>
+        ) : error ? (
+          <div className="px-6 py-14 text-center text-red-600">
+            {error}
+          </div>
+        ) : transactions.length === 0 ? (
           <div className="px-6 py-14 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
               <svg
@@ -90,25 +226,48 @@ export default function ClientPayments() {
                   <th className="px-5 py-3 font-medium">Date</th>
                   <th className="px-5 py-3 font-medium">Amount</th>
                   <th className="px-5 py-3 font-medium">Status</th>
+                  <th className="px-5 py-3 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {transactions.map((transaction) => (
                   <tr
-                    key={transaction.id}
+                    key={transaction._id}
                     className="border-t border-gray-100"
                   >
                     <td className="px-5 py-4 font-medium text-gray-900">
-                      {transaction.taskTitle}
+                      {transaction.task?.title || "Untitled Task"}
                     </td>
+
                     <td className="px-5 py-4 text-gray-500">
-                      {transaction.date}
+                      {new Date(transaction.createdAt).toLocaleDateString("en-IN")}
                     </td>
+
                     <td className="px-5 py-4 text-gray-700">
-                      {transaction.amount}
+                      {formatINR(transaction.amount)}
                     </td>
-                    <td className="px-5 py-4 text-gray-600">
+
+                    <td className="px-5 py-4 text-gray-600 capitalize">
                       {transaction.status}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {transaction.status !== "paid" &&
+                        ["pending", "processing"].includes(transaction.status) && (
+                          <button
+                            onClick={() => handlePayment(transaction)}
+                            disabled={payingId === transaction._id}
+                            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {payingId === transaction._id ? "Processing..." : "Pay Now"}
+                          </button>
+                        )}
+
+                      {transaction.status === "paid" && (
+                        <span className="text-sm font-medium text-green-600">
+                          Paid
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
