@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 
 function Landing() {
@@ -48,7 +49,7 @@ function Landing() {
               {user?.role === "client" && (
               <Link
                 to="/post-task"
-                className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
+                className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               >
                 Post a Task
               </Link>
@@ -56,7 +57,7 @@ function Landing() {
 
               <Link
                 to="/browse"
-                className="inline-flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 sm:w-auto"
+                className="inline-flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               >
                 Find Tasks
               </Link>
@@ -90,7 +91,7 @@ function Landing() {
 
 function Feature({ title, description }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6">
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-6">
       <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
 
       <p className="mt-2 text-sm leading-6 text-gray-600">

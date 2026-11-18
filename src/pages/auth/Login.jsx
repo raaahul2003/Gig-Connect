@@ -126,7 +126,7 @@ function Login() {
       <div className="w-full max-w-md">
         <Link
           to="/"
-          className="block text-center text-2xl font-bold tracking-tight text-gray-900"
+          className="block text-center text-2xl font-bold tracking-tight text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           Gig<span className="text-blue-600">Connect</span>
         </Link>
@@ -182,7 +182,7 @@ function Login() {
                 type="button"
                 onClick={completeGoogleRegistration}
                 disabled={loading}
-                className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white disabled:opacity-60"
+                className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               >
                 {loading ? "Creating account..." : "Continue"}
               </button>
@@ -219,7 +219,7 @@ function Login() {
 
                   <Link
                     to="/forgot-password"
-                    className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                   >
                     Forgot password?
                   </Link>
@@ -259,7 +259,7 @@ function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               >
                 {loading ? "Signing in..." : "Sign in"}
               </button>
@@ -276,7 +276,7 @@ function Login() {
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-semibold text-blue-600 hover:text-blue-700"
+              className="font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               Create an account
             </Link>

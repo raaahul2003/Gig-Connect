@@ -1,8 +1,10 @@
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import api from "../../api/axios";
 
 export default function Messages() {
-  const [conversations] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState(null);
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
@@ -50,16 +52,41 @@ export default function Messages() {
     setDraft("");
   }
 
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const response = await api.get("/messages");
+
+        const formattedConversations = response.data.conversations.map(
+          (conversation) => ({
+            id: conversation.applicationId,
+            name: conversation.user.name,
+            taskTitle: conversation.taskTitle,
+            lastMessage: "Start a conversation",
+          })
+        );
+
+        setConversations(formattedConversations);
+      } catch (error) {
+        console.error("Failed to fetch conversations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConversations();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Messages</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">Messages</h1>
         <p className="mt-1 text-sm text-gray-500">
           Communicate with clients and freelancers about your tasks.
         </p>
       </div>
 
-      <div className="grid min-h-[560px] overflow-hidden rounded-xl border border-gray-200 bg-white md:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="grid min-h-[560px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow md:grid-cols-[300px_minmax(0,1fr)]">
         <aside className="border-b border-gray-200 md:border-b-0 md:border-r">
           <div className="border-b border-gray-100 p-4">
             <h2 className="font-semibold text-gray-900">Conversations</h2>
@@ -90,9 +117,8 @@ export default function Messages() {
                   key={conversation.id}
                   type="button"
                   onClick={() => setSelectedId(conversation.id)}
-                  className={`w-full p-4 text-left transition hover:bg-gray-50 ${
-                    selectedId === conversation.id ? "bg-blue-50" : ""
-                  }`}
+                  className={`w-full p-4 text-left transition hover:bg-gray-50 ${selectedId === conversation.id ? "bg-blue-50" : ""
+                    }`}
                 >
                   <p className="truncate text-sm font-medium text-gray-900">
                     {conversation.name}
@@ -153,11 +179,10 @@ export default function Messages() {
                   messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`max-w-[85%] rounded-xl px-4 py-3 text-sm ${
-                        message.sender === "me"
-                          ? "self-end bg-blue-600 text-white"
-                          : "self-start bg-gray-100 text-gray-800"
-                      }`}
+                      className={`max-w-[85%] rounded-xl px-4 py-3 text-sm ${message.sender === "me"
+                        ? "self-end bg-blue-600 text-white"
+                        : "self-start bg-gray-100 text-gray-800"
+                        }`}
                     >
                       <p className="whitespace-pre-wrap break-words">
                         {message.text}
@@ -184,7 +209,7 @@ export default function Messages() {
                 <button
                   type="submit"
                   disabled={!draft.trim()}
-                  className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 >
                   Send
                 </button>

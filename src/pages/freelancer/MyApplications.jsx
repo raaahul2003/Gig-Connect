@@ -39,12 +39,12 @@ function MyApplications() {
         </div>
         <Link
           to="/browse"
-          className="inline-flex justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+          className="inline-flex justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           Find tasks
         </Link>
       </div>
-      <div className="mt-8 rounded-2xl border border-gray-200 bg-white">
+      <div className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow">
         <div className="flex flex-col gap-3 border-b border-gray-200 p-5 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-semibold text-gray-900">Application history</h2>
           <span className="text-sm text-gray-500">
@@ -65,7 +65,7 @@ function MyApplications() {
             </p>
             <Link
               to="/browse"
-              className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700"
+              className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               Explore available tasks →
             </Link>

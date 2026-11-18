@@ -59,7 +59,7 @@ function Earnings() {
 
         <Link
           to="/freelancer/active-work"
-          className="inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          className="inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           View active work
         </Link>
@@ -73,7 +73,7 @@ function Earnings() {
         {metrics.map((metric) => (
           <article
             key={metric.label}
-            className="rounded-2xl border border-gray-200 bg-white p-5"
+            className="rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
           >
             <p className="text-sm text-gray-500">
               {metric.label}
@@ -91,7 +91,7 @@ function Earnings() {
       </section>
 
       {/* Transaction History */}
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white">
+      <section className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow">
         <div className="flex flex-col gap-3 border-b border-gray-200 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold text-gray-900">
@@ -132,14 +132,14 @@ function Earnings() {
 
             <Link
               to="/browse"
-              className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700"
+              className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               Explore tasks →
             </Link>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm min-w-[640px]">
               <thead className="bg-gray-50 text-gray-500">
                 <tr>
                   <th className="px-5 py-3 font-medium">Task</th>

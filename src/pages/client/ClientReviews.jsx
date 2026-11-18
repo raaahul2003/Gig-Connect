@@ -8,7 +8,7 @@ export default function ClientReviews() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
           Work Reviews
         </h1>
         <p className="mt-1 text-sm text-gray-500">
@@ -16,7 +16,7 @@ export default function ClientReviews() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-6 sm:p-10">
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-10">
         {submissions.length === 0 ? (
           <div className="mx-auto flex max-w-md flex-col items-center py-8 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
@@ -46,7 +46,7 @@ export default function ClientReviews() {
 
             <Link
               to="/client/active-work"
-              className="mt-5 rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="mt-5 rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               View Active Work
             </Link>
@@ -72,14 +72,14 @@ export default function ClientReviews() {
                   <button
                     type="button"
                     disabled
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white opacity-60"
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                   >
                     Approve Work
                   </button>
                   <button
                     type="button"
                     disabled
-                    className="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-500 opacity-60"
+                    className="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-500 opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                   >
                     Request Revision
                   </button>

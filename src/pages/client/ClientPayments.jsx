@@ -142,7 +142,7 @@ export default function ClientPayments() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
           Payments
         </h1>
         <p className="mt-1 text-sm text-gray-500">
@@ -154,17 +154,17 @@ export default function ClientPayments() {
         {summaries.map((item) => (
           <div
             key={item.label}
-            className="rounded-xl border border-gray-200 bg-white p-5"
+            className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
           >
             <p className="text-sm text-gray-500">{item.label}</p>
-            <p className="mt-2 text-2xl font-semibold text-gray-900">
+            <p className="mt-2 text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
               {item.value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow">
         <div className="border-b border-gray-200 p-5">
           <h2 className="font-semibold text-gray-900">
             Transaction History
@@ -212,14 +212,14 @@ export default function ClientPayments() {
 
             <Link
               to="/client/tasks"
-              className="mt-5 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700"
+              className="mt-5 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               View My Tasks
             </Link>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm min-w-[640px]">
               <thead className="bg-gray-50 text-gray-500">
                 <tr>
                   <th className="px-5 py-3 font-medium">Task</th>

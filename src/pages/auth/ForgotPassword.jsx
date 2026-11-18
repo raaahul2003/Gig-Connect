@@ -27,7 +27,7 @@ function ForgotPassword() {
       <div className="w-full max-w-md">
         <Link
           to="/"
-          className="block text-center text-2xl font-bold text-gray-900"
+          className="block text-center text-2xl font-bold text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           Gig<span className="text-blue-600">Connect</span>
         </Link>
@@ -35,7 +35,7 @@ function ForgotPassword() {
         <section className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
           <Link
             to="/login"
-            className="text-sm font-medium text-gray-500 hover:text-blue-600"
+            className="text-sm font-medium text-gray-500 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             ← Back to login
           </Link>
@@ -87,7 +87,7 @@ function ForgotPassword() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               Continue
             </button>
@@ -95,7 +95,7 @@ function ForgotPassword() {
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Remember your password?{" "}
-            <Link to="/login" className="font-semibold text-blue-600">
+            <Link to="/login" className="font-semibold text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors">
               Sign in
             </Link>
           </p>

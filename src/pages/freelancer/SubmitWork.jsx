@@ -115,7 +115,7 @@ function SubmitWork() {
       <div className="mx-auto max-w-3xl">
         <Link
           to="/freelancer/active-work"
-          className="text-sm font-medium text-gray-600 hover:text-blue-600"
+          className="text-sm font-medium text-gray-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           ← Back to active work
         </Link>
@@ -135,7 +135,7 @@ function SubmitWork() {
 
         <form
           onSubmit={handleSubmit}
-          className="mt-8 space-y-7 rounded-2xl border border-gray-200 bg-white p-6 sm:p-8"
+          className="mt-8 space-y-7 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8"
         >
           <div className="rounded-xl bg-gray-50 p-4">
             <p className="text-sm text-gray-500">Task reference</p>
@@ -251,7 +251,7 @@ function SubmitWork() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               {isSubmitting
                 ? "Submitting..."

@@ -57,14 +57,14 @@ function Navbar() {
     }`;
 
   return (
-    <header className="relative border-b border-gray-200 bg-white">
+    <header className="sticky top-0 z-40 border-b border-gray-200/80 bg-white/90 shadow-sm backdrop-blur-lg">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
 
         {/* Logo */}
         <Link
           to="/"
           onClick={closeMenu}
-          className="text-xl font-bold tracking-tight text-gray-900"
+          className="text-xl font-bold tracking-tight text-gray-950 transition hover:text-blue-700"
         >
           GigConnect
         </Link>
@@ -93,7 +93,7 @@ function Navbar() {
             <>
               <Link
                 to={dashboardPath}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 hover:text-gray-950"
               >
                 Dashboard
               </Link>
@@ -101,7 +101,7 @@ function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 Logout
               </button>
@@ -110,14 +110,14 @@ function Navbar() {
             <>
               <Link
                 to="/login"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 hover:text-gray-950"
               >
                 Login
               </Link>
 
               <Link
                 to="/register"
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 Sign Up
               </Link>
@@ -169,7 +169,7 @@ function Navbar() {
         <nav
           id="mobile-navigation"
           aria-label="Mobile navigation"
-          className="absolute left-0 right-0 top-full z-50 border-b border-gray-200 bg-white p-4 shadow-lg md:hidden"
+          className="absolute left-0 right-0 top-full z-50 border-b border-gray-200 bg-white/95 p-4 shadow-xl backdrop-blur-lg md:hidden"
         >
           <div className="mx-auto flex max-w-7xl flex-col gap-1">
 

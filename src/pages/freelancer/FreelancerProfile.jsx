@@ -51,7 +51,7 @@ function FreelancerProfile() {
       </header>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="h-fit rounded-2xl border border-gray-200 bg-white p-6 text-center">
+        <aside className="h-fit rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 text-center">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 text-2xl font-bold text-blue-700">
             {form.name.trim()
               ? form.name.trim().charAt(0).toUpperCase()
@@ -79,7 +79,7 @@ function FreelancerProfile() {
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 sm:p-8"
+          className="space-y-6 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8"
         >
           <section>
             <h2 className="font-semibold text-gray-900">
@@ -100,7 +100,7 @@ function FreelancerProfile() {
               value={form.name}
               onChange={updateField}
               placeholder="Your full name"
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
           </div>
 
@@ -114,7 +114,7 @@ function FreelancerProfile() {
               value={form.headline}
               onChange={updateField}
               placeholder="e.g. React Developer and UI Designer"
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
           </div>
 
@@ -129,7 +129,7 @@ function FreelancerProfile() {
               value={form.bio}
               onChange={updateField}
               placeholder="Describe your experience, strengths and approach..."
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
           </div>
 
@@ -143,7 +143,7 @@ function FreelancerProfile() {
               value={form.skills}
               onChange={updateField}
               placeholder="React, Figma, writing..."
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
             <p className="mt-2 text-xs text-gray-500">
               Separate skills with commas.
@@ -161,7 +161,7 @@ function FreelancerProfile() {
               value={form.portfolio}
               onChange={updateField}
               placeholder="https://your-portfolio.com"
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
           </div>
 
@@ -177,7 +177,7 @@ function FreelancerProfile() {
           <div className="border-t border-gray-200 pt-6">
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 sm:w-auto"
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               Save profile
             </button>

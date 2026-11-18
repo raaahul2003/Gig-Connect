@@ -10,7 +10,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
           Dashboard Overview
         </h2>
         <p className="mt-1 text-sm text-gray-500">
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
         {metrics.map((metric) => (
           <div
             key={metric.label}
-            className="rounded-xl border border-gray-200 bg-white p-5"
+            className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
           >
             <p className="text-sm text-gray-500">{metric.label}</p>
             <p className="mt-3 text-3xl font-semibold text-gray-900">
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <section className="rounded-xl border border-gray-200 bg-white">
+      <section className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow">
         <div className="border-b border-gray-100 p-5">
           <h3 className="font-semibold text-gray-900">
             Recent Platform Activity

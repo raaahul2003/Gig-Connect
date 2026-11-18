@@ -90,7 +90,7 @@ export default function Notifications() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
             Notifications
           </h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -102,7 +102,7 @@ export default function Notifications() {
           type="button"
           onClick={markAllAsRead}
           disabled={unreadCount === 0}
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           Mark all as read
         </button>
@@ -136,7 +136,7 @@ export default function Notifications() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow">
         {loading ? (
           <div className="px-6 py-14 text-center text-sm text-gray-500">
             Loading notifications...

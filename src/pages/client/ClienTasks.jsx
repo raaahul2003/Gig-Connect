@@ -8,6 +8,7 @@ export default function ClientTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     let isMounted = true;
@@ -45,17 +46,30 @@ export default function ClientTasks() {
   }, [reload]);
 
   const totalTasks = tasks.length;
+  const openTasks = tasks.filter(
+    (task) => task.status === "open"
+  ).length;
   const inProgressTasks = tasks.filter(
     (task) => task.status === "in_progress"
   ).length;
   const completedTasks = tasks.filter(
     (task) => task.status === "completed"
   ).length;
+  const filteredTasks = tasks.filter(
+    (task) => statusFilter === "all" || task.status === statusFilter
+  );
 
   const metrics = [
     { label: "Total Tasks", value: totalTasks },
     { label: "In Progress", value: inProgressTasks },
     { label: "Completed", value: completedTasks },
+  ];
+
+  const statusFilters = [
+    { label: "All tasks", value: "all", count: totalTasks },
+    { label: "Open", value: "open", count: openTasks },
+    { label: "In Progress", value: "in_progress", count: inProgressTasks },
+    { label: "Completed", value: "completed", count: completedTasks },
   ];
 
   const getStatusStyle = (status) => {
@@ -102,7 +116,7 @@ export default function ClientTasks() {
       {/* Page Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
             My Tasks
           </h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -112,7 +126,7 @@ export default function ClientTasks() {
 
         {/* <Link
           to="/post-task"
-          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
+          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           + Post a Task
         </Link> */}
@@ -123,10 +137,10 @@ export default function ClientTasks() {
         {metrics.map((item) => (
           <div
             key={item.label}
-            className="rounded-xl border border-gray-200 bg-white p-5"
+            className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
           >
             <p className="text-sm text-gray-500">{item.label}</p>
-            <p className="mt-2 text-2xl font-semibold text-gray-900">
+            <p className="mt-2 text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
               {item.value}
             </p>
           </div>
@@ -134,7 +148,7 @@ export default function ClientTasks() {
       </div>
 
       {/* Tasks List */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 sm:p-10">
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-10">
 
         {/* Loading */}
         {loading ? (
@@ -186,7 +200,7 @@ export default function ClientTasks() {
 
             <Link
               to="/post-task"
-              className="mt-5 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700"
+              className="mt-5 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               Post Your First Task
             </Link>
@@ -194,8 +208,57 @@ export default function ClientTasks() {
 
         ) : (
           /* Task Cards */
-          <div className="space-y-4">
-            {tasks.map((task) => (
+          <div className="space-y-5">
+            <div className="flex flex-col gap-3 border-b border-gray-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">
+                  Your posted tasks
+                </h2>
+                <p className="mt-1 text-sm text-gray-500" aria-live="polite">
+                  Showing {filteredTasks.length} of {totalTasks} tasks
+                </p>
+              </div>
+
+              <nav
+                aria-label="Filter tasks by status"
+                className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
+              >
+                {statusFilters.map((filter) => {
+                  const isActive = statusFilter === filter.value;
+
+                  return (
+                    <button
+                      key={filter.value}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => setStatusFilter(filter.value)}
+                      className={`inline-flex min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:justify-center sm:px-4 ${
+                        isActive
+                          ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                          : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                      }`}
+                    >
+                      <span className="truncate">{filter.label}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {filter.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {filteredTasks.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-gray-200 px-4 py-8 text-center text-sm text-gray-500">
+                No tasks found with this status.
+              </p>
+            ) : filteredTasks.map((task) => (
               <div
                 key={task._id}
                 className="rounded-xl border border-gray-200 p-5 transition hover:shadow-sm"

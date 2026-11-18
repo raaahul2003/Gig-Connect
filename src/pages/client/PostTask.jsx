@@ -1,8 +1,10 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createTask } from "../../services/taskService";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
+import { generateTaskDescription } from "../../services/aiService";
+import { LoaderCircle, Sparkles } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
 const initialForm = {
@@ -13,7 +15,6 @@ const initialForm = {
   deliverables: "",
   budget: "",
   deadline: "",
-  estimatedMinutes: "60",
   isUrgent: false,
 };
 
@@ -24,12 +25,20 @@ const steps = [
   "Review",
 ];
 
+function FieldError({ error }) {
+  if (!error) return null;
+  return <p className="mt-2 text-sm text-red-600">{error}</p>;
+}
+
 function PostTask() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
 
   const [isPublishing, setIsPublishing] = useState(false);
+  const [roughIdea, setRoughIdea] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState("");
 
   const navigate = useNavigate();
 
@@ -129,6 +138,35 @@ function PostTask() {
     }
   }
 
+  async function handleGenerateDescription() {
+    if (!roughIdea.trim()) {
+      setGenerationError("Enter a rough task idea before generating a description.");
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerationError("");
+    try {
+      const response = await generateTaskDescription({
+        title: form.title,
+        category: form.category,
+        roughIdea,
+        requiredSkills: form.skills,
+        deliverables: form.deliverables,
+        budget: form.budget,
+        deadline: form.deadline,
+      });
+      setForm((current) => ({ ...current, description: response.generatedText }));
+      setErrors((current) => ({ ...current, description: "" }));
+    } catch (error) {
+      setGenerationError(
+        error.response?.data?.message || "Could not generate a description. Please try again."
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
   async function publishTask() {
     if (!validateAllSteps()) return;
 
@@ -147,7 +185,6 @@ function PostTask() {
         {
           ...form,
           budget: Number(form.budget),
-          estimatedMinutes: Number(form.estimatedMinutes),
           deadline: new Date(`${form.deadline}T23:59:59`).toISOString(),
         },
         token
@@ -173,18 +210,12 @@ function PostTask() {
     }
   }
 
-  function FieldError({ name }) {
-    if (!errors[name]) return null;
-
-    return <p className="mt-2 text-sm text-red-600">{errors[name]}</p>;
-  }
-
   return (
     <main className="min-h-screen bg-gray-50 px-5 py-10 sm:px-6">
       <div className="mx-auto max-w-3xl">
         <Link
           to="/"
-          className="text-sm font-medium text-gray-600 hover:text-blue-600"
+          className="text-sm font-medium text-gray-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           ← Back home
         </Link>
@@ -224,7 +255,7 @@ function PostTask() {
         </div>
 
         <form
-          className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 sm:p-8"
+          className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8"
           onSubmit={(event) => event.preventDefault()}
         >
           {step === 0 && (
@@ -248,9 +279,9 @@ function PostTask() {
                   value={form.title}
                   onChange={updateField}
                   placeholder="e.g. Design a social media poster"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 />
-                <FieldError name="title" />
+                <FieldError error={errors.title} />
               </div>
 
               <div>
@@ -262,7 +293,7 @@ function PostTask() {
                   name="category"
                   value={form.category}
                   onChange={updateField}
-                  className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 >
                   <option value="">Select a category</option>
                   <option value="Design">Design</option>
@@ -272,10 +303,40 @@ function PostTask() {
                   <option value="Marketing">Marketing</option>
                   <option value="Research">Research</option>
                 </select>
-                <FieldError name="category" />
+                <FieldError error={errors.category} />
               </div>
 
               <div>
+                <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-800">
+                      <Sparkles size={16} aria-hidden="true" /> AI Powered
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleGenerateDescription}
+                      disabled={isGenerating}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isGenerating && <LoaderCircle className="animate-spin" size={16} aria-hidden="true" />}
+                      {isGenerating ? "Generating..." : form.description ? "Regenerate with AI" : "Generate Description with AI"}
+                    </button>
+                  </div>
+                  <label htmlFor="roughIdea" className="mt-3 block text-sm font-medium text-blue-900">
+                    Rough task idea
+                  </label>
+                  <textarea
+                    id="roughIdea"
+                    rows={3}
+                    value={roughIdea}
+                    maxLength={5000}
+                    onChange={(event) => setRoughIdea(event.target.value)}
+                    placeholder="Describe the work in your own words. AI will organize only what you provide."
+                    className="mt-2 w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
+                  {generationError && <p role="alert" className="mt-2 text-sm text-red-600">{generationError}</p>}
+                </div>
+
                 <label
                   htmlFor="description"
                   className="text-sm font-semibold"
@@ -288,10 +349,10 @@ function PostTask() {
                   rows={5}
                   value={form.description}
                   onChange={updateField}
-                  placeholder="Explain the task, context and expected outcome..."
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  placeholder="Describe the task, context, and expected outcome. Share links to any reference images..."
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 />
-                <FieldError name="description" />
+                <FieldError error={errors.description} />
               </div>
             </section>
           )}
@@ -317,9 +378,9 @@ function PostTask() {
                   value={form.skills}
                   onChange={updateField}
                   placeholder="e.g. Figma, typography, visual design"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 />
-                <FieldError name="skills" />
+                <FieldError error={errors.skills} />
               </div>
 
               <div>
@@ -336,9 +397,9 @@ function PostTask() {
                   value={form.deliverables}
                   onChange={updateField}
                   placeholder="What files, results or completed work should be delivered?"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 />
-                <FieldError name="deliverables" />
+                <FieldError error={errors.deliverables} />
               </div>
             </section>
           )}
@@ -367,9 +428,9 @@ function PostTask() {
                   value={form.budget}
                   onChange={updateField}
                   placeholder="Enter your budget"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 />
-                <FieldError name="budget" />
+                <FieldError error={errors.budget} />
               </div>
 
               <div>
@@ -383,31 +444,9 @@ function PostTask() {
                   min={new Date().toLocaleDateString("en-CA")}
                   value={form.deadline}
                   onChange={updateField}
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 />
-                <FieldError name="deadline" />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="estimatedMinutes"
-                  className="text-sm font-semibold"
-                >
-                  Estimated work duration
-                </label>
-                <select
-                  id="estimatedMinutes"
-                  name="estimatedMinutes"
-                  value={form.estimatedMinutes}
-                  onChange={updateField}
-                  className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-                >
-                  <option value="30">30 minutes</option>
-                  <option value="60">1 hour</option>
-                  <option value="120">2 hours</option>
-                  <option value="240">4 hours</option>
-                  <option value="480">8 hours</option>
-                </select>
+                <FieldError error={errors.deadline} />
               </div>
 
               <label className="flex items-start gap-3 rounded-xl border border-gray-200 p-4">
@@ -416,7 +455,7 @@ function PostTask() {
                   name="isUrgent"
                   checked={form.isUrgent}
                   onChange={updateField}
-                  className="mt-1 h-4 w-4 accent-blue-600"
+                  className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 />
                 <span>
                   <span className="block text-sm font-semibold text-gray-900">
@@ -448,7 +487,6 @@ function PostTask() {
                   ["Deliverables", form.deliverables],
                   ["Budget", `₹${form.budget}`],
                   ["Deadline", form.deadline],
-                  ["Estimated duration", `${form.estimatedMinutes} minutes`],
                   ["Urgent", form.isUrgent ? "Yes" : "No"],
                 ].map(([label, value]) => (
                   <div
@@ -491,7 +529,7 @@ function PostTask() {
               <button
                 type="button"
                 onClick={goNext}
-                className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+                className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               >
                 Continue
               </button>
@@ -499,9 +537,10 @@ function PostTask() {
               <button
                 type="button"
                 onClick={publishTask}
-                className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+                disabled={isPublishing}
+                className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               >
-                Publish task
+                {isPublishing ? "Publishing..." : "Publish task"}
               </button>
             )}
           </div>

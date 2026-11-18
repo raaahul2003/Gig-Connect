@@ -94,14 +94,14 @@ function HowItWorks() {
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Link
             to="/browse"
-            className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+            className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             Explore Tasks
           </Link>
 
           <Link
             to="/register"
-            className="rounded-xl border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 hover:bg-gray-50"
+            className="rounded-xl border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             Join GigConnect
           </Link>
@@ -171,7 +171,7 @@ function HowItWorks() {
 
         <Link
           to="/register"
-          className="mt-8 inline-flex rounded-xl bg-blue-600 px-7 py-3 font-semibold text-white hover:bg-blue-700"
+          className="mt-8 inline-flex rounded-xl bg-blue-600 px-7 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           Get Started
         </Link>

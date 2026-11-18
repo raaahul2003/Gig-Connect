@@ -143,7 +143,7 @@ export default function ClientWorkProgress() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
           Work Progress
         </h1>
         <p className="mt-1 text-sm text-gray-500">
@@ -152,7 +152,7 @@ export default function ClientWorkProgress() {
       </div>
 
       {loading ? (
-        <div className="rounded-xl border border-gray-200 bg-white px-6 py-14 text-center">
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow px-6 py-14 text-center">
           <p className="text-sm text-gray-500">
             Loading work progress...
           </p>
@@ -162,7 +162,7 @@ export default function ClientWorkProgress() {
           <p className="text-sm text-red-600">{error}</p>
         </div>
       ) : tasks.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white px-6 py-14 text-center">
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow px-6 py-14 text-center">
           <h2 className="font-semibold text-gray-900">
             No active tasks
           </h2>
@@ -175,7 +175,7 @@ export default function ClientWorkProgress() {
           {tasks.map((task) => (
             <article
               key={task.id}
-              className="space-y-6 rounded-xl border border-gray-200 bg-white p-5 sm:p-7"
+              className="space-y-6 rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5 sm:p-7"
             >
               <div className="flex flex-col justify-between gap-4 sm:flex-row">
                 <div>

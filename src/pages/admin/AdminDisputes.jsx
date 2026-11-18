@@ -25,7 +25,7 @@ export default function AdminDisputes() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
           Dispute Management
         </h2>
         <p className="mt-1 text-sm text-gray-500">
@@ -56,7 +56,7 @@ export default function AdminDisputes() {
         </select>
       </div>
 
-      <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow">
         <div className="border-b border-gray-100 p-5">
           <h3 className="font-semibold text-gray-900">Reported Disputes</h3>
           <p className="mt-1 text-sm text-gray-500">
@@ -94,7 +94,7 @@ export default function AdminDisputes() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm min-w-[640px]">
               <thead className="bg-gray-50 text-gray-500">
                 <tr>
                   <th className="px-5 py-3 font-medium">Task</th>
@@ -127,7 +127,7 @@ export default function AdminDisputes() {
                       <button
                         type="button"
                         disabled
-                        className="font-medium text-blue-600 opacity-60"
+                        className="font-medium text-blue-600 opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                       >
                         View Details
                       </button>

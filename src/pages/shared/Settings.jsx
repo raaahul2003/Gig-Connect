@@ -76,7 +76,7 @@ export default function Settings() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">Settings</h1>
         <p className="mt-1 text-sm text-gray-500">
           Manage your account details and preferences.
         </p>
@@ -84,7 +84,7 @@ export default function Settings() {
 
       <form
         onSubmit={handleSave}
-        className="space-y-6 rounded-xl border border-gray-200 bg-white p-5 sm:p-7"
+        className="space-y-6 rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5 sm:p-7"
       >
         <div>
           <h2 className="font-semibold text-gray-900">Account Information</h2>
@@ -103,7 +103,7 @@ export default function Settings() {
               required
               autoComplete="name"
               placeholder="Enter your full name"
-              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
           </label>
 
@@ -117,7 +117,7 @@ export default function Settings() {
               required
               autoComplete="email"
               placeholder="you@example.com"
-              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
           </label>
 
@@ -130,7 +130,7 @@ export default function Settings() {
               onChange={updateSetting}
               autoComplete="tel"
               placeholder="Enter your phone number"
-              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
           </label>
         </div>
@@ -170,7 +170,7 @@ export default function Settings() {
                   name={item.name}
                   checked={settings[item.name]}
                   onChange={updateSetting}
-                  className="mt-1 h-4 w-4 accent-blue-600"
+                  className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 />
                 <span>
                   <span className="block text-sm font-medium text-gray-800">
@@ -195,13 +195,13 @@ export default function Settings() {
           <button
             type="button"
             onClick={handleCancel}
-            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             Reset
           </button>
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             Save Changes
           </button>
@@ -210,7 +210,7 @@ export default function Settings() {
 
       <form
         onSubmit={handlePasswordChange}
-        className="space-y-5 rounded-xl border border-gray-200 bg-white p-5 sm:p-7"
+        className="space-y-5 rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5 sm:p-7"
       >
         <div>
           <h2 className="font-semibold text-gray-900">Change Password</h2>
@@ -257,7 +257,7 @@ export default function Settings() {
 
         <button
           type="submit"
-          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
+          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           Update Password
         </button>

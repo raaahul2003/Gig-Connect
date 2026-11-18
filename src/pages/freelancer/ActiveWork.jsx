@@ -57,7 +57,7 @@ function ActiveWork() {
         ].map((item) => (
           <article
             key={item.label}
-            className="rounded-2xl border border-gray-200 bg-white p-5"
+            className="rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
           >
             <p className="text-sm text-gray-500">{item.label}</p>
             <p className="mt-3 text-2xl font-bold text-gray-900">
@@ -70,7 +70,7 @@ function ActiveWork() {
         ))}
       </section>
 
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white">
+      <section className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow">
         <div className="border-b border-gray-200 p-5">
           <h2 className="font-semibold text-gray-900">
             Your active tasks
@@ -102,7 +102,7 @@ function ActiveWork() {
 
             <Link
               to="/browse"
-              className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700"
+              className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               Find your next task →
             </Link>
@@ -115,7 +115,7 @@ function ActiveWork() {
                 {task.status === "in_progress" && task.taskId && (
                   <Link
                     to={`/freelancer/tasks/${task.taskId}/submit`}
-                    className="mt-4 inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    className="mt-4 inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                   >
                     Submit Work
                   </Link>

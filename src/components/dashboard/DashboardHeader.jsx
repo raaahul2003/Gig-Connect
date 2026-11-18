@@ -36,10 +36,10 @@ function DashboardHeader() {
 
 
   return (
-    <header className="flex flex-col gap-4 border-b border-gray-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+    <header className="sticky top-0 z-30 flex flex-col gap-4 border-b border-gray-200/80 bg-white/90 px-4 py-4 shadow-sm backdrop-blur-lg sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
       <div>
-        <p className="text-sm text-gray-500">workspace</p>
-        <h1 className="text-lg font-semibold text-gray-900">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-600">workspace</p>
+        <h1 className="mt-1 text-lg font-semibold tracking-tight text-gray-950">
           Dashboard overview
         </h1>
       </div>
@@ -51,7 +51,7 @@ function DashboardHeader() {
               ? "/client/notifications"
               : "/freelancer/notifications"
           }
-          className="relative rounded-lg border p-2 text-gray-600 transition hover:bg-gray-100"
+          className="relative rounded-xl border border-gray-200 bg-white p-2.5 text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 hover:text-blue-700"
           aria-label="Notifications"
           title="Notifications"
         >
@@ -66,7 +66,7 @@ function DashboardHeader() {
         {user?.role === "client" && (
           <Link
             to="/post-task"
-            className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+            className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
             + Post a task
           </Link>
@@ -77,7 +77,7 @@ function DashboardHeader() {
           onClick={handleLogout}
           aria-label="Log out"
           title="Log out"
-          className="rounded-lg p-2 text-gray-600 transition hover:bg-gray-100 hover:text-red-600 border"
+          className="rounded-xl border border-gray-200 bg-white p-2.5 text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
         >
           <LogOut size={20} />
         </button>

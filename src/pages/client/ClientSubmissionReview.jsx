@@ -78,10 +78,14 @@ export default function ClientSubmissionReview() {
       await reviewSubmission(submissionId, "approved");
 
       setSubmissions((prev) =>
-        prev.filter((submission) => submission._id !== submissionId)
+        prev.map((submission) =>
+          submission._id === submissionId
+            ? { ...submission, status: "approved" }
+            : submission
+        )
       );
 
-      setActionMessage("Work approved successfully.");
+      setActionMessage("Project completed. The work has been approved.");
     } catch (error) {
       setActionError(
         error.response?.data?.message || "Failed to approve submission."
@@ -138,28 +142,39 @@ export default function ClientSubmissionReview() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Submission Review
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Review submitted work and provide feedback to freelancers.
+      <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/60 p-5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
+          Client workspace
         </p>
+        <h1 className="mt-2 text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+          Review submitted work
+        </h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          Check the freelancer's delivery notes and files, then choose what
+          happens next.
+        </p>
+        <div className="mt-4 rounded-xl border border-blue-100 bg-white/80 px-4 py-3 text-sm leading-6 text-gray-600">
+          <span className="font-semibold text-gray-800">Choose an action:</span>{" "}
+          approve the work to complete the project, or leave clear feedback and
+          request a revision.
+        </div>
       </div>
 
-      {actionError && (
-        <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
-          {actionError}
-        </p>
-      )}
+      <div className="space-y-3">
+        {actionError && (
+          <p role="alert" className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
+            {actionError}
+          </p>
+        )}
 
-      {actionMessage && (
-        <p className="rounded-lg bg-green-50 p-3 text-sm text-green-700">
-          {actionMessage}
-        </p>
-      )}
+        {actionMessage && (
+          <p role="status" className="rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-sm leading-6 text-green-700">
+            {actionMessage}
+          </p>
+        )}
+      </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-6 sm:p-10">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 lg:p-8">
         {loading ? (
           <p className="py-8 text-center text-sm text-gray-500">
             Loading submissions...
@@ -200,57 +215,80 @@ export default function ClientSubmissionReview() {
 
             <Link
               to="/client/progress"
-              className="mt-5 rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="mt-5 rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               View Work Progress
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {submissions.map((submission) => (
               <article
                 key={submission._id}
-                className="rounded-xl border border-gray-200 p-5"
+                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6"
               >
-                <div className="flex flex-col justify-between gap-3 sm:flex-row">
-                  <div>
-                    <h2 className="font-semibold text-gray-900">
+                <div className="flex flex-col justify-between gap-4 border-b border-gray-100 pb-4 sm:flex-row sm:items-start">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Task
+                    </p>
+                    <h2 className="mt-1 break-words text-lg font-semibold tracking-tight text-gray-900">
                       {submission.task?.title || "Untitled task"}
                     </h2>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Submitted by {submission.freelancer?.name || "Unknown freelancer"}
+                    <p className="mt-3 text-sm text-gray-700">
+                      Submitted by{" "}
+                      <span className="font-semibold text-gray-900">
+                        {submission.freelancer?.name || "Unknown freelancer"}
+                      </span>
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 break-all text-xs text-gray-500">
                       {submission.freelancer?.email}
                     </p>
                   </div>
-                  <span className="h-fit rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                    {submission.status?.replaceAll("_", " ")}
+                  <span
+                    className={`inline-flex w-fit shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold ${
+                      submission.status === "approved"
+                        ? "bg-green-50 text-green-700"
+                        : submission.status === "revision_requested"
+                          ? "bg-amber-50 text-amber-700"
+                          : "bg-blue-50 text-blue-700"
+                    }`}
+                  >
+                    {submission.status === "approved"
+                      ? "Project completed"
+                      : submission.status === "revision_requested"
+                        ? "Revision requested"
+                        : "Awaiting your review"}
                   </span>
                 </div>
 
-                <p className="mt-4 text-sm leading-6 text-gray-700">
-                  {submission.description}
-                </p>
+                <div className="mt-5">
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    Delivery notes
+                  </h3>
+                  <p className="mt-2 whitespace-pre-wrap break-words rounded-xl bg-gray-50 px-4 py-3 text-sm leading-7 text-gray-700">
+                    {submission.description}
+                  </p>
+                </div>
 
                 {submission.files?.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    <h3 className="text-sm font-medium text-gray-800">
-                      Attached files
+                  <div className="mt-5 space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-900">
+                      Files included ({submission.files.length})
                     </h3>
                     {submission.files.map((file) => (
                       <div
                         key={file._id || file.filename}
-                        className="rounded-lg border border-gray-200 p-3 text-sm text-gray-600"
+                        className="rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-700"
                       >
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="break-all">{file.originalName}</span>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <span className="min-w-0 break-all font-medium">{file.originalName}</span>
 
                           <button
                             type="button"
                             onClick={() => handleDownload(submission._id, file)}
                             disabled={downloadingFile === file._id}
-                            className="shrink-0 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+                            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 px-4 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {downloadingFile === file._id
                               ? "Downloading..."
@@ -262,39 +300,72 @@ export default function ClientSubmissionReview() {
                   </div>
                 )}
 
-                <textarea
-                  value={feedback[submission._id] || ""}
-                  onChange={(e) =>
-                    setFeedback((prev) => ({
-                      ...prev,
-                      [submission._id]: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter feedback if you want the freelancer to make revisions..."
-                  rows={3}
-                  className="mt-4 w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-blue-500 focus:outline-none"
-                />
+                {submission.status === "submitted" ? (
+                  <>
+                    <div className="mt-5 border-t border-gray-100 pt-5">
+                      <label
+                        htmlFor={`feedback-${submission._id}`}
+                        className="text-sm font-semibold text-gray-900"
+                      >
+                        Revision feedback
+                        <span className="ml-2 font-normal text-gray-500">
+                          (only needed if requesting changes)
+                        </span>
+                      </label>
+                      <textarea
+                        id={`feedback-${submission._id}`}
+                        value={feedback[submission._id] || ""}
+                        onChange={(e) =>
+                          setFeedback((prev) => ({
+                            ...prev,
+                            [submission._id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Explain what needs to be changed..."
+                        rows={3}
+                        className="mt-2 w-full resize-y rounded-xl border border-gray-300 bg-white p-3.5 text-sm leading-6 text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      />
+                      <p className="mt-2 text-xs leading-5 text-gray-500">
+                        Provide specific, actionable feedback so the freelancer knows what to update.
+                      </p>
+                    </div>
 
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleApprove(submission._id)}
-                    disabled={actionLoading === submission._id}
-                    className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center">
+                      <button
+                        type="button"
+                        onClick={() => handleApprove(submission._id)}
+                        disabled={actionLoading === submission._id}
+                        className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {actionLoading === submission._id
+                          ? "Processing..."
+                          : "Approve and complete project"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRevision(submission._id)}
+                        disabled={actionLoading === submission._id}
+                        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {actionLoading === submission._id
+                          ? "Processing..."
+                          : "Request revision"}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p
+                    className={`mt-5 rounded-xl border px-4 py-3 text-sm leading-6 ${
+                      submission.status === "approved"
+                        ? "border-green-100 bg-green-50 text-green-800"
+                        : "border-amber-100 bg-amber-50 text-amber-800"
+                    }`}
                   >
-                    {actionLoading === submission._id ? "Processing..." : "Approve Work"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleRevision(submission._id)}
-                    disabled={actionLoading === submission._id}
-                    className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {actionLoading === submission._id
-                      ? "Processing..."
-                      : "Request Revision"}
-                  </button>
-                </div>
+                    {submission.status === "approved"
+                      ? "This work has been approved and the project is complete."
+                      : "A revision has been requested. The project will remain in progress until the freelancer resubmits and you approve the work."}
+                  </p>
+                )}
               </article>
             ))}
           </div>

@@ -139,7 +139,7 @@ function ClientDashboard() {
 
         <Link
           to="/post-task"
-          className="inline-flex justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+          className="inline-flex justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           + Create a task
         </Link>
@@ -153,7 +153,7 @@ function ClientDashboard() {
         {metrics.map((metric) => (
           <article
             key={metric.label}
-            className="rounded-2xl border border-gray-200 bg-white p-5"
+            className="rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
           >
             <p className="text-sm text-gray-500">{metric.label}</p>
 
@@ -177,7 +177,7 @@ function ClientDashboard() {
       )}
 
       {/* Recent Tasks */}
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 sm:p-8">
+      <section className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
@@ -190,7 +190,7 @@ function ClientDashboard() {
 
           <Link
             to="/client/tasks"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+            className="text-sm font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             View all tasks →
           </Link>
@@ -211,7 +211,7 @@ function ClientDashboard() {
               </p>
               <Link
                 to="/post-task"
-                className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700"
+                className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               >
                 Post your first task
               </Link>
@@ -265,7 +265,7 @@ function ClientDashboard() {
       </section>
 
       {/* Recent Applications */}
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 sm:p-8">
+      <section className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
             Recent applications

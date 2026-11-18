@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getTasks } from "../../services/taskService";
+import ReactMarkdown from "react-markdown";
 
 const categories = [
   "All Tasks",
@@ -73,7 +74,7 @@ function BrowseTasks() {
             {user?.role === "client" && (
               <Link
                 to="/post-task"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-center font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-center font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               >
                 Post a Task
               </Link>
@@ -176,9 +177,11 @@ function BrowseTasks() {
                   {task.title}
                 </h3>
 
-                <p className="mt-2 line-clamp-4 break-words text-sm leading-6 text-gray-600">
-                  {task.description}
-                </p>
+                <div className="mt-2 line-clamp-4 break-words text-sm leading-6 text-gray-600">
+                  <ReactMarkdown>{task.description || ""}</ReactMarkdown>
+                </div>
+
+
 
                 <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
                   <span className="font-semibold text-gray-900">
@@ -187,7 +190,7 @@ function BrowseTasks() {
 
                   <Link
                     to={`/tasks/${task._id}`}
-                    className="inline-flex min-h-10 items-center rounded-lg px-2 font-semibold text-blue-600 transition hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                    className="inline-flex min-h-10 items-center rounded-lg px-2 font-semibold text-blue-600 transition hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                   >
                     View task →
                   </Link>

@@ -1,9 +1,13 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { submitApplication } from "../../services/applicationService";
+import { getTaskById } from "../../services/taskService";
+import { generateProposal } from "../../services/aiService";
+import { LoaderCircle, Sparkles } from "lucide-react";
 
 function ApplyTask() {
   const { taskId } = useParams();
+  const location = useLocation();
 
   const [proposal, setProposal] = useState("");
   const [deliveryHours, setDeliveryHours] = useState("24");
@@ -12,6 +16,49 @@ function ApplyTask() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [task, setTask] = useState(() => location.state?.task ?? null);
+  const [freelancerSkills, setFreelancerSkills] = useState("");
+  const [freelancerExperience, setFreelancerExperience] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState("");
+
+  useEffect(() => {
+    if (task) return;
+
+    getTaskById(taskId)
+      .then((response) => setTask(response.data.task))
+      .catch(() => setGenerationError("Task details could not be loaded for AI generation."));
+  }, [task, taskId]);
+
+  async function handleGenerateProposal() {
+    if (!task) {
+      setGenerationError("Task details are still loading. Please try again shortly.");
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerationError("");
+    try {
+      const response = await generateProposal({
+        taskTitle: task.title,
+        taskDescription: task.description,
+        requiredSkills: Array.isArray(task.skills) ? task.skills.join(", ") : task.skills,
+        deliverables: task.deliverables,
+        budget: String(task.budget ?? ""),
+        deadline: task.deadline ? new Date(task.deadline).toLocaleDateString() : "",
+        freelancerSkills,
+        freelancerExperience,
+      });
+      setProposal(response.generatedText);
+      setErrors((current) => ({ ...current, proposal: "" }));
+    } catch (error) {
+      setGenerationError(
+        error.response?.data?.message || "Could not generate a proposal. Please try again."
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -73,7 +120,7 @@ function ApplyTask() {
   if (submitted) {
     return (
       <main className="min-h-screen bg-gray-50 px-5 py-16">
-        <section className="mx-auto max-w-lg rounded-2xl border border-gray-200 bg-white p-8 text-center">
+        <section className="mx-auto max-w-lg rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-8 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl text-green-700">
             ✓
           </div>
@@ -88,7 +135,7 @@ function ApplyTask() {
 
           <Link
             to="/browse"
-            className="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+            className="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             Back to tasks
           </Link>
@@ -102,7 +149,7 @@ function ApplyTask() {
       <div className="mx-auto max-w-2xl">
         <Link
           to={`/tasks/${taskId}`}
-          className="text-sm font-medium text-gray-600 hover:text-blue-600"
+          className="text-sm font-medium text-gray-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           ← Back to task
         </Link>
@@ -125,7 +172,7 @@ function ApplyTask() {
         <form
           onSubmit={handleSubmit}
           noValidate
-          className="mt-8 space-y-6 rounded-2xl border border-gray-200 bg-white p-6 sm:p-8"
+          className="mt-8 space-y-6 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8"
         >
           <div>
             <label
@@ -149,6 +196,43 @@ function ApplyTask() {
               aria-describedby={errors.proposal ? "proposal-error" : undefined}
               className="mt-3 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
+
+            <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-800">
+                  <Sparkles size={16} aria-hidden="true" /> AI Powered
+                </p>
+                <button
+                  type="button"
+                  onClick={handleGenerateProposal}
+                  disabled={isGenerating || !task}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isGenerating && <LoaderCircle className="animate-spin" size={16} aria-hidden="true" />}
+                  {isGenerating ? "Generating..." : proposal ? "Regenerate with AI" : "Generate Proposal with AI"}
+                </button>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-blue-800">
+                Add optional context below so the proposal reflects only your real skills and experience.
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <input
+                  value={freelancerSkills}
+                  onChange={(event) => setFreelancerSkills(event.target.value)}
+                  maxLength={1000}
+                  placeholder="Your relevant skills (optional)"
+                  className="w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+                <input
+                  value={freelancerExperience}
+                  onChange={(event) => setFreelancerExperience(event.target.value)}
+                  maxLength={1000}
+                  placeholder="Relevant experience (optional)"
+                  className="w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+              {generationError && <p role="alert" className="mt-3 text-sm text-red-600">{generationError}</p>}
+            </div>
 
             <div className="mt-2 flex justify-between gap-3 text-xs text-gray-500">
               <span>Minimum 30 characters</span>
@@ -229,7 +313,7 @@ function ApplyTask() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               {isSubmitting ? "Submitting..." : "Submit application"}
             </button>

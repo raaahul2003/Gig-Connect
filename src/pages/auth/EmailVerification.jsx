@@ -27,7 +27,7 @@ function EmailVerification() {
       <div className="w-full max-w-md">
         <Link
           to="/"
-          className="block text-center text-2xl font-bold text-gray-900"
+          className="block text-center text-2xl font-bold text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
         >
           Gig<span className="text-blue-600">Connect</span>
         </Link>
@@ -80,7 +80,7 @@ function EmailVerification() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             >
               Verify email
             </button>
@@ -101,7 +101,7 @@ function EmailVerification() {
           </button>
 
           <div className="mt-6">
-            <Link to="/login" className="text-sm text-gray-600 hover:text-blue-600">
+            <Link to="/login" className="text-sm text-gray-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors">
               Back to login
             </Link>
           </div>

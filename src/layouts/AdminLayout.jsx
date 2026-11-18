@@ -11,8 +11,8 @@ const adminLinks = [
 
 export default function AdminLayout() {
   return (
-    <div className="min-h-screen bg-gray-50 lg:flex">
-      <aside className="flex w-full flex-col border-b border-gray-200 bg-white lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r">
+    <div className="min-h-screen bg-slate-50 lg:flex">
+      <aside className="flex w-full flex-col border-b border-gray-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
         <div className="border-b border-gray-100 px-6 py-5">
           <h1 className="text-xl font-bold tracking-tight text-gray-900">
             GigConnect<span className="text-blue-600">.</span>
@@ -24,7 +24,7 @@ export default function AdminLayout() {
 
         <nav
           aria-label="Admin navigation"
-          className="flex gap-2 overflow-x-auto p-3 lg:flex-1 lg:flex-col lg:overflow-visible"
+          className="flex gap-2 overflow-x-auto p-3 lg:flex-1 lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto"
         >
           {adminLinks.map((link) => (
             <NavLink
@@ -33,8 +33,8 @@ export default function AdminLayout() {
               className={({ isActive }) =>
                 `flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                   isActive
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-blue-50 font-semibold text-blue-700 ring-1 ring-inset ring-blue-100"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-950"
                 }`
               }
             >
@@ -54,7 +54,7 @@ export default function AdminLayout() {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-5 sm:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200/80 bg-white/90 px-4 shadow-sm backdrop-blur-lg sm:px-6 lg:px-8">
           <div>
             <p className="text-sm font-medium text-gray-800">
               Administration
@@ -65,7 +65,7 @@ export default function AdminLayout() {
           </span>
         </header>
 
-        <main className="p-5 sm:p-8">
+        <main className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>

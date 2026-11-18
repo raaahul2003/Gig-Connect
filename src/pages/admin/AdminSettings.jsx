@@ -65,7 +65,7 @@ export default function AdminSettings() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
           Admin Settings
         </h2>
         <p className="mt-1 text-sm text-gray-500">
@@ -75,7 +75,7 @@ export default function AdminSettings() {
 
       <form
         onSubmit={handleSave}
-        className="space-y-7 rounded-xl border border-gray-200 bg-white p-5 sm:p-7"
+        className="space-y-7 rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5 sm:p-7"
       >
         <section>
           <h3 className="font-semibold text-gray-900">
@@ -93,7 +93,7 @@ export default function AdminSettings() {
                 value={settings.platformName}
                 onChange={updateSetting}
                 required
-                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500"
+                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               />
             </label>
 
@@ -106,7 +106,7 @@ export default function AdminSettings() {
                 onChange={updateSetting}
                 required
                 placeholder="support@example.com"
-                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500"
+                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               />
             </label>
           </div>
@@ -132,7 +132,7 @@ export default function AdminSettings() {
                 value={settings.commission}
                 onChange={updateSetting}
                 required
-                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500"
+                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
               />
             </label>
             <p className="mt-2 text-xs leading-5 text-gray-500">
@@ -147,7 +147,7 @@ export default function AdminSettings() {
               name="requireTaskReview"
               checked={settings.requireTaskReview}
               onChange={updateSetting}
-              className="mt-1 h-4 w-4 accent-blue-600"
+              className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
             <span>
               <span className="block text-sm font-medium text-gray-800">
@@ -169,7 +169,7 @@ export default function AdminSettings() {
               name="maintenanceMode"
               checked={settings.maintenanceMode}
               onChange={updateSetting}
-              className="mt-1 h-4 w-4 accent-blue-600"
+              className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
             />
             <span>
               <span className="block text-sm font-medium text-gray-800">
@@ -193,13 +193,13 @@ export default function AdminSettings() {
           <button
             type="button"
             onClick={handleReset}
-            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             Reset
           </button>
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
           >
             Save Settings
           </button>
