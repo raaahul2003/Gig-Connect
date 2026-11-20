@@ -37,46 +37,46 @@ export default function ClientApplications() {
   }, []);
 
   const handleApplicationAction = async (applicationId, newStatus) => {
-  try {
-    setUpdatingId(applicationId);
-    setActionError("");
+    try {
+      setUpdatingId(applicationId);
+      setActionError("");
 
-    await updateApplicationStatus(applicationId, newStatus);
+      await updateApplicationStatus(applicationId, newStatus);
 
-    const selectedApplication = applications.find(
-      (application) => application._id === applicationId
-    );
+      const selectedApplication = applications.find(
+        (application) => application._id === applicationId
+      );
 
-    setApplications((prevApplications) =>
-      prevApplications.map((application) => {
-        // Update the selected application
-        if (application._id === applicationId) {
-          return { ...application, status: newStatus };
-        }
+      setApplications((prevApplications) =>
+        prevApplications.map((application) => {
+          // Update the selected application
+          if (application._id === applicationId) {
+            return { ...application, status: newStatus };
+          }
 
-        // Reject other pending applications for the same task
-        if (
-          newStatus === "accepted" &&
-          String(application.task?._id) ===
+          // Reject other pending applications for the same task
+          if (
+            newStatus === "accepted" &&
+            String(application.task?._id) ===
             String(selectedApplication?.task?._id) &&
-          application.status === "pending"
-        ) {
-          return { ...application, status: "rejected" };
-        }
+            application.status === "pending"
+          ) {
+            return { ...application, status: "rejected" };
+          }
 
-        return application;
-      })
-    );
-  } catch (err) {
-    setActionError(
-      err.response?.data?.message ||
-      err.message ||
-      "Failed to update application."
-    );
-  } finally {
-    setUpdatingId(null);
-  }
-};
+          return application;
+        })
+      );
+    } catch (err) {
+      setActionError(
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to update application."
+      );
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const taskOptions = applications.reduce((tasks, application) => {
     const taskId = String(application.task?._id || "");
@@ -102,8 +102,8 @@ export default function ClientApplications() {
     taskFilter === "all"
       ? applications
       : applications.filter(
-          (application) => String(application.task?._id) === taskFilter
-        );
+        (application) => String(application.task?._id) === taskFilter
+      );
 
   const statusCounts = {
     All: taskFilteredApplications.length,
@@ -115,8 +115,8 @@ export default function ClientApplications() {
     status === "All"
       ? taskFilteredApplications
       : taskFilteredApplications.filter(
-          (application) => application.status === status.toLowerCase()
-        );
+        (application) => application.status === status.toLowerCase()
+      );
 
   return (
     <div className="space-y-6">
@@ -145,19 +145,17 @@ export default function ClientApplications() {
             type="button"
             onClick={() => setStatus(item)}
             aria-pressed={status === item}
-            className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-              status === item
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${status === item
                 ? "border-blue-600 bg-blue-600 text-white shadow-sm"
                 : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-            }`}
+              }`}
           >
             {item}
             <span
-              className={`rounded-full px-2 py-0.5 text-xs ${
-                status === item
+              className={`rounded-full px-2 py-0.5 text-xs ${status === item
                   ? "bg-white/20 text-white"
                   : "bg-gray-100 text-gray-500"
-              }`}
+                }`}
             >
               {statusCounts[item]}
             </span>
@@ -287,6 +285,14 @@ export default function ClientApplications() {
                     <h3 className="mt-1 break-words text-base font-semibold text-gray-900 sm:text-lg">
                       {application.freelancer?.name || "Freelancer"}
                     </h3>
+                    {application.freelancer?._id && (
+                      <Link
+                        to={`/freelancers/${application.freelancer._id}`}
+                        className="mt-2 inline-flex text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        View Freelancer Profile →
+                      </Link>
+                    )}
                     <p className="mt-2 text-sm text-gray-600">
                       Applied for{" "}
                       <span className="font-medium text-gray-900">
@@ -295,13 +301,12 @@ export default function ClientApplications() {
                     </p>
                   </div>
                   <span
-                    className={`w-fit shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${
-                      application.status === "pending"
+                    className={`w-fit shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${application.status === "pending"
                         ? "bg-amber-50 text-amber-700"
                         : application.status === "accepted"
                           ? "bg-green-50 text-green-700"
                           : "bg-gray-100 text-gray-600"
-                    }`}
+                      }`}
                   >
                     {application.status?.charAt(0).toUpperCase() +
                       application.status?.slice(1)}

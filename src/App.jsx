@@ -43,6 +43,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import HowItWorks from './pages/public/HowItWorks'
+import FreelancerPublicProfile from './pages/public/FreelancerPublicProfile'
 
 function App() {
 
@@ -58,6 +59,7 @@ function App() {
             <Route path="/tasks/:taskId" element={<TaskDetails />} />
             <Route path="/tasks/:taskId/apply" element={<ApplyTask />} />
             <Route path="/post-task" element={<PostTask />} />
+            <Route path="/freelancers/:userId" element={<FreelancerPublicProfile />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRole="client" />}>

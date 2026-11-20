@@ -28,13 +28,48 @@ function BrowseTasks() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    getTasks()
-      .then((response) => setTasks(response.data.tasks || []))
-      .catch(() => setError("Could not load tasks. Please try again."))
-      .finally(() => setLoading(false));
+    const fetchTasks = async () => {
+      try {
+        const response = await getTasks();
+        setTasks(response.data.tasks || []);
+        setError("");
+      } catch (error) {
+        setError("Could not load tasks. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Load tasks when the page opens
+    fetchTasks();
+
+    // Refresh when the user returns to this page
+    const handleFocus = () => {
+      fetchTasks();
+    };
+
+    // Refresh when the browser tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchTasks();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+    };
   }, []);
 
   const filteredTasks = tasks.filter((task) => {
+    if (task.status !== "open") return false;
+
     const matchesSearch = task.title
       .toLowerCase()
       .includes(search.toLowerCase());
