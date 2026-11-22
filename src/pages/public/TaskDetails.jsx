@@ -149,15 +149,36 @@ function TaskDetails() {
               </p>
             )}
 
-            {/* <div className="my-8 border-t border-gray-200" />
 
-            <h2 className="text-xl font-semibold text-gray-900">
+            <div className="my-6 border-t border-gray-100 sm:my-8" />
+
+            <h2 className="text-lg font-bold tracking-tight text-gray-900 sm:text-xl">
               About the client
             </h2>
 
-            <p className="mt-3 text-sm leading-6 text-gray-600">
-              {task?.client.name}
-            </p> */}
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+              {task?.client?._id ? (
+                <>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {task.client.clientType === "company"
+                      ? task.client.clientProfile?.companyName || task.client.name
+                      : task.client.name}
+                  </p>
+
+                  <Link
+                    to={`/clients/${task.client._id}`}
+                    className="mt-2 inline-flex items-center text-sm font-semibold text-blue-600 transition hover:text-blue-700 hover:underline"
+                  >
+                    View client profile →
+                  </Link>
+                </>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Client information unavailable.
+                </p>
+              )}
+            </div>
+
 
 
           </section>

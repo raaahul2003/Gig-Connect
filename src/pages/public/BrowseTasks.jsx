@@ -216,6 +216,36 @@ function BrowseTasks() {
                   <ReactMarkdown>{task.description || ""}</ReactMarkdown>
                 </div>
 
+                <div className="mt-4">
+                  <p className="text-xs text-gray-500">
+                    Category
+                  </p>
+                  <p className="text-sm font-medium text-gray-700">
+                    {task.category}
+                  </p>
+                </div>
+
+                <div className="mt-3">
+                  <p className="text-xs text-gray-500">
+                    Posted by
+                  </p>
+
+                  {task.client?._id ? (
+                    <Link
+                      to={`/clients/${task.client._id}`}
+                      className="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                    >
+                      {task.client.clientType === "company"
+                        ? task.client.clientProfile?.companyName || task.client.name
+                        : task.client.name}
+                    </Link>
+                  ) : (
+                    <span className="text-sm text-gray-500">
+                      Client information unavailable
+                    </span>
+                  )}
+                </div>
+
 
 
                 <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-4">

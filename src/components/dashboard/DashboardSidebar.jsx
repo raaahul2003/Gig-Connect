@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 const links = [
   { label: "Overview", to: "/client/dashboard" },
   { label: "My Tasks", to: "/client/tasks" },
+  { label: "My Profile", to: "/client/profile" },
   { label: "Applications", to: "/client/applications" },
   { label: "Active Work", to: "/client/active-work" },
   { label: "Work Progress", to: "/client/progress" },

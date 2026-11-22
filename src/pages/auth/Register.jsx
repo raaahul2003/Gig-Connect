@@ -9,6 +9,7 @@ function Register() {
     name: "",
     email: "",
     role: "freelancer",
+    clientType: "individual",
     password: "",
     confirmPassword: "",
     acceptedTerms: false,
@@ -67,6 +68,9 @@ function Register() {
         email: form.email.trim(),
         password: form.password,
         role: form.role,
+        ...(form.role === "client" && {
+          clientType: form.clientType,
+        }),
       });
 
       // Show success notification
@@ -79,6 +83,7 @@ function Register() {
         name: "",
         email: "",
         role: "freelancer",
+        clientType: "individual",
         password: "",
         confirmPassword: "",
         acceptedTerms: false,
@@ -190,6 +195,54 @@ function Register() {
                 ))}
               </div>
             </fieldset>
+            {/* Client Type Selection */}
+            {form.role === "client" && (
+              <fieldset>
+                <legend className="text-sm font-semibold text-gray-900">
+                  What type of client are you?
+                </legend>
+
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {[
+                    {
+                      value: "individual",
+                      title: "Individual",
+                      description: "Hire for personal projects",
+                    },
+                    {
+                      value: "company",
+                      title: "Company",
+                      description: "Hire for your business",
+                    },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={`cursor-pointer rounded-xl border p-4 transition ${form.clientType === option.value
+                        ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
+                        : "border-gray-200 hover:border-gray-300"
+                        }`}
+                    >
+                      <input
+                        type="radio"
+                        name="clientType"
+                        value={option.value}
+                        checked={form.clientType === option.value}
+                        onChange={updateField}
+                        className="sr-only"
+                      />
+
+                      <span className="block font-semibold text-gray-900">
+                        {option.title}
+                      </span>
+
+                      <span className="mt-1 block text-xs text-gray-500">
+                        {option.description}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
 
             <div>
               <label htmlFor="password" className="text-sm font-semibold">

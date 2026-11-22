@@ -44,6 +44,8 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import HowItWorks from './pages/public/HowItWorks'
 import FreelancerPublicProfile from './pages/public/FreelancerPublicProfile'
+import ClientProfile from './pages/client/ClientProfile'
+import ClientPublicProfile from './pages/public/ClientPublicProfile'
 
 function App() {
 
@@ -60,11 +62,13 @@ function App() {
             <Route path="/tasks/:taskId/apply" element={<ApplyTask />} />
             <Route path="/post-task" element={<PostTask />} />
             <Route path="/freelancers/:userId" element={<FreelancerPublicProfile />} />
+            <Route path="/clients/:userId" element={<ClientPublicProfile />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRole="client" />}>
             <Route path='/client' element={<DashboardLayout />}>
               <Route path='dashboard' element={<ClientDashboard />} />
+              <Route path='profile' element={<ClientProfile />} />
               <Route path='tasks' element={<ClientTasks />} />
               <Route path='applications' element={<ClientApplications />} />
               <Route path='active-work' element={<ClientActiveWork />} />

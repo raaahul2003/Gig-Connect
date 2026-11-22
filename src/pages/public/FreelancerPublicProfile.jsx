@@ -13,6 +13,7 @@ function FreelancerPublicProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [freelancerScore, setFreelancerScore] = useState(null);
   const [completedWork, setCompletedWork] = useState([]);
 
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -29,6 +30,7 @@ function FreelancerPublicProfile() {
         ]);
 
         setUser(profileResponse.user);
+        setFreelancerScore(profileResponse.freelancerScore);
         setCompletedWork(workResponse.completedWork || []);
 
       } catch (err) {
@@ -124,6 +126,99 @@ function FreelancerPublicProfile() {
               <p className="mt-1 text-blue-600">
                 {freelancer.headline || "Freelancer"}
               </p>
+              {/* Freelancer Reputation Score with Hover Details */}
+              <div className="relative mt-4 w-fit group">
+                <div className="inline-flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 cursor-help">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-green-100 text-xl">
+                    🏆
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-medium text-green-700">
+                      GigConnect Reputation Score
+                    </p>
+
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-bold text-green-800">
+                        {user.reputation?.score ?? 0}
+                      </span>
+                      <span className="text-sm text-green-700">/100</span>
+                    </div>
+                  </div>
+
+                  <span className="text-xs text-green-700">ⓘ</span>
+                </div>
+
+                {/* Hover Tooltip */}
+                <div className="invisible absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-4 opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                  <h3 className="font-semibold text-gray-900">
+                    How is this score calculated?
+                  </h3>
+
+                  <p className="mt-1 text-xs text-gray-500">
+                    The reputation score is based on verified activity and profile quality.
+                  </p>
+
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Completed projects</span>
+                        <strong>
+                          {freelancerScore?.projectScore ?? 0}/40
+                        </strong>
+                      </div>
+                      <div className="mt-1 h-2 rounded-full bg-gray-100">
+                        <div
+                          className="h-2 rounded-full bg-blue-500"
+                          style={{
+                            width: `${((freelancerScore?.projectScore ?? 0) / 40) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">On-time delivery</span>
+                        <strong>
+                          {freelancerScore?.onTimeScore ?? 0}/30
+                        </strong>
+                      </div>
+                      <div className="mt-1 h-2 rounded-full bg-gray-100">
+                        <div
+                          className="h-2 rounded-full bg-green-500"
+                          style={{
+                            width: `${((freelancerScore?.onTimeScore ?? 0) / 30) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Profile completeness</span>
+                        <strong>
+                          {freelancerScore?.profileScore ?? 0}/30
+                        </strong>
+                      </div>
+                      <div className="mt-1 h-2 rounded-full bg-gray-100">
+                        <div
+                          className="h-2 rounded-full bg-purple-500"
+                          style={{
+                            width: `${((freelancerScore?.profileScore ?? 0) / 30) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 border-t border-gray-100 pt-3 text-xs text-gray-500">
+                    Based on {freelancerScore?.completedProjects ?? 0} verified
+                    completed projects.
+                  </div>
+                </div>
+              </div>
+
 
               {profile.location && (
                 <p className="mt-2 text-sm text-gray-500">
