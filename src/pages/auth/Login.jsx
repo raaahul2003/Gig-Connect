@@ -1,11 +1,14 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import api from "../../api/axios";
 
 function Login() {
-  const [email, setEmail] = useState("");
+   const navigate = useNavigate();
+  const location = useLocation();
+  ¸
+  const [email, setEmail] = useState(location.state?.email || "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -15,7 +18,9 @@ function Login() {
   const [needsRole, setNeedsRole] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
+
+ 
+
 
   async function handleSubmit(event) {
     event.preventDefault();

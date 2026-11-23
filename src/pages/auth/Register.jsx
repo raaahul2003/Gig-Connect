@@ -1,10 +1,12 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { toast } from 'sonner'
 
+
 function Register() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -73,20 +75,17 @@ function Register() {
         }),
       });
 
-      // Show success notification
       toast.success(
         response.data.message || "Account created successfully!"
       );
 
-      // Reset form
-      setForm({
-        name: "",
-        email: "",
-        role: "freelancer",
-        clientType: "individual",
-        password: "",
-        confirmPassword: "",
-        acceptedTerms: false,
+      // Navigate to login after successful registration
+      navigate("/login", {
+        replace: true,
+        state: {
+          email: form.email.trim(),
+          registered: true,
+        },
       });
 
     } catch (error) {
@@ -94,6 +93,7 @@ function Register() {
         error.response?.data?.message ||
         "Registration failed. Please try again.";
 
+      setError(errorMessage);
       toast.error(errorMessage);
 
     } finally {
