@@ -7,7 +7,6 @@ import api from "../../api/axios";
 function Login() {
    const navigate = useNavigate();
   const location = useLocation();
-  ¸
   const [email, setEmail] = useState(location.state?.email || "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,8 +17,6 @@ function Login() {
   const [needsRole, setNeedsRole] = useState(false);
   const [loading, setLoading] = useState(false);
 
-
- 
 
 
   async function handleSubmit(event) {
