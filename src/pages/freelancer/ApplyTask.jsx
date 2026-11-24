@@ -10,7 +10,7 @@ function ApplyTask() {
   const location = useLocation();
 
   const [proposal, setProposal] = useState("");
-  const [deliveryHours, setDeliveryHours] = useState("24");
+  const [deliveryDate, setDeliveryDate] = useState("");
   const [bidAmount, setBidAmount] = useState("");
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -60,6 +60,17 @@ function ApplyTask() {
     }
   }
 
+  const today = new Date();
+  const minDeliveryDate = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, "0"),
+    String(today.getDate()).padStart(2, "0"),
+  ].join("-");
+
+  const maxDeliveryDate = task?.deadline
+    ? new Date(task.deadline).toISOString().slice(0, 10)
+    : "";
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -76,14 +87,35 @@ function ApplyTask() {
       Number(bidAmount) <= 0
     ) {
       nextErrors.bidAmount = "Enter a valid amount greater than zero.";
+    } else if (
+      task?.budget != null &&
+      Number(bidAmount) > Number(task.budget)
+    ) {
+      nextErrors.bidAmount = `Your proposed price cannot exceed the task budget of ₹${Number(task.budget).toLocaleString("en-IN")}.`;
     }
 
-    if (!deliveryHours) {
-      nextErrors.deliveryHours = "Choose a delivery time.";
+    if (!deliveryDate) {
+      nextErrors.deliveryDate = "Please select an estimated delivery date.";
+    } else if (deliveryDate < minDeliveryDate) {
+      nextErrors.deliveryDate = "Delivery date cannot be in the past.";
+    } else if (
+      maxDeliveryDate &&
+      deliveryDate > maxDeliveryDate
+    ) {
+      nextErrors.deliveryDate =
+        "Delivery date cannot exceed the client's deadline.";
+    }
+
+    if (!maxDeliveryDate) {
+      nextErrors.deliveryDate = "Task deadline is unavailable.";
     }
 
     setErrors(nextErrors);
     setSubmitError("");
+
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
 
     if (Object.keys(nextErrors).length > 0) {
       return;
@@ -102,7 +134,7 @@ function ApplyTask() {
       await submitApplication(taskId, {
         proposal: proposal.trim(),
         bidAmount: Number(bidAmount),
-        deliveryHours: Number(deliveryHours),
+        deliveryDate,
       });
 
       setSubmitted(true);
@@ -246,6 +278,19 @@ function ApplyTask() {
             )}
           </div>
 
+          <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+            <p className="text-sm font-medium text-blue-800">
+              Client's Task Budget
+            </p>
+
+            <p className="mt-1 text-2xl font-bold text-blue-900">
+              ₹{Number(task?.budget || 0).toLocaleString("en-IN")}
+            </p>
+
+            <p className="mt-1 text-xs text-blue-700">
+              You can propose an amount equal to or lower than this budget.
+            </p>
+          </div>
           <div>
             <label
               htmlFor="bidAmount"
@@ -274,34 +319,51 @@ function ApplyTask() {
             )}
           </div>
 
+
           <div>
             <label
-              htmlFor="deliveryHours"
+              htmlFor="deliveryDate"
               className="block text-sm font-semibold text-gray-900"
             >
-              Estimated delivery time
+              Estimated delivery date
             </label>
 
-            <select
-              id="deliveryHours"
-              value={deliveryHours}
-              onChange={(event) => setDeliveryHours(event.target.value)}
-              className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-            >
-              <option value="2">Within 2 hours</option>
-              <option value="6">Within 6 hours</option>
-              <option value="12">Within 12 hours</option>
-              <option value="24">Within 24 hours</option>
-              <option value="48">Within 48 hours</option>
-              <option value="72">Within 3 days</option>
-            </select>
+            <p className="mt-1 text-sm text-gray-500">
+              Select when you expect to complete this task.
+            </p>
 
-            {errors.deliveryHours && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.deliveryHours}
+            <input
+              id="deliveryDate"
+              type="date"
+              value={deliveryDate}
+              min={minDeliveryDate}
+              max={maxDeliveryDate || undefined}
+              onChange={(event) => setDeliveryDate(event.target.value)}
+              disabled={!task || !maxDeliveryDate}
+              aria-invalid={Boolean(errors.deliveryDate)}
+              aria-describedby={
+                errors.deliveryDate ? "delivery-date-error" : undefined
+              }
+              className="mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
+            />
+
+            {maxDeliveryDate && (
+              <p className="mt-2 text-xs text-gray-500">
+                Latest delivery date:{" "}
+                {new Date(`${maxDeliveryDate}T00:00:00`).toLocaleDateString("en-IN")}
+              </p>
+            )}
+
+            {errors.deliveryDate && (
+              <p
+                id="delivery-date-error"
+                className="mt-2 text-sm text-red-600"
+              >
+                {errors.deliveryDate}
               </p>
             )}
           </div>
+
 
           {submitError && (
             <p role="alert" className="text-sm text-red-600">
