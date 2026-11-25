@@ -8,13 +8,29 @@ export default function Messages() {
   const [selectedId, setSelectedId] = useState(null);
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
-  const [localMessages, setLocalMessages] = useState({});
+  const [messages, setMessages] = useState([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+
+  // Get the logged-in user's ID from the stored user object.
+  const getCurrentUserId = () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return String(user._id || user.id || user.userId || "");
+    } catch {
+      return "";
+    }
+  };
+
+  const currentUserId = getCurrentUserId();
 
   const filteredConversations = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     return conversations.filter((conversation) =>
-      conversation.name.toLowerCase().includes(query)
+      conversation.name.toLowerCase().includes(query) ||
+      conversation.taskTitle.toLowerCase().includes(query)
     );
   }, [conversations, search]);
 
@@ -22,53 +38,45 @@ export default function Messages() {
     (conversation) => conversation.id === selectedId
   );
 
-  const messages = selectedId
-    ? localMessages[selectedId] ?? selectedConversation?.messages ?? []
-    : [];
-
-  function sendMessage(event) {
-    event.preventDefault();
-
-    const text = draft.trim();
-
-    if (!text || !selectedConversation) return;
-
-    setLocalMessages((current) => ({
-      ...current,
-      [selectedId]: [
-        ...(current[selectedId] ?? selectedConversation.messages ?? []),
-        {
-          id: `${Date.now()}`,
-          text,
-          sender: "me",
-          time: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
-      ],
-    }));
-
-    setDraft("");
-  }
-
+  // Fetch active conversations.
+  // Fetch active conversations.
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         const response = await api.get("/messages");
 
-        const formattedConversations = response.data.conversations.map(
-          (conversation) => ({
-            id: conversation.applicationId,
-            name: conversation.user.name,
-            taskTitle: conversation.taskTitle,
-            lastMessage: "Start a conversation",
-          })
-        );
+        console.log("MESSAGES API RESPONSE:", response.data);
+
+        const formattedConversations = (
+          response.data.conversations || []
+        ).map((conversation) => ({
+          id: String(conversation.applicationId),
+          name: conversation.user?.name || "User",
+          taskTitle: conversation.taskTitle || "Project",
+        }));
 
         setConversations(formattedConversations);
+
+        // Automatically select the conversation from notification URL.
+        const params = new URLSearchParams(window.location.search);
+        const conversationId = params.get("conversationId");
+
+        if (conversationId) {
+          const matchingConversation = formattedConversations.find(
+            (conversation) => conversation.id === conversationId
+          );
+
+          if (matchingConversation) {
+            setSelectedId(conversationId);
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch conversations:", error);
+
+        setError(
+          error.response?.data?.message ||
+          "Failed to load conversations."
+        );
       } finally {
         setLoading(false);
       }
@@ -77,19 +85,111 @@ export default function Messages() {
     fetchConversations();
   }, []);
 
+  // Fetch saved messages whenever a conversation is selected.
+  useEffect(() => {
+    if (!selectedId) {
+      setMessages([]);
+      return;
+    }
+
+    let isMounted = true;
+
+    const fetchMessages = async () => {
+      setMessagesLoading(true);
+      setError("");
+      setMessages([]);
+
+      try {
+        const response = await api.get(`/messages/${selectedId}`);
+
+        if (isMounted) {
+          setMessages(response.data.messages || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch messages:", error);
+
+        if (isMounted) {
+          setError(
+            error.response?.data?.message ||
+            "Failed to load messages."
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setMessagesLoading(false);
+        }
+      }
+    };
+
+    fetchMessages();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedId]);
+
+  // Send and save a message through the backend.
+  const sendMessage = async (event) => {
+    event.preventDefault();
+
+    const text = draft.trim();
+
+    if (!text || !selectedId || sending) return;
+
+    setSending(true);
+    setError("");
+
+    try {
+      const response = await api.post(`/messages/${selectedId}`, {
+        text,
+      });
+
+      const savedMessage = response.data.data;
+
+      if (savedMessage) {
+        setMessages((current) => [...current, savedMessage]);
+      }
+
+      setDraft("");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+
+      setError(
+        error.response?.data?.message ||
+        "Failed to send message. Please try again."
+      );
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const formatTime = (date) => {
+    if (!date) return "";
+
+    return new Date(date).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">Messages</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+          Messages
+        </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Communicate with clients and freelancers about your tasks.
+          Communicate with clients and freelancers about your active projects.
         </p>
       </div>
 
       <div className="grid min-h-[560px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow md:grid-cols-[300px_minmax(0,1fr)]">
         <aside className="border-b border-gray-200 md:border-b-0 md:border-r">
           <div className="border-b border-gray-100 p-4">
-            <h2 className="font-semibold text-gray-900">Conversations</h2>
+            <h2 className="font-semibold text-gray-900">
+              Conversations
+            </h2>
+
             <input
               type="search"
               value={search}
@@ -100,14 +200,18 @@ export default function Messages() {
             />
           </div>
 
-          {filteredConversations.length === 0 ? (
+          {loading ? (
+            <p className="p-6 text-center text-sm text-gray-500">
+              Loading conversations...
+            </p>
+          ) : filteredConversations.length === 0 ? (
             <div className="p-6 text-center">
               <p className="text-sm font-medium text-gray-800">
                 No conversations found
               </p>
               <p className="mt-2 text-xs leading-5 text-gray-500">
-                Conversations will appear here when you connect with someone
-                about a task.
+                Conversations will appear here when a freelancer is accepted
+                for your project.
               </p>
             </div>
           ) : (
@@ -123,8 +227,9 @@ export default function Messages() {
                   <p className="truncate text-sm font-medium text-gray-900">
                     {conversation.name}
                   </p>
+
                   <p className="mt-1 truncate text-xs text-gray-500">
-                    {conversation.lastMessage || "Start a conversation"}
+                    {conversation.taskTitle}
                   </p>
                 </button>
               ))}
@@ -151,12 +256,13 @@ export default function Messages() {
                   />
                 </svg>
               </div>
+
               <h2 className="mt-4 font-semibold text-gray-900">
                 Your messages will appear here
               </h2>
+
               <p className="mt-2 max-w-sm text-sm leading-6 text-gray-500">
-                Select a conversation to read and send messages, or return
-                when you have connected with a client or freelancer.
+                Select a project conversation to read and send messages.
               </p>
             </div>
           ) : (
@@ -165,35 +271,58 @@ export default function Messages() {
                 <h2 className="font-semibold text-gray-900">
                   {selectedConversation.name}
                 </h2>
+
                 <p className="mt-1 text-xs text-gray-500">
-                  {selectedConversation.taskTitle || "GigConnect conversation"}
+                  Project: {selectedConversation.taskTitle}
                 </p>
               </div>
 
               <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
-                {messages.length === 0 ? (
+                {messagesLoading ? (
+                  <p className="m-auto text-sm text-gray-500">
+                    Loading messages...
+                  </p>
+                ) : messages.length === 0 ? (
                   <p className="m-auto text-sm text-gray-500">
                     No messages in this conversation yet.
                   </p>
                 ) : (
-                  messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`max-w-[85%] rounded-xl px-4 py-3 text-sm ${message.sender === "me"
-                        ? "self-end bg-blue-600 text-white"
-                        : "self-start bg-gray-100 text-gray-800"
-                        }`}
-                    >
-                      <p className="whitespace-pre-wrap break-words">
-                        {message.text}
-                      </p>
-                      <p className="mt-1 text-right text-xs opacity-70">
-                        {message.time}
-                      </p>
-                    </div>
-                  ))
+                  messages.map((message) => {
+                    const senderId =
+                      typeof message.sender === "object"
+                        ? message.sender?._id
+                        : message.sender;
+
+                    const isMine =
+                      currentUserId &&
+                      String(senderId) === currentUserId;
+
+                    return (
+                      <div
+                        key={message._id}
+                        className={`max-w-[85%] rounded-xl px-4 py-3 text-sm ${isMine
+                          ? "self-end bg-blue-600 text-white"
+                          : "self-start bg-gray-100 text-gray-800"
+                          }`}
+                      >
+                        <p className="whitespace-pre-wrap break-words">
+                          {message.text}
+                        </p>
+
+                        <p className="mt-1 text-right text-xs opacity-70">
+                          {formatTime(message.createdAt)}
+                        </p>
+                      </div>
+                    );
+                  })
                 )}
               </div>
+
+              {error && (
+                <p className="px-4 pb-2 text-sm text-red-600">
+                  {error}
+                </p>
+              )}
 
               <form
                 onSubmit={sendMessage}
@@ -206,17 +335,15 @@ export default function Messages() {
                   aria-label="Write a message"
                   className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
                 />
+
                 <button
                   type="submit"
-                  disabled={!draft.trim()}
+                  disabled={!draft.trim() || sending || messagesLoading}
                   className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
                 >
-                  Send
+                  {sending ? "Sending..." : "Send"}
                 </button>
               </form>
-              <p className="px-4 pb-3 text-xs text-gray-400">
-                Messages are currently stored only in this page's local state.
-              </p>
             </>
           )}
         </section>

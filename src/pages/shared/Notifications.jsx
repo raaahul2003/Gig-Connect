@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
 export default function Notifications() {
@@ -7,8 +8,8 @@ export default function Notifications() {
   const [filter, setFilter] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  // Fetch notifications from backend
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -16,12 +17,11 @@ export default function Notifications() {
         setError("");
 
         const response = await api.get("/notifications");
-
         setNotifications(response.data.notifications || []);
       } catch (err) {
         setError(
           err.response?.data?.message ||
-            "Failed to load notifications."
+          "Failed to load notifications."
         );
       } finally {
         setLoading(false);
@@ -36,25 +36,73 @@ export default function Notifications() {
       ? notifications.filter((item) => !item.isRead)
       : notifications;
 
-  // Mark one notification as read
   async function markAsRead(id) {
-    try {
-      await api.patch(`/notifications/${id}/read`);
+    await api.patch(`/notifications/${id}/read`);
 
-      setNotifications((current) =>
-        current.map((item) =>
-          item._id === id ? { ...item, isRead: true } : item
-        )
-      );
+    setNotifications((current) =>
+      current.map((item) =>
+        item._id === id ? { ...item, isRead: true } : item
+      )
+    );
+  }
+
+  async function handleNotificationClick(item) {
+    try {
+      if (!item.isRead) {
+        await markAsRead(item._id);
+      }
+
+      if (item.link) {
+        const destination = new URL(item.link, window.location.origin);
+
+        // Only allow navigation within this application.
+        if (destination.origin === window.location.origin) {
+          navigate(
+            destination.pathname + destination.search + destination.hash
+          );
+          return;
+        }
+      }
+
+      // Fallback for older notifications without a destination.
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      const fallbackRoutes = {
+        application_received: "/client/applications",
+        application_accepted: "/freelancer/active-work",
+        application_rejected: "/freelancer/applications",
+        submission_received: "/client/submissions",
+        revision_requested: "/freelancer/submissions",
+        submission_approved: "/freelancer/submissions",
+        payment_received: "/freelancer/earnings",
+        message_received: null,
+      };
+
+      const fallback = fallbackRoutes[item.type];
+
+      if (fallback) {
+        navigate(fallback);
+      } else if (item.type === "message_received") {
+        navigate(
+          user.role === "client"
+            ? "/client/messages"
+            : "/freelancer/messages"
+        );
+      } else {
+        navigate(
+          user.role === "client"
+            ? "/client/dashboard"
+            : "/freelancer/dashboard"
+        );
+      }
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          "Failed to mark notification as read."
+        "Unable to open this notification."
       );
     }
   }
 
-  // Mark all notifications as read
   async function markAllAsRead() {
     try {
       await api.patch("/notifications/read-all");
@@ -65,7 +113,7 @@ export default function Notifications() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          "Failed to mark all notifications as read."
+        "Failed to mark all notifications as read."
       );
     }
   }
@@ -102,7 +150,7 @@ export default function Notifications() {
           type="button"
           onClick={markAllAsRead}
           disabled={unreadCount === 0}
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Mark all as read
         </button>
@@ -136,7 +184,7 @@ export default function Notifications() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {loading ? (
           <div className="px-6 py-14 text-center text-sm text-gray-500">
             Loading notifications...
@@ -144,20 +192,7 @@ export default function Notifications() {
         ) : filteredNotifications.length === 0 ? (
           <div className="px-6 py-14 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="h-7 w-7 text-blue-600"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12h4"
-                />
-              </svg>
+              <span className="text-2xl">🔔</span>
             </div>
 
             <h2 className="mt-4 font-semibold text-gray-900">
@@ -177,7 +212,16 @@ export default function Notifications() {
             {filteredNotifications.map((item) => (
               <article
                 key={item._id}
-                className={`flex items-start gap-3 p-5 ${
+                onClick={() => handleNotificationClick(item)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    handleNotificationClick(item);
+                  }
+                }}
+                className={`flex cursor-pointer items-start gap-3 p-5 transition hover:bg-blue-50 ${
                   item.isRead ? "bg-white" : "bg-blue-50/50"
                 }`}
               >
@@ -185,7 +229,6 @@ export default function Notifications() {
                   className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${
                     item.isRead ? "bg-gray-300" : "bg-blue-600"
                   }`}
-                  aria-label={item.isRead ? "Read" : "Unread"}
                 />
 
                 <div className="min-w-0 flex-1">
@@ -200,16 +243,16 @@ export default function Notifications() {
                   <p className="mt-2 text-xs text-gray-400">
                     {formatDate(item.createdAt)}
                   </p>
+
+                  <p className="mt-2 text-xs font-medium text-blue-600">
+                    View details →
+                  </p>
                 </div>
 
                 {!item.isRead && (
-                  <button
-                    type="button"
-                    onClick={() => markAsRead(item._id)}
-                    className="shrink-0 text-sm font-medium text-blue-600 hover:text-blue-700"
-                  >
-                    Mark read
-                  </button>
+                  <span className="shrink-0 text-xs font-medium text-blue-600">
+                    New
+                  </span>
                 )}
               </article>
             ))}
