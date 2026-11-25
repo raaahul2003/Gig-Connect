@@ -3,9 +3,12 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import api from "../../api/axios";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 function Login() {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState(location.state?.email || "");
   const [password, setPassword] = useState("");
@@ -16,6 +19,14 @@ function Login() {
   const [selectedRole, setSelectedRole] = useState("freelancer");
   const [needsRole, setNeedsRole] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("verified") === "true") {
+      toast.success("Email verified successfully! You can now log in.");
+    }
+  }, [searchParams]);
 
 
 
@@ -110,18 +121,18 @@ function Login() {
   }
 
   function finishLogin(data) {
-  localStorage.setItem("token", data.token);
-  localStorage.setItem("user", JSON.stringify(data.user));
-  window.dispatchEvent(new Event("auth-changed"));
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    window.dispatchEvent(new Event("auth-changed"));
 
-  navigate(
-    data.user.role === "client"
-      ? "/client/dashboard"
-      : data.user.role === "admin"
-        ? "/admin/dashboard"
-        : "/freelancer/dashboard"
-  );
-}
+    navigate(
+      data.user.role === "client"
+        ? "/client/dashboard"
+        : data.user.role === "admin"
+          ? "/admin/dashboard"
+          : "/freelancer/dashboard"
+    );
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-5 py-12">

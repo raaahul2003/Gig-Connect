@@ -76,15 +76,16 @@ function Register() {
       });
 
       toast.success(
-        response.data.message || "Account created successfully!"
+        response.data.message ||
+        "Registration successful! Please verify your email."
       );
 
-      // Navigate to login after successful registration
       navigate("/login", {
         replace: true,
         state: {
           email: form.email.trim(),
           registered: true,
+          emailVerificationRequired: true,
         },
       });
 
