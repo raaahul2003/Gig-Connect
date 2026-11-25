@@ -190,12 +190,10 @@ function PostTask() {
         token
       );
 
-      const createdTask = response.data.task ?? response.data;
-
       toast.success("Task published successfully!");
 
       setTimeout(() => {
-        navigate(`/tasks/${createdTask._id ?? createdTask.id}`);
+        navigate("/client/tasks");
       }, 1500);
     } catch (error) {
       console.error("Publish task failed:", error.response?.data || error.message);
