@@ -1,7 +1,8 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getMyTasks } from "../../services/taskService";
+import { deleteTask, getMyTasks } from "../../services/taskService";
+import { toast } from "react-toastify";
 
 export default function ClientTasks() {
   const [tasks, setTasks] = useState([]);
@@ -9,6 +10,7 @@ export default function ClientTasks() {
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [deletingTaskId, setDeletingTaskId] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -90,8 +92,8 @@ export default function ClientTasks() {
   const formatStatus = (status) => {
     return status
       ? status.replace("_", " ").replace(/\b\w/g, (char) =>
-          char.toUpperCase()
-        )
+        char.toUpperCase()
+      )
       : "Unknown";
   };
 
@@ -109,6 +111,37 @@ export default function ClientTasks() {
       month: "short",
       year: "numeric",
     });
+  };
+
+  const handleDeleteTask = async (task) => {
+    if (task.status !== "open") {
+      toast.error("Only open tasks can be deleted.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${task.title}"?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingTaskId(task._id);
+
+      await deleteTask(task._id);
+
+      setTasks((current) =>
+        current.filter((item) => item._id !== task._id)
+      );
+
+      toast.success("Task deleted successfully!");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to delete task."
+      );
+    } finally {
+      setDeletingTaskId(null);
+    }
   };
 
   return (
@@ -232,19 +265,17 @@ export default function ClientTasks() {
                       type="button"
                       aria-pressed={isActive}
                       onClick={() => setStatusFilter(filter.value)}
-                      className={`inline-flex min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:justify-center sm:px-4 ${
-                        isActive
-                          ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                      }`}
+                      className={`inline-flex min-w-0 items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:justify-center sm:px-4 ${isActive
+                        ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                        : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                        }`}
                     >
                       <span className="truncate">{filter.label}</span>
                       <span
-                        className={`rounded-full px-2 py-0.5 text-xs ${
-                          isActive
-                            ? "bg-white/20 text-white"
-                            : "bg-gray-100 text-gray-500"
-                        }`}
+                        className={`rounded-full px-2 py-0.5 text-xs ${isActive
+                          ? "bg-white/20 text-white"
+                          : "bg-gray-100 text-gray-500"
+                          }`}
                       >
                         {filter.count}
                       </span>
@@ -317,6 +348,16 @@ export default function ClientTasks() {
                     Urgent Task
                   </span>
                 )}
+                <div className="mt-5 flex justify-end border-t border-gray-100 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteTask(task)}
+                    disabled={deletingTaskId === task._id}
+                    className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {deletingTaskId === task._id ? "Deleting..." : "Delete Task"}
+                  </button>
+                </div>
               </div>
             ))}
           </div>

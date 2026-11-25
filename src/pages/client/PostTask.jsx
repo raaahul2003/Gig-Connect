@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createTask } from "../../services/taskService";
 import { toast } from "react-toastify";
@@ -31,6 +31,9 @@ function FieldError({ error }) {
 }
 
 function PostTask() {
+  const submissionKey = useRef(crypto.randomUUID());
+  const publishLock = useRef(false);
+
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -168,26 +171,34 @@ function PostTask() {
   }
 
   async function publishTask() {
+    // Immediately prevent duplicate submissions
+    if (publishLock.current) return;
+
     if (!validateAllSteps()) return;
 
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setErrors({ publish: "Please log in as a client to publish a task." });
+      setErrors({
+        publish: "Please log in as a client to publish a task.",
+      });
       return;
     }
 
+    // Lock before starting the API request
+    publishLock.current = true;
     setIsPublishing(true);
     setErrors({});
 
     try {
-      const response = await createTask(
+      await createTask(
         {
           ...form,
           budget: Number(form.budget),
           deadline: new Date(`${form.deadline}T23:59:59`).toISOString(),
         },
-        token
+        token,
+        submissionKey.current
       );
 
       toast.success("Task published successfully!");
@@ -195,14 +206,23 @@ function PostTask() {
       setTimeout(() => {
         navigate("/client/tasks");
       }, 1500);
+
     } catch (error) {
-      console.error("Publish task failed:", error.response?.data || error.message);
+      console.error(
+        "Publish task failed:",
+        error.response?.data || error.message
+      );
+
       setErrors({
         publish:
           error.response?.data?.message ||
           error.message ||
           "Could not publish the task. Please try again.",
       });
+
+      // Allow retry if publishing failed
+      publishLock.current = false;
+
     } finally {
       setIsPublishing(false);
     }
@@ -536,7 +556,7 @@ function PostTask() {
                 type="button"
                 onClick={publishTask}
                 disabled={isPublishing}
-                className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isPublishing ? "Publishing..." : "Publish task"}
               </button>
