@@ -216,6 +216,7 @@ function BrowseTasks() {
                   <ReactMarkdown>{task.description || ""}</ReactMarkdown>
                 </div>
 
+
                 <div className="mt-4">
                   <p className="text-xs text-gray-500">
                     Category
@@ -225,26 +226,47 @@ function BrowseTasks() {
                   </p>
                 </div>
 
-                <div className="mt-3">
-                  <p className="text-xs text-gray-500">
-                    Posted by
-                  </p>
 
-                  {task.client?._id ? (
-                    <Link
-                      to={`/clients/${task.client._id}`}
-                      className="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                <div className="mt-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-500">
+                      Posted by
+                    </p>
+
+                    {task.client?._id ? (
+                      <Link
+                        to={`/clients/${task.client._id}`}
+                        className="truncate text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        {task.client.clientType === "company"
+                          ? task.client.clientProfile?.companyName || task.client.name
+                          : task.client.name}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-gray-500">
+                        Client information unavailable
+                      </span>
+                    )}
+                  </div>
+
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700">
+                    <svg
+                      className="h-3.5 w-3.5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
                     >
-                      {task.client.clientType === "company"
-                        ? task.client.clientProfile?.companyName || task.client.name
-                        : task.client.name}
-                    </Link>
-                  ) : (
-                    <span className="text-sm text-gray-500">
-                      Client information unavailable
-                    </span>
-                  )}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6m3-3h-6"
+                      />
+                    </svg>
+                    {task.applicationCount ?? 0} {task.applicationCount === 1 ? "Proposal" : "Proposals"}
+                  </span>
                 </div>
+
 
 
 

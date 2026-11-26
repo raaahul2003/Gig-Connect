@@ -320,7 +320,8 @@ export default function ClientTasks() {
                   </p>
                 )}
 
-                <div className="mt-4 grid grid-cols-1 gap-3 border-t border-gray-100 pt-4 sm:grid-cols-3">
+
+                <div className="mt-4 grid grid-cols-1 gap-3 border-t border-gray-100 pt-4 sm:grid-cols-4">
                   <div>
                     <p className="text-xs text-gray-500">Budget</p>
                     <p className="mt-1 text-sm font-semibold text-gray-900">
@@ -336,12 +337,20 @@ export default function ClientTasks() {
                   </div>
 
                   <div>
+                    <p className="text-xs text-gray-500">Applications Received</p>
+                    <p className="mt-1 text-sm font-semibold text-blue-600">
+                      {task.applicationCount ?? 0}
+                    </p>
+                  </div>
+
+                  <div>
                     <p className="text-xs text-gray-500">Posted On</p>
                     <p className="mt-1 text-sm font-medium text-gray-900">
                       {formatDate(task.createdAt)}
                     </p>
                   </div>
                 </div>
+
 
                 {task.isUrgent && (
                   <span className="mt-4 inline-block rounded-md bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700">

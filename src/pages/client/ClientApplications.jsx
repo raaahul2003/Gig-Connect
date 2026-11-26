@@ -146,15 +146,15 @@ export default function ClientApplications() {
             onClick={() => setStatus(item)}
             aria-pressed={status === item}
             className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${status === item
-                ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+              ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+              : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
               }`}
           >
             {item}
             <span
               className={`rounded-full px-2 py-0.5 text-xs ${status === item
-                  ? "bg-white/20 text-white"
-                  : "bg-gray-100 text-gray-500"
+                ? "bg-white/20 text-white"
+                : "bg-gray-100 text-gray-500"
                 }`}
             >
               {statusCounts[item]}
@@ -302,10 +302,10 @@ export default function ClientApplications() {
                   </div>
                   <span
                     className={`w-fit shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${application.status === "pending"
-                        ? "bg-amber-50 text-amber-700"
-                        : application.status === "accepted"
-                          ? "bg-green-50 text-green-700"
-                          : "bg-gray-100 text-gray-600"
+                      ? "bg-amber-50 text-amber-700"
+                      : application.status === "accepted"
+                        ? "bg-green-50 text-green-700"
+                        : "bg-gray-100 text-gray-600"
                       }`}
                   >
                     {application.status?.charAt(0).toUpperCase() +
@@ -330,9 +330,15 @@ export default function ClientApplications() {
                     </p>
                   </div>
                   <div className="rounded-xl border border-gray-100 px-4 py-3">
-                    <p className="text-xs text-gray-500">Delivery time</p>
+                    <p className="text-xs text-gray-500">Estimated delivery date</p>
                     <p className="mt-1 text-sm font-semibold text-gray-900">
-                      {application.deliveryHours} hours
+                      {application.deliveryDate
+                        ? new Date(`${application.deliveryDate.slice(0, 10)}T00:00:00`).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                        : "Not provided"}
                     </p>
                   </div>
                 </div>
