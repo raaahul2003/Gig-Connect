@@ -1,267 +1,354 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import {
+  getMyProfile,
+  updateNotificationPreferences,
+  changePassword,
+} from "../../services/profileService";
 
-const initialSettings = {
-  fullName: "",
-  email: "",
-  phone: "",
-  emailNotifications: true,
+const defaultPreferences = {
   taskUpdates: true,
-  marketingEmails: false,
+  applicationUpdates: true,
+  paymentUpdates: true,
 };
 
 export default function Settings() {
-  const [settings, setSettings] = useState(initialSettings);
+  const [user, setUser] = useState(null);
+  const [preferences, setPreferences] = useState(defaultPreferences);
+  const [originalPreferences, setOriginalPreferences] =
+    useState(defaultPreferences);
+
+  const [loading, setLoading] = useState(true);
+  const [savingNotifications, setSavingNotifications] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+
   const [passwords, setPasswords] = useState({
-    current: "",
-    next: "",
-    confirm: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
-  const [message, setMessage] = useState("");
-  const [passwordMessage, setPasswordMessage] = useState("");
 
-  function updateSetting(event) {
-    const { name, value, type, checked } = event.target;
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await getMyProfile();
+        const currentUser = response.user;
 
-    setSettings((current) => ({
+        setUser(currentUser);
+
+        const savedPreferences = {
+          taskUpdates:
+            currentUser.notificationPreferences?.taskUpdates ?? true,
+          applicationUpdates:
+            currentUser.notificationPreferences?.applicationUpdates ?? true,
+          paymentUpdates:
+            currentUser.notificationPreferences?.paymentUpdates ?? true,
+        };
+
+        setPreferences(savedPreferences);
+        setOriginalPreferences(savedPreferences);
+      } catch (error) {
+        toast.error(
+          error.response?.data?.message ||
+            "Unable to load account settings."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const handlePreferenceChange = (event) => {
+    const { name, checked } = event.target;
+
+    setPreferences((current) => ({
       ...current,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: checked,
     }));
-    setMessage("");
-  }
+  };
 
-  function handleSave(event) {
+  const handleSaveNotifications = async (event) => {
     event.preventDefault();
 
-    if (!settings.fullName.trim() || !settings.email.trim()) {
-      setMessage("Please enter your name and email address.");
-      return;
+    try {
+      setSavingNotifications(true);
+
+      const response =
+        await updateNotificationPreferences(preferences);
+
+      const saved = response.notificationPreferences;
+
+      setPreferences(saved);
+      setOriginalPreferences(saved);
+
+      toast.success("Notification preferences saved.");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to save notification preferences."
+      );
+    } finally {
+      setSavingNotifications(false);
     }
+  };
 
-    setMessage(
-      "Changes are reflected on this page only. Backend saving is not connected yet."
-    );
-  }
+  const handleResetNotifications = () => {
+    setPreferences(originalPreferences);
+  };
 
-  function handlePasswordChange(event) {
+  const handlePasswordInput = (event) => {
+    const { name, value } = event.target;
+
+    setPasswords((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handlePasswordChange = async (event) => {
     event.preventDefault();
-    setPasswordMessage("");
 
-    if (!passwords.current || !passwords.next || !passwords.confirm) {
-      setPasswordMessage("Please complete all password fields.");
+    if (
+      !passwords.currentPassword ||
+      !passwords.newPassword ||
+      !passwords.confirmPassword
+    ) {
+      toast.error("Please complete all password fields.");
       return;
     }
 
-    if (passwords.next.length < 8) {
-      setPasswordMessage("Your new password must be at least 8 characters.");
+    if (passwords.newPassword.length < 8) {
+      toast.error("New password must contain at least 8 characters.");
       return;
     }
 
-    if (passwords.next !== passwords.confirm) {
-      setPasswordMessage("The new passwords do not match.");
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      toast.error("New passwords do not match.");
       return;
     }
 
-    setPasswordMessage(
-      "Password validation passed. Connect the backend to change your password."
+    try {
+      setChangingPassword(true);
+
+      const response = await changePassword(passwords);
+
+      toast.success(
+        response.message || "Password changed successfully."
+      );
+
+      setPasswords({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to change password."
+      );
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <p className="text-sm text-gray-500">Loading settings...</p>
+      </div>
     );
-    setPasswords({ current: "", next: "", confirm: "" });
-  }
-
-  function handleCancel() {
-    setSettings(initialSettings);
-    setMessage("");
   }
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      {/* Page heading */}
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">Settings</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+          Settings
+        </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Manage your account details and preferences.
+          Manage your notifications and account security.
         </p>
       </div>
 
+      {/* Notification preferences */}
       <form
-        onSubmit={handleSave}
-        className="space-y-6 rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5 sm:p-7"
+        onSubmit={handleSaveNotifications}
+        className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7"
       >
         <div>
-          <h2 className="font-semibold text-gray-900">Account Information</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Update your basic contact details.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Full name
-            <input
-              name="fullName"
-              value={settings.fullName}
-              onChange={updateSetting}
-              required
-              autoComplete="name"
-              placeholder="Enter your full name"
-              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
-            />
-          </label>
-
-          <label className="block text-sm font-medium text-gray-700">
-            Email address
-            <input
-              name="email"
-              type="email"
-              value={settings.email}
-              onChange={updateSetting}
-              required
-              autoComplete="email"
-              placeholder="you@example.com"
-              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
-            />
-          </label>
-
-          <label className="block text-sm font-medium text-gray-700 sm:col-span-2">
-            Phone number
-            <input
-              name="phone"
-              type="tel"
-              value={settings.phone}
-              onChange={updateSetting}
-              autoComplete="tel"
-              placeholder="Enter your phone number"
-              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 font-normal outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
-            />
-          </label>
-        </div>
-
-        <div className="border-t border-gray-100 pt-5">
           <h2 className="font-semibold text-gray-900">
             Notification Preferences
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Choose which updates you would like to receive.
+            Choose which platform updates you want to receive.
           </p>
-
-          <div className="mt-5 space-y-4">
-            {[
-              {
-                name: "emailNotifications",
-                label: "Email notifications",
-                description: "Receive important account updates by email.",
-              },
-              {
-                name: "taskUpdates",
-                label: "Task updates",
-                description: "Get notified about applications and task progress.",
-              },
-              {
-                name: "marketingEmails",
-                label: "Product announcements",
-                description: "Receive optional product news and announcements.",
-              },
-            ].map((item) => (
-              <label
-                key={item.name}
-                className="flex cursor-pointer items-start gap-3"
-              >
-                <input
-                  type="checkbox"
-                  name={item.name}
-                  checked={settings[item.name]}
-                  onChange={updateSetting}
-                  className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
-                />
-                <span>
-                  <span className="block text-sm font-medium text-gray-800">
-                    {item.label}
-                  </span>
-                  <span className="mt-1 block text-sm text-gray-500">
-                    {item.description}
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
         </div>
 
-        {message && (
-          <p role="status" className="text-sm text-blue-700">
-            {message}
-          </p>
-        )}
+        <div className="mt-6 space-y-5">
+          {[
+            {
+              name: "taskUpdates",
+              label: "Task updates",
+              description:
+                "Stay informed about task progress and status changes.",
+            },
+            {
+              name: "applicationUpdates",
+              label: "Application updates",
+              description:
+                "Receive updates about submitted and received applications.",
+            },
+            {
+              name: "paymentUpdates",
+              label: "Payment updates",
+              description:
+                "Receive updates about payments and earnings.",
+            },
+          ].map((item) => (
+            <label
+              key={item.name}
+              className="flex cursor-pointer items-start justify-between gap-4"
+            >
+              <span>
+                <span className="block text-sm font-medium text-gray-800">
+                  {item.label}
+                </span>
+                <span className="mt-1 block text-sm text-gray-500">
+                  {item.description}
+                </span>
+              </span>
 
-        <div className="flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-5">
+              <input
+                type="checkbox"
+                name={item.name}
+                checked={preferences[item.name]}
+                onChange={handlePreferenceChange}
+                className="mt-1 h-4 w-4 shrink-0 accent-blue-600"
+              />
+            </label>
+          ))}
+        </div>
+
+        <div className="mt-6 flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-5">
           <button
             type="button"
-            onClick={handleCancel}
-            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+            onClick={handleResetNotifications}
+            disabled={savingNotifications}
+            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
             Reset
           </button>
+
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+            disabled={savingNotifications}
+            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Save Changes
+            {savingNotifications ? "Saving..." : "Save Preferences"}
           </button>
         </div>
       </form>
 
+      {/* Change password */}
       <form
         onSubmit={handlePasswordChange}
-        className="space-y-5 rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5 sm:p-7"
+        className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7"
       >
         <div>
-          <h2 className="font-semibold text-gray-900">Change Password</h2>
+          <h2 className="font-semibold text-gray-900">
+            Change Password
+          </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Password changes require server-side authentication.
+            Use a strong password to keep your account secure.
           </p>
         </div>
 
-        {[
-          { name: "current", label: "Current password" },
-          { name: "next", label: "New password" },
-          { name: "confirm", label: "Confirm new password" },
-        ].map((field) => (
-          <label
-            key={field.name}
-            className="block text-sm font-medium text-gray-700"
+        <div className="mt-6 space-y-4">
+          {[
+            {
+              name: "currentPassword",
+              label: "Current password",
+              autoComplete: "current-password",
+            },
+            {
+              name: "newPassword",
+              label: "New password",
+              autoComplete: "new-password",
+            },
+            {
+              name: "confirmPassword",
+              label: "Confirm new password",
+              autoComplete: "new-password",
+            },
+          ].map((field) => (
+            <label
+              key={field.name}
+              className="block text-sm font-medium text-gray-700"
+            >
+              {field.label}
+
+              <input
+                type="password"
+                name={field.name}
+                value={passwords[field.name]}
+                onChange={handlePasswordInput}
+                autoComplete={field.autoComplete}
+                minLength={field.name !== "currentPassword" ? 8 : undefined}
+                required
+                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </label>
+          ))}
+        </div>
+
+        <div className="mt-6 flex justify-end border-t border-gray-100 pt-5">
+          <button
+            type="submit"
+            disabled={changingPassword}
+            className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {field.label}
-            <input
-              type="password"
-              name={field.name}
-              value={passwords[field.name]}
-              onChange={(event) =>
-                setPasswords((current) => ({
-                  ...current,
-                  [field.name]: event.target.value,
-                }))
-              }
-              autoComplete={
-                field.name === "current"
-                  ? "current-password"
-                  : "new-password"
-              }
-              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
-          </label>
-        ))}
-
-        {passwordMessage && (
-          <p role="status" className="text-sm text-blue-700">
-            {passwordMessage}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
-        >
-          Update Password
-        </button>
+            {changingPassword ? "Updating..." : "Update Password"}
+          </button>
+        </div>
       </form>
+
+      {/* Account security */}
+      <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+        <h2 className="font-semibold text-gray-900">
+          Account Security
+        </h2>
+
+        <p className="mt-1 text-sm text-gray-500">
+          Your registered account information.
+        </p>
+
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              Registered email
+            </p>
+            <p className="mt-1 break-all text-sm font-medium text-gray-900">
+              {user?.email || "Email unavailable"}
+            </p>
+          </div>
+
+          <span
+            className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-medium ${
+              user?.isEmailVerified
+                ? "bg-green-50 text-green-700"
+                : "bg-amber-50 text-amber-700"
+            }`}
+          >
+            {user?.isEmailVerified
+              ? "Email verified"
+              : "Email not verified"}
+          </span>
+        </div>
+      </section>
     </div>
   );
 }

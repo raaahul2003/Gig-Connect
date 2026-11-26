@@ -43,3 +43,21 @@ export const getFreelancerWorkHistory = async (userId) => {
   const response = await api.get(`/users/${userId}/work-history`);
   return response.data;
 };
+
+// Update notification preferences
+export const updateNotificationPreferences = async (preferences) => {
+  const response = await api.put(
+    "/users/settings/notifications",
+    preferences
+  );
+  return response.data;
+};
+
+// Change account password
+export const changePassword = async (passwordData) => {
+  const response = await api.put(
+    "/users/change-password",
+    passwordData
+  );
+  return response.data;
+};
