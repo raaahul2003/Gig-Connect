@@ -1,15 +1,16 @@
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   getSubmissionsForClient,
   reviewSubmission,
   downloadSubmissionFile
 } from "../../services/submissionService";
-
+import { toast } from "react-toastify";
 
 export default function ClientSubmissionReview() {
 
+  const navigate = useNavigate();
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -75,21 +76,39 @@ export default function ClientSubmissionReview() {
       setActionError("");
       setActionMessage("");
 
-      await reviewSubmission(submissionId, "approved");
+      const response = await reviewSubmission(
+        submissionId,
+        "approved"
+      );
 
       setSubmissions((prev) =>
         prev.map((submission) =>
           submission._id === submissionId
-            ? { ...submission, status: "approved" }
+            ? response.submission || {
+              ...submission,
+              status: "approved",
+            }
             : submission
         )
       );
 
-      setActionMessage("Project completed. The work has been approved.");
-    } catch (error) {
-      setActionError(
-        error.response?.data?.message || "Failed to approve submission."
+      toast.success(
+        "Work approved successfully! Redirecting to payments..."
       );
+
+      // Give the user time to see the success toast
+      setTimeout(() => {
+        navigate("/client/payments");
+      }, 1200);
+
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to approve submission.";
+
+      setActionError(errorMessage);
+      toast.error(errorMessage);
+
     } finally {
       setActionLoading("");
     }
@@ -246,13 +265,12 @@ export default function ClientSubmissionReview() {
                     </p>
                   </div>
                   <span
-                    className={`inline-flex w-fit shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold ${
-                      submission.status === "approved"
-                        ? "bg-green-50 text-green-700"
-                        : submission.status === "revision_requested"
-                          ? "bg-amber-50 text-amber-700"
-                          : "bg-blue-50 text-blue-700"
-                    }`}
+                    className={`inline-flex w-fit shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold ${submission.status === "approved"
+                      ? "bg-green-50 text-green-700"
+                      : submission.status === "revision_requested"
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-blue-50 text-blue-700"
+                      }`}
                   >
                     {submission.status === "approved"
                       ? "Project completed"
@@ -355,11 +373,10 @@ export default function ClientSubmissionReview() {
                   </>
                 ) : (
                   <p
-                    className={`mt-5 rounded-xl border px-4 py-3 text-sm leading-6 ${
-                      submission.status === "approved"
-                        ? "border-green-100 bg-green-50 text-green-800"
-                        : "border-amber-100 bg-amber-50 text-amber-800"
-                    }`}
+                    className={`mt-5 rounded-xl border px-4 py-3 text-sm leading-6 ${submission.status === "approved"
+                      ? "border-green-100 bg-green-50 text-green-800"
+                      : "border-amber-100 bg-amber-50 text-amber-800"
+                      }`}
                   >
                     {submission.status === "approved"
                       ? "This work has been approved and the project is complete."

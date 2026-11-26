@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getFreelancerEarnings } from "../../services/paymentService";
 
-const formatINR = (amount) =>
+const formatINR = (amount = 0) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
@@ -14,12 +14,6 @@ function Earnings() {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const metrics = [
-    { label: "Total earnings", value: formatINR(totalEarnings) },
-    { label: "Pending payments", value: "—" },
-    { label: "Paid earnings", value: formatINR(totalEarnings) },
-  ];
 
   useEffect(() => {
     const fetchEarnings = async () => {
@@ -40,6 +34,20 @@ function Earnings() {
     fetchEarnings();
   }, []);
 
+  const paidTransactions = transactions.filter(
+    (payment) => payment.status === "paid"
+  );
+
+  const pendingPayments = transactions
+    .filter((payment) =>
+      ["pending", "processing"].includes(payment.status)
+    )
+    .reduce(
+      (total, payment) =>
+        total + (payment.freelancerAmount ?? payment.amount ?? 0),
+      0
+    );
+
   return (
     <main>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -59,30 +67,34 @@ function Earnings() {
 
         <Link
           to="/freelancer/active-work"
-          className="inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+          className="inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
         >
           View active work
         </Link>
       </header>
 
-      {/* Earnings Overview */}
       <section
         aria-label="Earnings overview"
         className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
       >
-        {metrics.map((metric) => (
+        {[
+          {
+            label: "Total Earnings",
+            value: formatINR(totalEarnings),
+          },
+          {
+            label: "Pending Earnings",
+            value: formatINR(pendingPayments),
+          },
+        ].map((metric) => (
           <article
             key={metric.label}
-            className="rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
+            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
           >
-            <p className="text-sm text-gray-500">
-              {metric.label}
-            </p>
-
+            <p className="text-sm text-gray-500">{metric.label}</p>
             <p className="mt-3 text-3xl font-bold text-gray-900">
               {metric.value}
             </p>
-
             <p className="mt-2 text-xs text-gray-400">
               Based on recorded payment data
             </p>
@@ -90,8 +102,7 @@ function Earnings() {
         ))}
       </section>
 
-      {/* Transaction History */}
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow">
+      <section className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-gray-200 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold text-gray-900">
@@ -99,7 +110,7 @@ function Earnings() {
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              Payments associated with your completed tasks.
+              Your earnings from completed and paid tasks.
             </p>
           </div>
 
@@ -132,48 +143,79 @@ function Earnings() {
 
             <Link
               to="/browse"
-              className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700"
             >
               Explore tasks →
             </Link>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm min-w-[640px]">
+            <table className="w-full min-w-[850px] text-left text-sm">
               <thead className="bg-gray-50 text-gray-500">
                 <tr>
                   <th className="px-5 py-3 font-medium">Task</th>
                   <th className="px-5 py-3 font-medium">Date</th>
-                  <th className="px-5 py-3 font-medium">Amount</th>
+                  <th className="px-5 py-3 font-medium">Task price</th>
+                  <th className="px-5 py-3 font-medium">Platform fee</th>
+                  <th className="px-5 py-3 font-medium">Your earnings</th>
                   <th className="px-5 py-3 font-medium">Status</th>
                 </tr>
               </thead>
 
               <tbody>
-                {transactions.map((transaction) => (
-                  <tr
-                    key={transaction._id}
-                    className="border-t border-gray-100"
-                  >
-                    <td className="px-5 py-4">
-                      {transaction.task?.title || "Untitled Task"}
-                    </td>
+                {transactions.map((transaction) => {
+                  const taskPrice = transaction.amount || 0;
+                  const platformFee = transaction.platformFee ?? 0;
+                  const freelancerAmount =
+                    transaction.freelancerAmount ?? taskPrice;
 
-                    <td className="px-5 py-4">
-                      {new Date(
-                        transaction.createdAt
-                      ).toLocaleDateString("en-IN")}
-                    </td>
+                  return (
+                    <tr
+                      key={transaction._id}
+                      className="border-t border-gray-100"
+                    >
+                      <td className="px-5 py-4 font-medium text-gray-900">
+                        {transaction.task?.title || "Untitled Task"}
+                      </td>
 
-                    <td className="px-5 py-4">
-                      {formatINR(transaction.amount)}
-                    </td>
+                      <td className="px-5 py-4 text-gray-500">
+                        {new Date(
+                          transaction.createdAt
+                        ).toLocaleDateString("en-IN")}
+                      </td>
 
-                    <td className="px-5 py-4 capitalize text-green-600">
-                      {transaction.status}
-                    </td>
-                  </tr>
-                ))}
+                      <td className="px-5 py-4">
+                        {formatINR(taskPrice)}
+                      </td>
+
+                      <td className="px-5 py-4 text-gray-500">
+                        {formatINR(platformFee)}
+                        <span className="block text-xs text-gray-400">
+                          Paid by client
+                        </span>
+                      </td>
+
+                      <td className="px-5 py-4 font-semibold text-gray-900">
+                        {formatINR(freelancerAmount)}
+                      </td>
+
+                      <td className="px-5 py-4">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${transaction.status === "paid"
+                              ? "bg-green-50 text-green-700"
+                              : transaction.status === "pending"
+                                ? "bg-yellow-50 text-yellow-700"
+                                : transaction.status === "processing"
+                                  ? "bg-blue-50 text-blue-700"
+                                  : "bg-gray-100 text-gray-600"
+                            }`}
+                        >
+                          {transaction.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

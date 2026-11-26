@@ -6,13 +6,23 @@ import {
   createRazorpayOrder,
   verifyRazorpayPayment,
 } from "../../services/paymentService";
+import { toast } from "react-toastify";
+
+const formatINR = (amount = 0) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+  }).format(amount);
+
+// Supports older payment records as well.
+const getClientTotal = (payment) =>
+  payment.clientTotal ??
+  (payment.amount || 0) + (payment.platformFee || 0);
 
 export default function ClientPayments() {
-
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [payingId, setPayingId] = useState(null);
 
   useEffect(() => {
@@ -22,7 +32,8 @@ export default function ClientPayments() {
         setTransactions(data.payments || []);
       } catch (err) {
         setError(
-          err.response?.data?.message || "Failed to load payment history."
+          err.response?.data?.message ||
+          "Failed to load payment history."
         );
       } finally {
         setLoading(false);
@@ -32,19 +43,18 @@ export default function ClientPayments() {
     fetchPayments();
   }, []);
 
-
   const handlePayment = async (payment) => {
     try {
       setPayingId(payment._id);
 
-      // 1. Create or reuse Razorpay order
       const data = await createRazorpayOrder(payment._id);
 
       if (!window.Razorpay) {
-        throw new Error("Razorpay Checkout failed to load. Please refresh.");
+        throw new Error(
+          "Razorpay Checkout failed to load. Please refresh."
+        );
       }
 
-      // 2. Configure Razorpay Checkout
       const options = {
         key: data.key,
         amount: data.order.amount,
@@ -53,8 +63,6 @@ export default function ClientPayments() {
         description: payment.task?.title || "Task Payment",
         order_id: data.order.id,
 
-
-        // 3. Handle successful checkout
         handler: async function (response) {
           try {
             const result = await verifyRazorpayPayment({
@@ -64,14 +72,15 @@ export default function ClientPayments() {
               razorpay_signature: response.razorpay_signature,
             });
 
-            alert(result.message || "Payment successful!");
+            toast.success(result.message || "Payment successful!", {
+              position: "top-right",
+              autoClose: 3000,
+            });
 
-            // Refresh payment history
             const updatedData = await getClientPayments();
             setTransactions(updatedData.payments || []);
-
           } catch (error) {
-            alert(
+            toast.error(
               error.response?.data?.message ||
               "Payment verification failed. Please contact support."
             );
@@ -91,20 +100,18 @@ export default function ClientPayments() {
         },
       };
 
-      // 4. Open Razorpay Checkout
       const checkout = new window.Razorpay(options);
 
       checkout.on("payment.failed", function (response) {
-        alert(
+        toast.error(
           response.error?.description || "Payment failed. Please try again."
         );
         setPayingId(null);
       });
 
       checkout.open();
-
     } catch (error) {
-      alert(
+      toast.error(
         error.response?.data?.message ||
         error.message ||
         "Unable to start payment."
@@ -114,29 +121,48 @@ export default function ClientPayments() {
     }
   };
 
-
   const totalSpent = transactions
     .filter((payment) => payment.status === "paid")
-    .reduce((total, payment) => total + payment.amount, 0);
+    .reduce(
+      (total, payment) => total + getClientTotal(payment),
+      0
+    );
 
   const processingPayments = transactions
     .filter((payment) => payment.status === "processing")
-    .reduce((total, payment) => total + payment.amount, 0);
+    .reduce(
+      (total, payment) => total + getClientTotal(payment),
+      0
+    );
 
   const pendingPayments = transactions
     .filter((payment) => payment.status === "pending")
-    .reduce((total, payment) => total + payment.amount, 0);
+    .reduce(
+      (total, payment) => total + getClientTotal(payment),
+      0
+    );
 
-  const formatINR = (amount) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-    }).format(amount);
+  const paidPlatformFees = transactions
+    .filter((payment) => payment.status === "paid")
+    .reduce(
+      (total, payment) => total + (payment.platformFee ?? 0),
+      0
+    );
 
   const summaries = [
     { label: "Total Spent", value: formatINR(totalSpent) },
-    { label: "Processing Payments", value: formatINR(processingPayments) },
-    { label: "Pending Payments", value: formatINR(pendingPayments) },
+    {
+      label: "Processing Payments",
+      value: formatINR(processingPayments),
+    },
+    {
+      label: "Pending Payments",
+      value: formatINR(pendingPayments),
+    },
+    {
+      label: "Platform Fees Paid",
+      value: formatINR(paidPlatformFees),
+    },
   ];
 
   return (
@@ -150,11 +176,11 @@ export default function ClientPayments() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {summaries.map((item) => (
           <div
             key={item.label}
-            className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
+            className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow"
           >
             <p className="text-sm text-gray-500">{item.label}</p>
             <p className="mt-2 text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
@@ -170,7 +196,7 @@ export default function ClientPayments() {
             Transaction History
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Payments associated with your GigConnect tasks.
+            Review your task prices, platform fees and payments.
           </p>
         </div>
 
@@ -212,70 +238,104 @@ export default function ClientPayments() {
 
             <Link
               to="/client/tasks"
-              className="mt-5 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              className="mt-5 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700"
             >
               View My Tasks
             </Link>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm min-w-[640px]">
+            <table className="w-full min-w-[950px] text-left text-sm">
               <thead className="bg-gray-50 text-gray-500">
                 <tr>
                   <th className="px-5 py-3 font-medium">Task</th>
                   <th className="px-5 py-3 font-medium">Date</th>
-                  <th className="px-5 py-3 font-medium">Amount</th>
+                  <th className="px-5 py-3 font-medium">Task Price</th>
+                  <th className="px-5 py-3 font-medium">
+                    Platform Fee (5%)
+                  </th>
+                  <th className="px-5 py-3 font-medium">Total Payable</th>
                   <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium">Action</th>
                 </tr>
               </thead>
+
               <tbody>
-                {transactions.map((transaction) => (
-                  <tr
-                    key={transaction._id}
-                    className="border-t border-gray-100"
-                  >
-                    <td className="px-5 py-4 font-medium text-gray-900">
-                      {transaction.task?.title || "Untitled Task"}
-                    </td>
+                {transactions.map((transaction) => {
+                  const taskPrice = transaction.amount || 0;
+                  const platformFee =
+                    transaction.platformFee ?? 0;
+                  const clientTotal = getClientTotal(transaction);
 
-                    <td className="px-5 py-4 text-gray-500">
-                      {new Date(transaction.createdAt).toLocaleDateString("en-IN")}
-                    </td>
+                  return (
+                    <tr
+                      key={transaction._id}
+                      className="border-t border-gray-100"
+                    >
+                      <td className="px-5 py-4 font-medium text-gray-900">
+                        {transaction.task?.title || "Untitled Task"}
+                      </td>
 
-                    <td className="px-5 py-4 text-gray-700">
-                      {formatINR(transaction.amount)}
-                    </td>
+                      <td className="px-5 py-4 text-gray-500">
+                        {new Date(
+                          transaction.createdAt
+                        ).toLocaleDateString("en-IN")}
+                      </td>
 
-                    <td className="px-5 py-4 text-gray-600 capitalize">
-                      {transaction.status}
-                    </td>
+                      <td className="px-5 py-4 text-gray-700">
+                        {formatINR(taskPrice)}
+                      </td>
 
-                    <td className="px-5 py-4">
-                      {transaction.status !== "paid" &&
-                        ["pending", "processing"].includes(transaction.status) && (
-                          <button
-                            onClick={() => handlePayment(transaction)}
-                            disabled={payingId === transaction._id}
-                            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {payingId === transaction._id ? "Processing..." : "Pay Now"}
-                          </button>
+                      <td className="px-5 py-4 text-gray-500">
+                        {formatINR(platformFee)}
+                      </td>
+
+                      <td className="px-5 py-4 font-semibold text-gray-900">
+                        {formatINR(clientTotal)}
+                      </td>
+
+                      <td className="px-5 py-4 text-gray-600 capitalize">
+                        {transaction.status}
+                      </td>
+
+                      <td className="px-5 py-4">
+                        {transaction.status !== "paid" &&
+                          ["pending", "processing"].includes(
+                            transaction.status
+                          ) && (
+                            <button
+                              onClick={() =>
+                                handlePayment(transaction)
+                              }
+                              disabled={payingId === transaction._id}
+                              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {payingId === transaction._id
+                                ? "Processing..."
+                                : "Pay Now"}
+                            </button>
+                          )}
+
+                        {transaction.status === "paid" && (
+                          <span className="text-sm font-medium text-green-600">
+                            Paid
+                          </span>
                         )}
-
-                      {transaction.status === "paid" && (
-                        <span className="text-sm font-medium text-green-600">
-                          Paid
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
+      <p className="text-xs text-gray-500">
+        GigConnect charges a transparent 5% platform fee on the task
+        price. The fee is added to your payment and is not deducted
+        from the freelancer's agreed earnings.
+      </p>
     </div>
   );
 }

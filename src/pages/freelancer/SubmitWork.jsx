@@ -1,12 +1,13 @@
 
 import { useRef, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { submitWork } from "../../services/submissionService";
-
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_FILES = 5;
 
 function SubmitWork() {
+  const navigate = useNavigate();
   const { taskId } = useParams();
   const [searchParams] = useSearchParams();
   const revisionOf = searchParams.get("revisionOf");
@@ -16,13 +17,11 @@ function SubmitWork() {
   const [note, setNote] = useState("");
   const [files, setFiles] = useState([]);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function handleFiles(event) {
     setError("");
-    setMessage("");
 
     const selectedFiles = Array.from(event.target.files || []);
     event.target.value = "";
@@ -61,7 +60,6 @@ function SubmitWork() {
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
-    setMessage("");
 
     if (!taskId) {
       setError("Task ID is missing.");
@@ -93,11 +91,9 @@ function SubmitWork() {
     try {
       setIsSubmitting(true);
 
-      const response = await submitWork(taskId, formData);
-
-      setMessage(response.message || "Work submitted successfully.");
-      setNote("");
-      setFiles([]);
+      await submitWork(taskId, formData);
+      toast.success("Work submitted successfully!");
+      navigate("/freelancer/submissions");
     } catch (error) {
       setError(
         error.response?.data?.message ||
@@ -235,15 +231,6 @@ function SubmitWork() {
               className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
             >
               {error}
-            </p>
-          )}
-
-          {message && (
-            <p
-              role="status"
-              className="rounded-lg bg-blue-50 p-3 text-sm leading-6 text-blue-800"
-            >
-              {message}
             </p>
           )}
 
