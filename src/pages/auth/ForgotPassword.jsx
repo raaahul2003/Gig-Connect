@@ -1,25 +1,39 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../../api/axios";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    setError("");
-    setMessage("");
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError("Enter a valid email address.");
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      toast.error("Enter a valid email address.");
       return;
     }
 
-    setMessage(
-      "This form is ready for integration. No reset email has been sent."
-    );
+    try {
+      setLoading(true);
+
+      const response = await api.post("/auth/forgot-password", {
+        email: normalizedEmail,
+      });
+
+      toast.success(response.data.message);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message ||
+          "Unable to process your request. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -41,18 +55,13 @@ function ForgotPassword() {
           </Link>
 
           <div className="mt-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-              <span aria-hidden="true" className="text-xl">@</span>
-            </div>
-
             <h1 className="mt-5 text-2xl font-bold text-gray-900">
               Forgot your password?
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-gray-600">
-              Enter the email address associated with your account. We'll
-              provide a way to reset your password once authentication is
-              connected.
+              Enter the email address associated with your account.
+              We'll send you a password reset link if an account exists.
             </p>
           </div>
 
@@ -69,33 +78,27 @@ function ForgotPassword() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="you@example.com"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                required
+                disabled={loading}
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:bg-gray-100"
               />
             </div>
 
-            {error && (
-              <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
-                {error}
-              </p>
-            )}
-
-            {message && (
-              <p role="status" className="rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
-                {message}
-              </p>
-            )}
-
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              disabled={loading}
+              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Continue
+              {loading ? "Sending reset link..." : "Continue"}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-600">
             Remember your password?{" "}
-            <Link to="/login" className="font-semibold text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors">
+            <Link
+              to="/login"
+              className="font-semibold text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+            >
               Sign in
             </Link>
           </p>

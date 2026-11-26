@@ -46,6 +46,7 @@ import HowItWorks from './pages/public/HowItWorks'
 import FreelancerPublicProfile from './pages/public/FreelancerPublicProfile'
 import ClientProfile from './pages/client/ClientProfile'
 import ClientPublicProfile from './pages/public/ClientPublicProfile'
+import ResetPassword from "./pages/ResetPassword";
 import { Analytics } from '@vercel/analytics/react'
 
 function App() {
@@ -111,6 +112,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
