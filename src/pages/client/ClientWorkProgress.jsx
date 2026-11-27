@@ -3,9 +3,9 @@ import { getClientActiveWork } from "../../services/applicationService";
 import { getSubmissionsForClient } from "../../services/submissionService";
 
 const statusStyles = {
-  Completed: "bg-green-50 text-green-700",
-  "In Progress": "bg-blue-50 text-blue-700",
-  Pending: "bg-gray-100 text-gray-600",
+  Completed: "border-green-200 bg-green-50 text-green-800",
+  "In Progress": "border-blue-200 bg-blue-50 text-blue-800",
+  Pending: "border-gray-200 bg-gray-100 text-gray-700",
 };
 
 export default function ClientWorkProgress() {
@@ -141,129 +141,161 @@ export default function ClientWorkProgress() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+    <main className="space-y-6 sm:space-y-8">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
           Work Progress
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-2 max-w-3xl text-base leading-6 text-gray-700">
           Track milestones and delivery progress for your active tasks.
         </p>
-      </div>
+      </header>
 
       {loading ? (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow px-6 py-14 text-center">
-          <p className="text-sm text-gray-500">
-            Loading work progress...
-          </p>
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-xl border border-gray-200 bg-white px-5 py-10 text-center text-sm text-gray-600"
+        >
+          Loading work progress...
         </div>
       ) : error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-14 text-center">
-          <p className="text-sm text-red-600">{error}</p>
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-5 py-8 text-sm leading-6 text-red-800"
+        >
+          {error}
         </div>
       ) : tasks.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow px-6 py-14 text-center">
-          <h2 className="font-semibold text-gray-900">
+        <div className="rounded-xl border border-gray-200 bg-white px-5 py-10 text-center">
+          <h2 className="text-lg font-semibold text-gray-950">
             No active tasks
           </h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-gray-600">
             Progress updates will appear here when work begins.
           </p>
         </div>
       ) : (
-        <div className="space-y-5">
+        <section aria-label="Task progress" className="space-y-4">
           {tasks.map((task) => (
             <article
               key={task.id}
-              className="space-y-6 rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5 sm:p-7"
+              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
             >
-              <div className="flex flex-col justify-between gap-4 sm:flex-row">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">
+              <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <h2 className="break-words text-lg font-semibold tracking-tight text-gray-950">
                     {task.title}
                   </h2>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Freelancer: {task.freelancer}
-                  </p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Deadline:{" "}
-                    {task.deadline && !isNaN(new Date(task.deadline).getTime())
-                      ? new Date(task.deadline).toLocaleDateString()
-                      : "Not set"}
-                  </p>
+                  <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                    <div>
+                      <dt className="text-xs font-medium text-gray-600">
+                        Freelancer
+                      </dt>
+                      <dd className="mt-1 font-medium text-gray-900">
+                        {task.freelancer}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-medium text-gray-600">
+                        Deadline
+                      </dt>
+                      <dd className="mt-1 font-medium text-gray-900">
+                        {task.deadline &&
+                        !isNaN(new Date(task.deadline).getTime())
+                          ? new Date(task.deadline).toLocaleDateString()
+                          : "Not set"}
+                      </dd>
+                    </div>
+                  </dl>
                 </div>
 
                 <span
-                  className={`h-fit w-fit rounded-full px-3 py-1 text-xs font-medium ${statusStyles[task.status] || "bg-gray-100 text-gray-600"
-                    }`}
+                  className={`inline-flex min-h-9 w-fit shrink-0 items-center rounded-md border px-3 py-1 text-sm font-semibold ${
+                    statusStyles[task.status] ||
+                    "border-gray-200 bg-gray-100 text-gray-800"
+                  }`}
                 >
                   {task.status}
                 </span>
-              </div>
+              </header>
 
-              <div>
-                <div className="mb-2 flex justify-between gap-3 text-sm">
-                  <span className="font-medium text-gray-700">
-                    Overall progress
-                  </span>
-                  <span className="font-semibold text-gray-900">
-                    {task.progress}%
-                  </span>
-                </div>
-                <div
-                  className="h-2.5 overflow-hidden rounded-full bg-gray-100"
-                  role="progressbar"
-                  aria-label={`${task.title} progress`}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={task.progress}
-                >
+              <div className="mt-5 grid gap-5 border-t border-gray-100 pt-5 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1.3fr)]">
+                <section aria-label={`Overall progress for ${task.title}`}>
+                  <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                    <h3 className="font-semibold text-gray-900">
+                      Overall progress
+                    </h3>
+                    <span className="font-semibold text-gray-950">
+                      {task.progress}%
+                    </span>
+                  </div>
                   <div
-                    className="h-full rounded-full bg-blue-600 transition-all"
-                    style={{
-                      width: `${Math.min(100, Math.max(0, task.progress))}%`,
-                    }}
-                  />
-                </div>
-              </div>
+                    className="h-2.5 overflow-hidden rounded-full bg-gray-100"
+                    role="progressbar"
+                    aria-label={`${task.title} progress`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={task.progress}
+                  >
+                    <div
+                      className="h-full rounded-full bg-blue-700 transition-all"
+                      style={{
+                        width: `${Math.min(100, Math.max(0, task.progress))}%`,
+                      }}
+                    />
+                  </div>
+                </section>
 
-              <div>
-                <h3 className="font-semibold text-gray-900">Milestones</h3>
+                <section aria-labelledby={`milestones-${task.id}`}>
+                  <h3
+                    id={`milestones-${task.id}`}
+                    className="font-semibold text-gray-900"
+                  >
+                    Milestones
+                  </h3>
 
-                <div className="mt-4 space-y-4">
-                  {task.milestones.map((milestone, index) => (
-                    <div key={milestone.id} className="flex gap-3">
-                      <div
-                        className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${milestone.status === "Completed"
-                          ? "bg-green-100 text-green-700"
-                          : milestone.status === "In Progress"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-500"
-                          }`}
+                  <ol className="mt-3 grid gap-3 sm:grid-cols-3">
+                    {task.milestones.map((milestone, index) => (
+                      <li
+                        key={milestone.id}
+                        className="flex min-w-0 items-start gap-3 sm:flex-col sm:gap-2"
                       >
-                        {milestone.status === "Completed" ? "✓" : index + 1}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-gray-800">
-                          {milestone.title}
-                        </p>
                         <span
-                          className={`mt-1 inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[milestone.status] ??
-                            "bg-gray-100 text-gray-600"
-                            }`}
+                          aria-hidden="true"
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                            milestone.status === "Completed"
+                              ? "bg-green-100 text-green-800"
+                              : milestone.status === "In Progress"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-gray-100 text-gray-700"
+                          }`}
                         >
-                          {milestone.status}
+                          {milestone.status === "Completed" ? "✓" : index + 1}
                         </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium leading-5 text-gray-900">
+                            {milestone.title}
+                          </p>
+                          <span
+                            className={`mt-1 inline-flex min-h-7 items-center rounded-md border px-2 py-1 text-xs font-semibold ${
+                              statusStyles[milestone.status] ??
+                              "border-gray-200 bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {milestone.status}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
               </div>
             </article>
           ))}
-        </div>
+        </section>
       )}
-    </div>
+    </main>
   );
 }

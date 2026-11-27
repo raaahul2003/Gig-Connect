@@ -51,39 +51,43 @@ function ResetPassword() {
     };
 
     return (
-        <main className="flex min-h-screen items-center justify-center bg-gray-50 px-5 py-12">
+        <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10 sm:px-6 sm:py-12">
             <div className="w-full max-w-md">
                 <Link
                     to="/"
-                    className="block text-center text-2xl font-bold text-gray-900"
+                    className="mx-auto block w-fit rounded-sm text-center text-2xl font-bold tracking-tight text-gray-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700"
                 >
                     Gig<span className="text-blue-600">Connect</span>
                 </Link>
 
-                <section className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+                <section className="mt-7 rounded-xl border border-gray-200 bg-white p-5 sm:mt-8 sm:p-8">
                     <Link
                         to="/login"
-                        className="text-sm font-medium text-gray-500 hover:text-blue-600"
+                        className="inline-flex min-h-10 items-center rounded-sm text-sm font-medium text-gray-700 transition-colors hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                     >
                         ← Back to login
                     </Link>
 
-                    <h1 className="mt-6 text-2xl font-bold text-gray-900">
+                    <h1 className="mt-5 text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
                         Create a new password
                     </h1>
 
-                    <p className="mt-3 text-sm leading-6 text-gray-600">
+                    <p className="mt-3 text-sm leading-6 text-gray-700">
                         Enter your new password below. Your reset link is valid for
                         15 minutes.
                     </p>
 
-                    <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+                    <form onSubmit={handleSubmit} className="mt-6 space-y-5">
                         <div>
-                            <label className="text-sm font-semibold">
+                            <label
+                                htmlFor="new-password"
+                                className="text-sm font-semibold text-gray-900"
+                            >
                                 New password
                             </label>
 
                             <input
+                                id="new-password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -91,16 +95,20 @@ function ResetPassword() {
                                 autoComplete="new-password"
                                 required
                                 minLength={8}
-                                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                className="mt-2 min-h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
                             />
                         </div>
 
                         <div>
-                            <label className="text-sm font-semibold">
+                            <label
+                                htmlFor="confirm-password"
+                                className="text-sm font-semibold text-gray-900"
+                            >
                                 Confirm new password
                             </label>
 
                             <input
+                                id="confirm-password"
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -108,14 +116,14 @@ function ResetPassword() {
                                 autoComplete="new-password"
                                 required
                                 minLength={8}
-                                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                className="mt-2 min-h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
                             />
                         </div>
 
                         {error && (
                             <p
                                 role="alert"
-                                className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+                                className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-800"
                             >
                                 {error}
                             </p>
@@ -124,7 +132,7 @@ function ResetPassword() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="min-h-12 w-full rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {loading ? "Updating password..." : "Reset Password"}
                         </button>

@@ -135,13 +135,13 @@ export default function Notifications() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <main className="mx-auto w-full max-w-6xl space-y-6">
+      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
             Notifications
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-base leading-6 text-gray-700">
             Stay updated on your tasks and account activity.
           </p>
         </div>
@@ -150,27 +150,38 @@ export default function Notifications() {
           type="button"
           onClick={markAllAsRead}
           disabled={unreadCount === 0}
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:w-auto"
         >
           Mark all as read
         </button>
-      </div>
+      </header>
 
-      <div className="flex gap-2">
+      <div
+        role="group"
+        aria-label="Filter notifications"
+        className="flex flex-wrap gap-2"
+      >
         {["All", "Unread"].map((item) => (
           <button
             key={item}
             type="button"
             onClick={() => setFilter(item)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+            aria-pressed={filter === item}
+            className={`inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 ${
               filter === item
-                ? "bg-blue-600 text-white"
-                : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                ? "bg-blue-700 text-white hover:bg-blue-800"
+                : "border border-gray-300 bg-white text-gray-800 hover:bg-gray-50"
             }`}
           >
             {item}
             {item === "Unread" && unreadCount > 0 && (
-              <span className="ml-2 rounded-full bg-white/20 px-2 py-0.5 text-xs">
+              <span
+                className={`ml-2 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  filter === item
+                    ? "bg-white/20 text-white"
+                    : "bg-blue-50 text-blue-900"
+                }`}
+              >
                 {unreadCount}
               </span>
             )}
@@ -179,86 +190,87 @@ export default function Notifications() {
       </div>
 
       {error && (
-        <div className="rounded-xl bg-red-50 p-4 text-sm text-red-600">
+        <div
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900"
+        >
           {error}
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <section
+        aria-label="Notification list"
+        className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+      >
         {loading ? (
-          <div className="px-6 py-14 text-center text-sm text-gray-500">
+          <p
+            role="status"
+            className="px-6 py-12 text-center text-sm text-gray-700"
+          >
             Loading notifications...
-          </div>
+          </p>
         ) : filteredNotifications.length === 0 ? (
-          <div className="px-6 py-14 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
-              <span className="text-2xl">🔔</span>
-            </div>
-
-            <h2 className="mt-4 font-semibold text-gray-900">
+          <div className="px-6 py-10 text-center sm:py-12">
+            <h2 className="text-base font-semibold text-gray-950">
               {filter === "Unread"
                 ? "You're all caught up"
                 : "No notifications yet"}
             </h2>
 
-            <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-gray-500">
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-gray-700">
               {filter === "Unread"
                 ? "You have no unread notifications."
                 : "Updates about applications, tasks, submissions, and payments will appear here."}
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <ul className="divide-y divide-gray-200">
             {filteredNotifications.map((item) => (
-              <article
-                key={item._id}
-                onClick={() => handleNotificationClick(item)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    handleNotificationClick(item);
-                  }
-                }}
-                className={`flex cursor-pointer items-start gap-3 p-5 transition hover:bg-blue-50 ${
-                  item.isRead ? "bg-white" : "bg-blue-50/50"
-                }`}
-              >
-                <div
-                  className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${
-                    item.isRead ? "bg-gray-300" : "bg-blue-600"
+              <li key={item._id}>
+                <button
+                  type="button"
+                  onClick={() => handleNotificationClick(item)}
+                  className={`group flex min-h-11 w-full items-start gap-3 border-l-4 px-4 py-4 text-left transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-700 sm:gap-4 sm:px-5 ${
+                    item.isRead
+                      ? "border-l-transparent bg-white"
+                      : "border-l-blue-700 bg-blue-50/50"
                   }`}
-                />
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-semibold leading-6 text-gray-950">
+                      {item.title}
+                    </span>
 
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-medium text-gray-900">
-                    {item.title}
-                  </h3>
+                    <span className="mt-1 block whitespace-pre-wrap break-words text-sm leading-6 text-gray-700">
+                      {item.message}
+                    </span>
 
-                  <p className="mt-1 text-sm leading-6 text-gray-600">
-                    {item.message}
-                  </p>
+                    <time
+                      dateTime={item.createdAt || undefined}
+                      className="mt-2 block text-sm text-gray-600"
+                    >
+                      {formatDate(item.createdAt)}
+                    </time>
 
-                  <p className="mt-2 text-xs text-gray-400">
-                    {formatDate(item.createdAt)}
-                  </p>
-
-                  <p className="mt-2 text-xs font-medium text-blue-600">
-                    View details →
-                  </p>
-                </div>
-
-                {!item.isRead && (
-                  <span className="shrink-0 text-xs font-medium text-blue-600">
-                    New
+                    <span className="mt-2 block text-sm font-semibold text-blue-800 underline decoration-transparent underline-offset-2 group-hover:decoration-current">
+                      View details →
+                    </span>
                   </span>
-                )}
-              </article>
+
+                  {!item.isRead && (
+                    <span
+                      aria-label="Unread notification"
+                      className="shrink-0 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-900"
+                    >
+                      New
+                    </span>
+                  )}
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

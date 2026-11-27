@@ -166,57 +166,78 @@ export default function ClientPayments() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+    <main className="space-y-7 sm:space-y-8">
+      <header className="border-b border-gray-200 pb-5">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
           Payments
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Track your task payments and transaction history.
+        <p className="mt-2 max-w-2xl text-base leading-6 text-gray-700">
+          Track task costs, platform fees, and payment status.
         </p>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {summaries.map((item) => (
-          <div
-            key={item.label}
-            className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow"
+      <section aria-label="Payment summary">
+        <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {summaries.map((item, index) => (
+            <div
+              key={item.label}
+              className={`rounded-xl border p-4 sm:p-5 ${
+                index === 0
+                  ? "border-blue-200 bg-blue-50"
+                  : "border-gray-200 bg-white"
+              }`}
+            >
+              <dt className="text-sm font-medium text-gray-700">
+                {item.label}
+              </dt>
+              <dd className="mt-2 break-words text-xl font-bold tracking-tight text-gray-950 sm:text-2xl">
+                {item.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section
+        aria-labelledby="transaction-history-heading"
+        className="overflow-hidden rounded-xl border border-gray-200 bg-white"
+      >
+        <header className="border-b border-gray-200 px-4 py-5 sm:px-6">
+          <h2
+            id="transaction-history-heading"
+            className="text-lg font-semibold tracking-tight text-gray-950"
           >
-            <p className="text-sm text-gray-500">{item.label}</p>
-            <p className="mt-2 text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
-              {item.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow">
-        <div className="border-b border-gray-200 p-5">
-          <h2 className="font-semibold text-gray-900">
-            Transaction History
+            Transaction history
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Review your task prices, platform fees and payments.
+          <p className="mt-1 text-sm leading-5 text-gray-600">
+            Task prices, platform fees, and payment actions.
           </p>
-        </div>
+        </header>
 
         {loading ? (
-          <div className="px-6 py-14 text-center text-gray-500">
+          <div
+            role="status"
+            aria-live="polite"
+            className="px-5 py-12 text-center text-sm text-gray-700"
+          >
             Loading payment history...
           </div>
         ) : error ? (
-          <div className="px-6 py-14 text-center text-red-600">
+          <div
+            role="alert"
+            className="px-5 py-10 text-center text-sm leading-6 text-red-800"
+          >
             {error}
           </div>
         ) : transactions.length === 0 ? (
-          <div className="px-6 py-14 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+          <div className="px-5 py-10 text-center sm:py-12">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-800">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                className="h-7 w-7 text-blue-600"
+                className="h-6 w-6"
                 aria-hidden="true"
               >
                 <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -228,114 +249,118 @@ export default function ClientPayments() {
               </svg>
             </div>
 
-            <h3 className="mt-4 font-semibold text-gray-900">
+            <h3 className="mt-4 text-base font-semibold text-gray-950">
               No transactions yet
             </h3>
-            <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-gray-500">
-              Your payment history will appear here when transactions
-              are recorded for your tasks.
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-gray-700">
+              Your payment history will appear here when transactions are
+              recorded for your tasks.
             </p>
 
             <Link
               to="/client/tasks"
-              className="mt-5 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700"
+              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
             >
               View My Tasks
             </Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[950px] text-left text-sm">
-              <thead className="bg-gray-50 text-gray-500">
-                <tr>
-                  <th className="px-5 py-3 font-medium">Task</th>
-                  <th className="px-5 py-3 font-medium">Date</th>
-                  <th className="px-5 py-3 font-medium">Task Price</th>
-                  <th className="px-5 py-3 font-medium">
-                    Platform Fee (5%)
-                  </th>
-                  <th className="px-5 py-3 font-medium">Total Payable</th>
-                  <th className="px-5 py-3 font-medium">Status</th>
-                  <th className="px-5 py-3 font-medium">Action</th>
-                </tr>
-              </thead>
+          <ul className="divide-y divide-gray-200">
+            {transactions.map((transaction) => {
+              const taskPrice = transaction.amount || 0;
+              const platformFee = transaction.platformFee ?? 0;
+              const clientTotal = getClientTotal(transaction);
+              const statusClass =
+                transaction.status === "paid"
+                  ? "border-green-200 bg-green-50 text-green-800"
+                  : transaction.status === "pending"
+                    ? "border-amber-200 bg-amber-50 text-amber-900"
+                    : transaction.status === "processing"
+                      ? "border-indigo-200 bg-indigo-50 text-indigo-900"
+                      : "border-gray-200 bg-gray-100 text-gray-800";
 
-              <tbody>
-                {transactions.map((transaction) => {
-                  const taskPrice = transaction.amount || 0;
-                  const platformFee =
-                    transaction.platformFee ?? 0;
-                  const clientTotal = getClientTotal(transaction);
+              return (
+                <li key={transaction._id} className="px-4 py-5 sm:px-6">
+                  <article>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <h3 className="break-words text-base font-semibold text-gray-950 sm:text-lg">
+                          {transaction.task?.title || "Untitled Task"}
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-600">
+                          <span className="sr-only">Created on </span>
+                          <time dateTime={transaction.createdAt}>
+                            {new Date(
+                              transaction.createdAt
+                            ).toLocaleDateString("en-IN")}
+                          </time>
+                        </p>
+                      </div>
 
-                  return (
-                    <tr
-                      key={transaction._id}
-                      className="border-t border-gray-100"
-                    >
-                      <td className="px-5 py-4 font-medium text-gray-900">
-                        {transaction.task?.title || "Untitled Task"}
-                      </td>
-
-                      <td className="px-5 py-4 text-gray-500">
-                        {new Date(
-                          transaction.createdAt
-                        ).toLocaleDateString("en-IN")}
-                      </td>
-
-                      <td className="px-5 py-4 text-gray-700">
-                        {formatINR(taskPrice)}
-                      </td>
-
-                      <td className="px-5 py-4 text-gray-500">
-                        {formatINR(platformFee)}
-                      </td>
-
-                      <td className="px-5 py-4 font-semibold text-gray-900">
-                        {formatINR(clientTotal)}
-                      </td>
-
-                      <td className="px-5 py-4 text-gray-600 capitalize">
+                      <span
+                        className={`inline-flex min-h-8 w-fit shrink-0 items-center rounded-full border px-3 py-1 text-sm font-semibold capitalize ${statusClass}`}
+                      >
                         {transaction.status}
-                      </td>
+                      </span>
+                    </div>
 
-                      <td className="px-5 py-4">
-                        {transaction.status !== "paid" &&
-                          ["pending", "processing"].includes(
-                            transaction.status
-                          ) && (
-                            <button
-                              onClick={() =>
-                                handlePayment(transaction)
-                              }
-                              disabled={payingId === transaction._id}
-                              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {payingId === transaction._id
-                                ? "Processing..."
-                                : "Pay Now"}
-                            </button>
-                          )}
+                    <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      <div className="rounded-lg bg-gray-50 px-3 py-3">
+                        <dt className="text-xs font-medium text-gray-600 sm:text-sm">
+                          Task price
+                        </dt>
+                        <dd className="mt-1 break-words text-sm font-semibold text-gray-900 sm:text-base">
+                          {formatINR(taskPrice)}
+                        </dd>
+                      </div>
+                      <div className="rounded-lg bg-gray-50 px-3 py-3">
+                        <dt className="text-xs font-medium text-gray-600 sm:text-sm">
+                          Platform fee (5%)
+                        </dt>
+                        <dd className="mt-1 break-words text-sm font-semibold text-gray-900 sm:text-base">
+                          {formatINR(platformFee)}
+                        </dd>
+                      </div>
+                      <div className="col-span-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-3 sm:col-span-1">
+                        <dt className="text-xs font-semibold text-blue-900 sm:text-sm">
+                          Total payable
+                        </dt>
+                        <dd className="mt-1 break-words text-base font-bold text-gray-950 sm:text-lg">
+                          {formatINR(clientTotal)}
+                        </dd>
+                      </div>
+                    </dl>
 
-                        {transaction.status === "paid" && (
-                          <span className="text-sm font-medium text-green-600">
-                            Paid
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                    {transaction.status !== "paid" &&
+                      ["pending", "processing"].includes(
+                        transaction.status
+                      ) && (
+                        <div className="mt-4 flex justify-start sm:justify-end">
+                          <button
+                            type="button"
+                            onClick={() => handlePayment(transaction)}
+                            disabled={payingId === transaction._id}
+                            className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                          >
+                            {payingId === transaction._id
+                              ? "Processing..."
+                              : "Pay Now"}
+                          </button>
+                        </div>
+                      )}
+                  </article>
+                </li>
+              );
+            })}
+          </ul>
         )}
-      </div>
+      </section>
 
-      <p className="text-xs text-gray-500">
-        GigConnect charges a transparent 5% platform fee on the task
-        price. The fee is added to your payment and is not deducted
-        from the freelancer's agreed earnings.
+      <p className="max-w-3xl text-sm leading-6 text-gray-700">
+        GigConnect charges a transparent 5% platform fee on the task price. The
+        fee is added to your payment and is not deducted from the freelancer's
+        agreed earnings.
       </p>
-    </div>
+    </main>
   );
 }

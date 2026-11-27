@@ -91,15 +91,15 @@ function FreelancerDashboard() {
   const getStatusStyle = (status) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-700";
+        return "bg-amber-50 text-amber-800";
       case "accepted":
-        return "bg-blue-100 text-blue-700";
+        return "bg-blue-50 text-blue-800";
       case "rejected":
-        return "bg-red-100 text-red-700";
+        return "bg-red-50 text-red-800";
       case "paid":
-        return "bg-green-100 text-green-700";
+        return "bg-green-50 text-green-800";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -122,22 +122,18 @@ function FreelancerDashboard() {
       {/* Dashboard Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-blue-600">
-            YOUR WORKSPACE
-          </p>
-
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
             Your next opportunity starts here
-          </h2>
+          </h1>
 
-          <p className="mt-2 text-sm leading-6 text-gray-500">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-700">
             Discover tasks, manage your work, and build your reputation.
           </p>
         </div>
 
         <Link
           to="/browse"
-          className="inline-flex justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
         >
           Find tasks
         </Link>
@@ -146,20 +142,22 @@ function FreelancerDashboard() {
       {/* Dashboard Metrics */}
       <section
         aria-label="Freelancer statistics"
-        className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        className="mt-5 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4 xl:grid-cols-4"
       >
         {metrics.map((metric) => (
           <article
             key={metric.label}
-            className="rounded-2xl border border-gray-200 bg-white p-5"
+            className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
           >
-            <p className="text-sm text-gray-500">{metric.label}</p>
+            <p className="text-xs font-medium leading-5 text-gray-700 sm:text-sm">
+              {metric.label}
+            </p>
 
-            <p className="mt-3 text-3xl font-bold text-gray-900">
+            <p className="mt-1 break-words text-xl font-bold tracking-tight text-gray-950 sm:mt-2 sm:text-3xl">
               {loading ? "..." : error ? "—" : metric.value}
             </p>
 
-            <p className="mt-2 text-xs text-gray-400">
+            <p className="mt-2 hidden text-sm text-gray-600 sm:block">
               Based on your account activity
             </p>
           </article>
@@ -167,26 +165,26 @@ function FreelancerDashboard() {
       </section>
 
       {error && (
-        <div className="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">
+        <div role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">
           {error}
         </div>
       )}
 
       {/* Recent Applications */}
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white p-6">
+      <section className="mt-7 rounded-xl border border-gray-200 bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="text-lg font-bold tracking-tight text-gray-950">
               Your recent applications
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-700">
               Track the status of your submitted applications.
             </p>
           </div>
 
           <Link
             to="/freelancer/applications"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+            className="inline-flex min-h-11 items-center rounded-sm text-sm font-semibold text-blue-700 hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
           >
             View all →
           </Link>
@@ -194,43 +192,43 @@ function FreelancerDashboard() {
 
         <div className="mt-5">
           {loading ? (
-            <p className="py-8 text-center text-sm text-gray-500">
+            <p role="status" className="py-8 text-center text-sm text-gray-700">
               Loading applications...
             </p>
           ) : recentApplications.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 px-4 py-10 text-center">
-              <h4 className="font-semibold text-gray-900">
+            <div className="rounded-lg border border-dashed border-gray-300 px-4 py-8 text-center">
+              <h4 className="font-semibold text-gray-950">
                 No applications yet
               </h4>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-gray-700">
                 Find tasks and submit your first application.
               </p>
               <Link
                 to="/browse"
-                className="mt-4 inline-flex font-semibold text-blue-600 hover:text-blue-700"
+                className="mt-3 inline-flex min-h-11 items-center rounded-sm font-semibold text-blue-700 hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
               >
                 Browse tasks →
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="divide-y divide-gray-200 border-y border-gray-200">
               {recentApplications.map((application) => (
                 <article
                   key={application._id}
-                  className="rounded-xl border border-gray-200 p-5"
+                  className="py-4"
                 >
                   <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">
+                    <div className="min-w-0">
+                      <h4 className="break-words font-semibold text-gray-950">
                         {application.task?.title || "Task"}
                       </h4>
-                      <p className="mt-1 text-sm text-gray-500">
+                      <p className="mt-1 text-sm text-gray-600">
                         Applied on {formatDate(application.createdAt)}
                       </p>
                     </div>
 
                     <span
-                      className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(
+                      className={`inline-flex min-h-8 w-fit shrink-0 items-center rounded-md px-2.5 py-1 text-xs font-semibold ${getStatusStyle(
                         application.status
                       )}`}
                     >
@@ -238,9 +236,9 @@ function FreelancerDashboard() {
                     </span>
                   </div>
 
-                  <div className="mt-4 border-t border-gray-100 pt-3">
-                    <p className="text-xs text-gray-500">Your bid</p>
-                    <p className="mt-1 text-sm font-semibold text-gray-900">
+                  <div className="mt-3 flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
+                    <p className="text-sm text-gray-600">Your bid</p>
+                    <p className="text-sm font-semibold text-gray-950">
                       {formatINR(application.bidAmount)}
                     </p>
                   </div>
@@ -252,20 +250,20 @@ function FreelancerDashboard() {
       </section>
 
       {/* Active Work */}
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white p-6">
+      <section className="mt-6 rounded-xl border border-gray-200 bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="text-lg font-bold tracking-tight text-gray-950">
               Your active work
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-700">
               Keep track of tasks you're currently completing.
             </p>
           </div>
 
           <Link
             to="/freelancer/active-work"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+            className="inline-flex min-h-11 items-center rounded-sm text-sm font-semibold text-blue-700 hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
           >
             View all →
           </Link>
@@ -273,35 +271,35 @@ function FreelancerDashboard() {
 
         <div className="mt-5">
           {loading ? (
-            <p className="py-8 text-center text-sm text-gray-500">
+            <p role="status" className="py-8 text-center text-sm text-gray-700">
               Loading active work...
             </p>
           ) : recentActiveWork.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 px-4 py-10 text-center">
-              <h4 className="font-semibold text-gray-900">
+            <div className="rounded-lg border border-dashed border-gray-300 px-4 py-8 text-center">
+              <h4 className="font-semibold text-gray-950">
                 No active tasks
               </h4>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-gray-700">
                 Accepted tasks and their progress will appear here.
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="divide-y divide-gray-200 border-y border-gray-200">
               {recentActiveWork.map((application) => (
                 <article
                   key={application._id}
-                  className="rounded-xl border border-gray-200 p-5"
+                  className="py-4"
                 >
-                  <h4 className="font-semibold text-gray-900">
+                  <h4 className="break-words font-semibold text-gray-950">
                     {application.task?.title || "Task"}
                   </h4>
 
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-700">
                       Bid: {formatINR(application.bidAmount)}
                     </p>
 
-                    <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                    <span className="inline-flex min-h-8 items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-800">
                       In Progress
                     </span>
                   </div>
@@ -313,12 +311,12 @@ function FreelancerDashboard() {
       </section>
 
       {/* Profile CTA */}
-      <section className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-6 sm:flex sm:items-center sm:justify-between">
+      <section className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-5 sm:flex sm:items-center sm:justify-between sm:p-6">
         <div>
-          <h3 className="font-semibold text-gray-900">
+          <h3 className="text-lg font-bold tracking-tight text-gray-950">
             Build your freelancer profile
           </h3>
-          <p className="mt-2 text-sm leading-6 text-gray-600">
+          <p className="mt-2 text-sm leading-6 text-gray-700">
             Add your skills and portfolio to help clients understand your
             strengths.
           </p>
@@ -326,7 +324,7 @@ function FreelancerDashboard() {
 
         <Link
           to="/freelancer/profile"
-          className="mt-4 inline-flex font-semibold text-blue-700 hover:text-blue-800 sm:mt-0"
+          className="mt-3 inline-flex min-h-11 items-center rounded-sm font-semibold text-blue-800 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:mt-0"
         >
           Complete profile →
         </Link>

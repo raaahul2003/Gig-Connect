@@ -45,32 +45,32 @@ function Navbar() {
   }
 
   const desktopLinkClass = ({ isActive }) =>
-    `text-sm font-medium transition ${isActive
-      ? "text-blue-600"
-      : "text-gray-700 hover:text-blue-600"
+    `inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 ${isActive
+      ? "bg-blue-50 text-blue-800"
+      : "text-gray-700 hover:bg-gray-50 hover:text-blue-800"
     }`;
 
   const mobileLinkClass = ({ isActive }) =>
-    `rounded-lg px-3 py-3 text-sm font-medium transition ${isActive
-      ? "bg-blue-50 text-blue-700"
-      : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+    `flex min-h-11 items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 ${isActive
+      ? "bg-blue-50 text-blue-800"
+      : "text-gray-700 hover:bg-gray-50 hover:text-blue-800"
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200/80 bg-white/90 shadow-sm backdrop-blur-lg">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* Logo */}
         <Link
           to="/"
           onClick={closeMenu}
-          className="text-xl font-bold tracking-tight text-gray-950 transition hover:text-blue-700"
+          className="rounded-sm text-xl font-bold tracking-tight text-gray-950 transition-colors hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700"
         >
-          GigConnect
+          Gig<span className="text-blue-700">Connect</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav aria-label="Primary navigation" className="hidden items-center gap-1 md:flex">
           <NavLink to="/" end className={desktopLinkClass}>
             Home
           </NavLink>
@@ -93,7 +93,7 @@ function Navbar() {
             <>
               <Link
                 to={dashboardPath}
-                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 hover:text-gray-950"
+                className="inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
               >
                 Dashboard
               </Link>
@@ -101,7 +101,7 @@ function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
               >
                 Logout
               </button>
@@ -110,14 +110,14 @@ function Navbar() {
             <>
               <Link
                 to="/login"
-                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 hover:text-gray-950"
+                className="inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
               >
                 Login
               </Link>
 
               <Link
                 to="/register"
-                className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
               >
                 Sign Up
               </Link>
@@ -136,7 +136,7 @@ function Navbar() {
           }
           aria-expanded={menuOpen}
           aria-controls="mobile-navigation"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 md:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-gray-300 text-gray-800 transition-colors hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 md:hidden"
         >
           {menuOpen ? (
             <svg
@@ -169,7 +169,7 @@ function Navbar() {
         <nav
           id="mobile-navigation"
           aria-label="Mobile navigation"
-          className="absolute left-0 right-0 top-full z-50 border-b border-gray-200 bg-white/95 p-4 shadow-xl backdrop-blur-lg md:hidden"
+          className="absolute left-0 right-0 top-full z-50 border-b border-gray-200 bg-white p-4 shadow-lg md:hidden"
         >
           <div className="mx-auto flex max-w-7xl flex-col gap-1">
 
@@ -205,7 +205,7 @@ function Navbar() {
                 <Link
                   to={dashboardPath}
                   onClick={closeMenu}
-                  className="rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="flex min-h-11 items-center rounded-lg px-3 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
                   Dashboard
                 </Link>
@@ -213,7 +213,7 @@ function Navbar() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="rounded-lg bg-blue-600 px-3 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700"
+                  className="min-h-11 rounded-lg bg-blue-700 px-3 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
                   Logout
                 </button>
@@ -223,7 +223,7 @@ function Navbar() {
                 <Link
                   to="/login"
                   onClick={closeMenu}
-                  className="rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="flex min-h-11 items-center rounded-lg px-3 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
                   Login
                 </Link>
@@ -231,7 +231,7 @@ function Navbar() {
                 <Link
                   to="/register"
                   onClick={closeMenu}
-                  className="rounded-lg bg-blue-600 px-3 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700"
+                  className="min-h-11 rounded-lg bg-blue-700 px-3 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
                   Sign Up
                 </Link>

@@ -107,23 +107,20 @@ function SubmitWork() {
 
 
   return (
-    <main className="min-h-screen bg-gray-50 px-5 py-10 sm:px-6">
-      <div className="mx-auto max-w-3xl">
+    <main className="mx-auto w-full max-w-3xl">
+      <div>
         <Link
           to="/freelancer/active-work"
-          className="text-sm font-medium text-gray-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+          className="inline-flex min-h-10 items-center text-sm font-medium text-gray-700 transition-colors hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
         >
           ← Back to active work
         </Link>
 
-        <header className="mt-6">
-          <p className="text-sm font-semibold text-blue-600">
-            TASK DELIVERY
-          </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
+        <header className="mt-5">
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-gray-950 sm:text-4xl">
             {revisionOf ? "Resubmit revised work" : "Submit completed work"}
           </h1>
-          <p className="mt-3 text-sm leading-6 text-gray-600">
+          <p className="mt-2 max-w-2xl text-base leading-6 text-gray-700">
             Provide a delivery note and attach the files the client needs to
             review.
           </p>
@@ -131,22 +128,25 @@ function SubmitWork() {
 
         <form
           onSubmit={handleSubmit}
-          className="mt-8 space-y-7 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8"
+          className="mt-7 space-y-7 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8"
         >
-          <div className="rounded-xl bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Task reference</p>
-            <p className="mt-1 break-all font-semibold text-gray-900">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm font-medium text-gray-700">Task reference</p>
+            <p className="mt-1 break-all text-sm font-semibold text-gray-950">
               {taskId}
             </p>
           </div>
 
           <div>
-            <label htmlFor="deliveryNote" className="text-sm font-semibold">
+            <label
+              htmlFor="deliveryNote"
+              className="text-sm font-semibold text-gray-950"
+            >
               Delivery note
             </label>
-            <p className="mt-1 text-sm text-gray-500">
+            <p id="delivery-note-help" className="mt-1 text-sm leading-5 text-gray-700">
               Summarize what you completed and mention anything the client
-              should know.
+              should know. Use at least 20 characters.
             </p>
 
             <textarea
@@ -154,21 +154,22 @@ function SubmitWork() {
               rows={5}
               value={note}
               onChange={(event) => setNote(event.target.value)}
+              aria-describedby="delivery-note-help delivery-note-count"
               placeholder="I've completed the requested work. The attached files include..."
-              className="mt-3 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-3 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
             />
 
-            <p className="mt-2 text-right text-xs text-gray-500">
+            <p id="delivery-note-count" className="mt-2 text-right text-sm text-gray-600">
               {note.length} characters
             </p>
           </div>
 
           <div>
             <div className="flex items-center justify-between gap-3">
-              <label className="text-sm font-semibold text-gray-900">
+              <p id="delivery-files-heading" className="text-sm font-semibold text-gray-950">
                 Delivery files
-              </label>
-              <span className="text-xs text-gray-500">
+              </p>
+              <span id="delivery-files-guidance" className="text-sm text-gray-600">
                 Up to {MAX_FILES} files · 10 MB each
               </span>
             </div>
@@ -176,13 +177,13 @@ function SubmitWork() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="mt-3 flex w-full flex-col items-center rounded-xl border-2 border-dashed border-gray-300 px-5 py-10 text-center transition hover:border-blue-400 hover:bg-blue-50/40"
+              aria-describedby="delivery-files-guidance"
+              className="mt-3 flex min-h-36 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 px-5 py-8 text-center transition-colors hover:border-blue-500 hover:bg-blue-50/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
             >
-              <span className="text-2xl" aria-hidden="true">↑</span>
-              <span className="mt-3 text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-gray-950">
                 Choose files to attach
               </span>
-              <span className="mt-1 text-xs text-gray-500">
+              <span className="mt-1 text-sm text-gray-600">
                 Select files from your device
               </span>
             </button>
@@ -193,21 +194,22 @@ function SubmitWork() {
               multiple
               onChange={handleFiles}
               className="sr-only"
+              tabIndex={-1}
               aria-label="Choose delivery files"
             />
 
             {files.length > 0 && (
-              <ul className="mt-4 space-y-2">
+              <ul className="mt-4 divide-y divide-gray-200 border-y border-gray-200">
                 {files.map((file, index) => (
                   <li
                     key={`${file.name}-${file.size}-${file.lastModified}`}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3"
+                    className="flex items-center justify-between gap-4 py-3"
                   >
                     <div className="min-w-0">
-                      <p className="break-all text-sm font-medium text-gray-900">
+                      <p className="break-all text-sm font-medium text-gray-950">
                         {file.name}
                       </p>
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 text-sm text-gray-600">
                         {(file.size / (1024 * 1024)).toFixed(2)} MB
                       </p>
                     </div>
@@ -215,7 +217,8 @@ function SubmitWork() {
                     <button
                       type="button"
                       onClick={() => removeFile(index)}
-                      className="shrink-0 text-sm font-medium text-red-600 hover:text-red-700"
+                      aria-label={`Remove ${file.name}`}
+                      className="inline-flex min-h-10 shrink-0 items-center rounded-md px-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50 hover:text-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
                     >
                       Remove
                     </button>
@@ -228,7 +231,7 @@ function SubmitWork() {
           {error && (
             <p
               role="alert"
-              className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+              className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900"
             >
               {error}
             </p>
@@ -238,7 +241,7 @@ function SubmitWork() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              className="min-h-12 w-full rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
             >
               {isSubmitting
                 ? "Submitting..."
@@ -246,7 +249,7 @@ function SubmitWork() {
                   ? "Resubmit for review"
                   : "Submit for review"}
             </button>
-            <p className="mt-3 text-center text-xs text-gray-500">
+            <p className="mt-3 text-center text-sm leading-5 text-gray-600">
               {revisionOf
                 ? "Your revised work will be sent to the client for another review."
                 : "Your submitted work will be sent to the client for review."}

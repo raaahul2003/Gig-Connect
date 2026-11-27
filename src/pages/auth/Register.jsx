@@ -103,27 +103,27 @@ function Register() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-5 py-12">
-      <div className="w-full max-w-lg">
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8 sm:px-6 sm:py-12">
+      <div className="w-full max-w-xl">
         <Link
           to="/"
-          className="block text-center text-2xl font-bold tracking-tight text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+          className="mx-auto block w-fit rounded-sm text-center text-2xl font-bold tracking-tight text-gray-950 transition-colors hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700"
         >
-          Gig<span className="text-blue-600">Connect</span>
+          Gig<span className="text-blue-700">Connect</span>
         </Link>
 
-        <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-          <h1 className="text-center text-2xl font-bold text-gray-900">
+        <section className="mt-6 rounded-xl border border-gray-200 bg-white p-5 sm:mt-8 sm:p-8">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
             Create your account
           </h1>
 
-          <p className="mt-2 text-center text-sm text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-gray-700">
             Join GigConnect and get started.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <form onSubmit={handleSubmit} className="mt-6 space-y-5">
             <div>
-              <label htmlFor="name" className="text-sm font-semibold">
+              <label htmlFor="name" className="text-sm font-semibold text-gray-900">
                 Full name
               </label>
               <input
@@ -133,12 +133,12 @@ function Register() {
                 value={form.name}
                 onChange={updateField}
                 placeholder="Your full name"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="mt-2 min-h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-950 outline-none placeholder:text-gray-500 transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="text-sm font-semibold">
+              <label htmlFor="email" className="text-sm font-semibold text-gray-900">
                 Email address
               </label>
               <input
@@ -149,7 +149,7 @@ function Register() {
                 value={form.email}
                 onChange={updateField}
                 placeholder="you@example.com"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="mt-2 min-h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-950 outline-none placeholder:text-gray-500 transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
@@ -173,9 +173,9 @@ function Register() {
                 ].map((option) => (
                   <label
                     key={option.value}
-                    className={`cursor-pointer rounded-xl border p-4 transition ${form.role === option.value
-                      ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
-                      : "border-gray-200 hover:border-gray-300"
+                    className={`flex min-h-24 cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition-colors sm:p-4 ${form.role === option.value
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 hover:border-blue-300 hover:bg-gray-50"
                       }`}
                   >
                     <input
@@ -184,13 +184,15 @@ function Register() {
                       value={option.value}
                       checked={form.role === option.value}
                       onChange={updateField}
-                      className="sr-only"
+                      className="mt-1 h-4 w-4 shrink-0 accent-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                     />
-                    <span className="block font-semibold text-gray-900">
-                      {option.title}
-                    </span>
-                    <span className="mt-1 block text-xs text-gray-500">
-                      {option.description}
+                    <span>
+                      <span className="block font-semibold text-gray-950">
+                        {option.title}
+                      </span>
+                      <span className="mt-1 block text-sm leading-5 text-gray-700">
+                        {option.description}
+                      </span>
                     </span>
                   </label>
                 ))}
@@ -218,9 +220,9 @@ function Register() {
                   ].map((option) => (
                     <label
                       key={option.value}
-                      className={`cursor-pointer rounded-xl border p-4 transition ${form.clientType === option.value
-                        ? "border-blue-500 bg-blue-50 ring-1 ring-blue-500"
-                        : "border-gray-200 hover:border-gray-300"
+                      className={`flex min-h-24 cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition-colors sm:p-4 ${form.clientType === option.value
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300 hover:border-blue-300 hover:bg-gray-50"
                         }`}
                     >
                       <input
@@ -229,15 +231,17 @@ function Register() {
                         value={option.value}
                         checked={form.clientType === option.value}
                         onChange={updateField}
-                        className="sr-only"
+                        className="mt-1 h-4 w-4 shrink-0 accent-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                       />
 
-                      <span className="block font-semibold text-gray-900">
-                        {option.title}
-                      </span>
+                      <span>
+                        <span className="block font-semibold text-gray-950">
+                          {option.title}
+                        </span>
 
-                      <span className="mt-1 block text-xs text-gray-500">
-                        {option.description}
+                        <span className="mt-1 block text-sm leading-5 text-gray-700">
+                          {option.description}
+                        </span>
                       </span>
                     </label>
                   ))}
@@ -246,7 +250,7 @@ function Register() {
             )}
 
             <div>
-              <label htmlFor="password" className="text-sm font-semibold">
+              <label htmlFor="password" className="text-sm font-semibold text-gray-900">
                 Password
               </label>
 
@@ -259,13 +263,14 @@ function Register() {
                   value={form.password}
                   onChange={updateField}
                   placeholder="At least 8 characters"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-20 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  className="min-h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-20 text-gray-950 outline-none placeholder:text-gray-500 transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword((current) => !current)}
-                  className="absolute inset-y-0 right-3 text-sm font-medium text-gray-500 hover:text-blue-600"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-1 inline-flex min-w-14 items-center justify-center rounded-md px-2 text-sm font-semibold text-gray-700 transition-colors hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-700"
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
@@ -275,7 +280,7 @@ function Register() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="text-sm font-semibold"
+                className="text-sm font-semibold text-gray-900"
               >
                 Confirm password
               </label>
@@ -287,17 +292,17 @@ function Register() {
                 value={form.confirmPassword}
                 onChange={updateField}
                 placeholder="Re-enter your password"
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="mt-2 min-h-12 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-950 outline-none placeholder:text-gray-500 transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
-            <label className="flex items-start gap-3 text-sm text-gray-600">
+            <label className="flex min-h-11 cursor-pointer items-start gap-3 text-sm leading-6 text-gray-700">
               <input
                 type="checkbox"
                 name="acceptedTerms"
                 checked={form.acceptedTerms}
                 onChange={updateField}
-                className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="mt-1 h-4 w-4 shrink-0 accent-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
               />
               <span>
                 I agree to the GigConnect terms and conditions.
@@ -307,7 +312,7 @@ function Register() {
             {error && (
               <p
                 role="alert"
-                className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800"
+                className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-800"
               >
                 {error}
               </p>
@@ -315,22 +320,22 @@ function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              className="min-h-12 w-full rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm text-gray-700">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              className="rounded-sm font-semibold text-blue-700 transition-colors hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
             >
               Sign in
             </Link>
           </p>
-        </div>
+        </section>
       </div>
     </main>
   );

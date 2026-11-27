@@ -163,231 +163,275 @@ function ClientProfile() {
 
     if (loading) {
         return (
-            <div className="flex min-h-[300px] items-center justify-center">
-                <p className="text-gray-500">Loading your profile...</p>
-            </div>
+            <main
+                role="status"
+                aria-live="polite"
+                className="flex min-h-[300px] items-center justify-center"
+            >
+                <p className="text-sm text-gray-600">Loading your profile...</p>
+            </main>
         );
     }
 
     return (
-        <main>
+        <main className="space-y-6 sm:space-y-8">
             <header>
-                <p className="text-sm font-semibold text-blue-600">
-                    YOUR CLIENT IDENTITY
-                </p>
-
-                <h1 className="mt-2 text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
                     Client Profile
                 </h1>
 
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 max-w-2xl text-base leading-6 text-gray-700">
                     Manage your profile and introduce yourself to freelancers.
                 </p>
             </header>
 
-            <div className="mt-8 grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+            <div className="grid items-start gap-5 lg:grid-cols-[260px_minmax(0,1fr)] xl:gap-6">
+                <aside
+                    aria-label="Profile preview"
+                    className="overflow-hidden rounded-xl border border-gray-200 bg-white"
+                >
+                    <div className="flex flex-col items-center p-5 text-center sm:p-6">
+                        <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-blue-100 bg-blue-50">
+                            {photoPreview || photoUrl ? (
+                                <img
+                                    src={photoPreview || photoUrl}
+                                    alt="Client profile"
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-blue-800">
+                                    {form.name.trim()
+                                        ? form.name.trim().charAt(0).toUpperCase()
+                                        : "?"}
+                                </div>
+                            )}
+                        </div>
 
-                {/* Profile sidebar */}
-                <aside className="h-fit rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+                        <h2 className="mt-4 break-words font-semibold text-gray-950">
+                            {form.clientType === "company"
+                                ? form.companyName || "Your company"
+                                : form.name || "Your name"}
+                        </h2>
 
-                    <div className="mx-auto h-24 w-24 overflow-hidden rounded-full border-4 border-blue-100 bg-blue-50">
-                        {photoPreview || photoUrl ? (
-                            <img
-                                src={photoPreview || photoUrl}
-                                alt="Client profile"
-                                className="h-full w-full object-cover"
-                            />
-                        ) : (
-                            <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-blue-700">
-                                {form.name.trim()
-                                    ? form.name.trim().charAt(0).toUpperCase()
-                                    : "?"}
-                            </div>
-                        )}
+                        <p className="mt-1 text-sm text-gray-600">
+                            {form.clientType === "company"
+                                ? "Company account"
+                                : "Individual client"}
+                        </p>
+
+                        <p className="mt-3 text-sm text-gray-700">
+                            {form.location || "Your location"}
+                        </p>
                     </div>
 
-                    <div className="mt-4">
-                        <label
-                            htmlFor="profilePhoto"
-                            className="inline-block cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                        >
-                            Choose photo
-                        </label>
+                    <div className="border-t border-gray-200 p-5 sm:p-6">
+                        <p className="text-sm font-semibold text-gray-900">
+                            Profile photo
+                        </p>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Use a clear photo so freelancers can recognize your profile.
+                        </p>
 
-                        <input
-                            id="profilePhoto"
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            onChange={handlePhotoChange}
-                            className="hidden"
-                        />
+                        <div className="mt-4">
+                            <input
+                                id="profilePhoto"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={handlePhotoChange}
+                                className="peer sr-only"
+                            />
+                            <label
+                                htmlFor="profilePhoto"
+                                className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-700"
+                            >
+                                Choose photo
+                            </label>
+                        </div>
 
                         {selectedPhoto && (
-                            <div className="mt-3">
-                                <p className="mb-2 text-xs text-gray-500">
+                            <div className="mt-4 rounded-lg bg-gray-50 p-3">
+                                <p className="break-all text-xs leading-5 text-gray-700">
                                     Preview: {selectedPhoto.name}
                                 </p>
-
                                 <button
                                     type="button"
                                     onClick={handlePhotoUpload}
                                     disabled={photoUploading}
-                                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                                    className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {photoUploading ? "Uploading..." : "Upload photo"}
                                 </button>
                             </div>
                         )}
                     </div>
-
-                    <h2 className="mt-4 font-semibold text-gray-900">
-                        {form.clientType === "company"
-                            ? form.companyName || "Your company"
-                            : form.name || "Your name"}
-                    </h2>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                        {form.clientType === "company"
-                            ? "Company account"
-                            : "Individual client"}
-                    </p>
-
-                    <p className="mt-4 text-sm text-gray-500">
-                        {form.location || "Your location"}
-                    </p>
                 </aside>
 
-                {/* Profile form */}
                 <form
                     onSubmit={handleSubmit}
-                    className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8"
+                    className="min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white"
                 >
-
-                    <section>
-                        <h2 className="font-semibold text-gray-900">
-                            Basic information
+                    <div className="border-b border-gray-200 px-5 py-5 sm:px-7">
+                        <h2 className="text-lg font-semibold tracking-tight text-gray-950">
+                            Profile information
                         </h2>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm leading-5 text-gray-600">
                             Keep your client profile clear and professional.
                         </p>
-                    </section>
-
-                    {/* Account name */}
-                    <div>
-                        <label className="text-sm font-semibold">
-                            Account name
-                        </label>
-                        <input
-                            value={form.name}
-                            readOnly
-                            className="mt-2 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-500"
-                        />
                     </div>
 
-                    {/* Company fields */}
-                    {form.clientType === "company" && (
-                        <>
-                            <div>
-                                <label htmlFor="companyName" className="text-sm font-semibold">
-                                    Company name
+                    <div className="space-y-7 p-5 sm:p-7">
+                        <section>
+                            <h3 className="text-sm font-semibold text-gray-900">
+                                Basic information
+                            </h3>
+                            <div className="mt-4">
+                                <label
+                                    htmlFor="accountName"
+                                    className="block text-sm font-medium text-gray-800"
+                                >
+                                    Account name
                                 </label>
                                 <input
-                                    id="companyName"
-                                    name="companyName"
-                                    value={form.companyName}
-                                    onChange={updateField}
-                                    placeholder="Enter your company name"
-                                    className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+                                    id="accountName"
+                                    value={form.name}
+                                    readOnly
+                                    className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm text-gray-700"
                                 />
                             </div>
+                        </section>
 
-                            <div>
-                                <label htmlFor="companyWebsite" className="text-sm font-semibold">
-                                    Company website
-                                </label>
-                                <input
-                                    id="companyWebsite"
-                                    name="companyWebsite"
-                                    type="url"
-                                    value={form.companyWebsite}
-                                    onChange={updateField}
-                                    placeholder="https://example.com"
-                                    className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
-                                />
-                            </div>
+                        {form.clientType === "company" && (
+                            <section className="border-t border-gray-200 pt-6">
+                                <h3 className="text-sm font-semibold text-gray-900">
+                                    Company information
+                                </h3>
+                                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label
+                                            htmlFor="companyName"
+                                            className="block text-sm font-medium text-gray-800"
+                                        >
+                                            Company name
+                                        </label>
+                                        <input
+                                            id="companyName"
+                                            name="companyName"
+                                            value={form.companyName}
+                                            onChange={updateField}
+                                            placeholder="Enter your company name"
+                                            className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+                                        />
+                                    </div>
 
-                            <div>
-                                <label htmlFor="companyDescription" className="text-sm font-semibold">
-                                    Company description
+                                    <div>
+                                        <label
+                                            htmlFor="companyWebsite"
+                                            className="block text-sm font-medium text-gray-800"
+                                        >
+                                            Company website
+                                        </label>
+                                        <input
+                                            id="companyWebsite"
+                                            name="companyWebsite"
+                                            type="url"
+                                            value={form.companyWebsite}
+                                            onChange={updateField}
+                                            placeholder="https://example.com"
+                                            className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+                                        />
+                                    </div>
+
+                                    <div className="sm:col-span-2">
+                                        <label
+                                            htmlFor="companyDescription"
+                                            className="block text-sm font-medium text-gray-800"
+                                        >
+                                            Company description
+                                        </label>
+                                        <textarea
+                                            id="companyDescription"
+                                            name="companyDescription"
+                                            rows={5}
+                                            value={form.companyDescription}
+                                            onChange={updateField}
+                                            placeholder="Tell freelancers about your company..."
+                                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm leading-6 text-gray-900 placeholder:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+                                        />
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+
+                        <section className="border-t border-gray-200 pt-6">
+                            <h3 className="text-sm font-semibold text-gray-900">
+                                About
+                            </h3>
+                            <div className="mt-4">
+                                <label
+                                    htmlFor="bio"
+                                    className="block text-sm font-medium text-gray-800"
+                                >
+                                    {form.clientType === "company"
+                                        ? "About your company"
+                                        : "About you"}
                                 </label>
                                 <textarea
-                                    id="companyDescription"
-                                    name="companyDescription"
-                                    rows={5}
-                                    value={form.companyDescription}
+                                    id="bio"
+                                    name="bio"
+                                    rows={4}
+                                    value={form.bio}
                                     onChange={updateField}
-                                    placeholder="Tell freelancers about your company..."
-                                    className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+                                    placeholder="Introduce yourself..."
+                                    className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm leading-6 text-gray-900 placeholder:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                                 />
                             </div>
-                        </>
-                    )}
+                        </section>
 
-                    {/* Bio */}
-                    <div>
-                        <label htmlFor="bio" className="text-sm font-semibold">
-                            {form.clientType === "company" ? "About your company" : "About you"}
-                        </label>
-                        <textarea
-                            id="bio"
-                            name="bio"
-                            rows={4}
-                            value={form.bio}
-                            onChange={updateField}
-                            placeholder="Introduce yourself..."
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
-                        />
+                        <section className="border-t border-gray-200 pt-6">
+                            <label
+                                htmlFor="location"
+                                className="block text-sm font-semibold text-gray-900"
+                            >
+                                Location
+                            </label>
+                            <input
+                                id="location"
+                                name="location"
+                                value={form.location}
+                                onChange={updateField}
+                                placeholder="e.g. Kochi, Kerala"
+                                className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:max-w-md"
+                            />
+                        </section>
+
+                        {error && (
+                            <p
+                                role="alert"
+                                className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm leading-5 text-red-800"
+                            >
+                                {error}
+                            </p>
+                        )}
+
+                        {message && (
+                            <p
+                                role="status"
+                                className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm leading-5 text-green-800"
+                            >
+                                {message}
+                            </p>
+                        )}
                     </div>
 
-                    {/* Location */}
-                    <div>
-                        <label htmlFor="location" className="text-sm font-semibold">
-                            Location
-                        </label>
-                        <input
-                            id="location"
-                            name="location"
-                            value={form.location}
-                            onChange={updateField}
-                            placeholder="e.g. Kochi, Kerala"
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
-                        />
-                    </div>
-
-                    {/* Feedback */}
-                    {error && (
-                        <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
-                            {error}
-                        </p>
-                    )}
-
-                    {message && (
-                        <p role="status" className="rounded-lg bg-green-50 p-3 text-sm text-green-700">
-                            {message}
-                        </p>
-                    )}
-
-                    {/* Save button */}
-                    <div className="border-t border-gray-200 pt-6">
+                    <div className="border-t border-gray-200 bg-gray-50/70 px-5 py-4 sm:px-7">
                         <button
                             type="submit"
                             disabled={saving}
-                            className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60 sm:w-auto"
+                            className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                         >
                             {saving ? "Saving..." : "Save profile"}
                         </button>
                     </div>
-
                 </form>
             </div>
         </main>

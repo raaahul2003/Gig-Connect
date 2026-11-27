@@ -2,11 +2,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPublicProfile } from "../../services/profileService";
-import {
-    FaCheck,
-    FaLayerGroup,
-    FaCalendarAlt
-} from "react-icons/fa";
 
 function ClientPublicProfile() {
     const { userId } = useParams();
@@ -65,31 +60,33 @@ function ClientPublicProfile() {
     // Loading state
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-600">
+            <main className="flex min-h-[60vh] items-center justify-center bg-gray-50 px-4 py-10">
+                <p role="status" className="rounded-lg border border-gray-200 bg-white px-5 py-4 text-sm font-medium text-gray-700">
                     Loading client profile...
                 </p>
-            </div>
+            </main>
         );
     }
 
     // Error state
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-red-500">{error}</p>
-            </div>
+            <main className="flex min-h-[60vh] items-center justify-center bg-gray-50 px-4 py-10">
+                <p role="alert" className="max-w-lg rounded-lg border border-red-200 bg-red-50 px-5 py-4 text-center text-sm font-medium text-red-800">
+                    {error}
+                </p>
+            </main>
         );
     }
 
     // Validate client account
     if (!user || user.role !== "client") {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-600">
+            <main className="flex min-h-[60vh] items-center justify-center bg-gray-50 px-4 py-10">
+                <p className="rounded-lg border border-gray-200 bg-white px-5 py-4 text-sm font-medium text-gray-700">
                     Client profile not found.
                 </p>
-            </div>
+            </main>
         );
     }
 
@@ -115,22 +112,22 @@ function ClientPublicProfile() {
     const categoriesHired = categories.length;
 
     return (
-        <main className="min-h-screen bg-gray-50 px-4 py-10">
+        <main className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 sm:py-10">
 
-            <div className="mx-auto max-w-5xl space-y-6">
+            <div className="mx-auto max-w-6xl space-y-5">
 
                 {/* Profile Header */}
-                <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+                <section className="rounded-xl border border-gray-200 bg-white p-5 sm:p-7">
 
-                    <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+                    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
 
                         {/* Profile Photo */}
-                        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-blue-100 bg-blue-50">
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full border border-blue-200 bg-blue-50 sm:h-24 sm:w-24">
 
                             {user.profile?.photoUrl ? (
                                 <img
                                     src={user.profile.photoUrl}
-                                    alt={displayName}
+                                    alt={`${displayName} profile`}
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
@@ -144,24 +141,26 @@ function ClientPublicProfile() {
                         {/* Client Details */}
                         <div className="text-center sm:text-left">
 
-                            <h1 className="text-2xl font-bold text-gray-900">
+                            <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
                                 {displayName}
                             </h1>
 
-                            <span className="mt-2 inline-block rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
+                            <span className="mt-2 inline-flex rounded-md bg-blue-50 px-2.5 py-1 text-sm font-semibold text-blue-800">
                                 {isCompany
                                     ? "Company Client"
                                     : "Individual Client"}
                             </span>
 
-                            <p className="mt-3 text-sm text-gray-600">
-                                {user.profile?.location ||
-                                    "Location not specified"}
-                            </p>
-
-                            <p className="mt-1 text-sm text-gray-500">
-                                Member since {memberSince}
-                            </p>
+                            <div className="mt-3 flex flex-col gap-1 text-sm text-gray-700 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5">
+                                <p>
+                                    {user.profile?.location ||
+                                        "Location not specified"}
+                                </p>
+                                <p>
+                                    <span className="text-gray-600">Member since </span>
+                                    {memberSince}
+                                </p>
+                            </div>
 
                         </div>
 
@@ -170,13 +169,13 @@ function ClientPublicProfile() {
 
 
                 {/* About Section */}
-                <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+                <section className="rounded-xl border border-gray-200 bg-white p-5 sm:p-7">
 
-                    <h2 className="text-xl font-bold text-gray-900">
-                        About {isCompany ? "the Company" : ""}
+                    <h2 className="text-lg font-bold tracking-tight text-gray-950 sm:text-xl">
+                        About
                     </h2>
 
-                    <p className="mt-3 whitespace-pre-line leading-7 text-gray-600">
+                    <p className="mt-3 whitespace-pre-line text-sm leading-7 text-gray-700 sm:text-base">
                         {isCompany
                             ? user.clientProfile?.companyDescription ||
                             "No company description available."
@@ -190,7 +189,7 @@ function ClientPublicProfile() {
                             href={user.clientProfile.companyWebsite}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                            className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-sm text-sm font-semibold text-blue-700 hover:text-blue-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                         >
                             Visit Company Website
                             <span>↗</span>
@@ -204,135 +203,90 @@ function ClientPublicProfile() {
                 <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
                     {/* Completed Tasks */}
-                    <div className="group relative overflow-hidden rounded-2xl border border-green-100 bg-gradient-to-br from-green-50 to-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-
-                        <div className="flex items-center justify-between">
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">
-                                    Completed Tasks
-                                </p>
-
-                                <h2 className="mt-3 text-4xl font-bold tracking-tight text-green-700">
-                                    {completedTaskCount}
-                                </h2>
-
-                                <p className="mt-2 text-xs text-gray-500">
-                                    Successfully completed projects
-                                </p>
-                            </div>
-
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 text-green-700">
-                                <FaCheck className="h-7 w-7" />
-                            </div>
-
-                        </div>
-
-                        <div className="absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-green-100/50 blur-2xl transition-all group-hover:scale-150" />
-
+                    <div className="rounded-xl border border-gray-200 bg-white p-5">
+                        <p className="text-sm font-medium text-gray-700">
+                            Completed tasks
+                        </p>
+                        <h2 className="mt-2 text-3xl font-bold tracking-tight text-green-800 sm:text-4xl">
+                            {completedTaskCount}
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Successfully completed projects
+                        </p>
                     </div>
 
 
                     {/* Categories Hired */}
-                    <div className="group relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-
-                        <div className="flex items-center justify-between">
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">
-                                    Categories Hired
-                                </p>
-
-                                <h2 className="mt-3 text-4xl font-bold tracking-tight text-blue-700">
-                                    {categoriesHired}
-                                </h2>
-
-                                <p className="mt-2 text-xs text-gray-500">
-                                    Different project categories
-                                </p>
-                            </div>
-
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
-                                <FaLayerGroup className="h-7 w-7" />
-                            </div>
-
-                        </div>
-
-                        <div className="absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-blue-100/50 blur-2xl transition-all group-hover:scale-150" />
-
+                    <div className="rounded-xl border border-gray-200 bg-white p-5">
+                        <p className="text-sm font-medium text-gray-700">
+                            Categories hired
+                        </p>
+                        <h2 className="mt-2 text-3xl font-bold tracking-tight text-blue-800 sm:text-4xl">
+                            {categoriesHired}
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Different project categories
+                        </p>
                     </div>
 
 
                     {/* Member Since */}
-                    <div className="group relative overflow-hidden rounded-2xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:col-span-2 lg:col-span-1">
-
-                        <div className="flex items-center justify-between">
-
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">
-                                    Member Since
-                                </p>
-
-                                <h2 className="mt-3 text-4xl font-bold tracking-tight text-purple-700">
-                                    {memberSinceYear}
-                                </h2>
-
-                                <p className="mt-2 text-xs text-gray-500">
-                                    Joined GigConnect
-                                </p>
-                            </div>
-
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 text-purple-700">
-                                <FaCalendarAlt className="h-7 w-7" />
-                            </div>
-
-                        </div>
-
-                        <div className="absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-purple-100/50 blur-2xl transition-all group-hover:scale-150" />
-
+                    <div className="rounded-xl border border-gray-200 bg-white p-5 sm:col-span-2 lg:col-span-1">
+                        <p className="text-sm font-medium text-gray-700">
+                            Member since
+                        </p>
+                        <h2 className="mt-2 text-3xl font-bold tracking-tight text-indigo-800 sm:text-4xl">
+                            {memberSinceYear}
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-600">
+                            Joined GigConnect
+                        </p>
                     </div>
 
                 </section>
 
 
                 {/* Hiring History */}
-                <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+                <section className="rounded-xl border border-gray-200 bg-white p-5 sm:p-7">
 
                     {/* Heading and Category Filter */}
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900">
+                            <h2 className="text-lg font-bold tracking-tight text-gray-950 sm:text-xl">
                                 Hiring History
                             </h2>
 
-                            <p className="mt-1 text-sm text-gray-500">
+                            <p className="mt-1 text-sm text-gray-600">
                                 Completed projects posted by this client.
                             </p>
                         </div>
 
                         {hiringHistory.length > 0 && (
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) =>
-                                    setSelectedCategory(e.target.value)
-                                }
-                                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 outline-none focus:border-blue-500"
-                            >
-                                <option value="All">
-                                    All Categories
-                                </option>
-
-                                {categories.map((category) => (
-                                    <option
-                                        key={category}
-                                        value={category}
-                                    >
-                                        {category}
+                            <label className="flex w-full flex-col gap-1.5 text-sm font-medium text-gray-800 sm:w-56">
+                                Filter by category
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(e) =>
+                                        setSelectedCategory(e.target.value)
+                                    }
+                                    className="min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                                >
+                                    <option value="All">
+                                        All Categories
                                     </option>
-                                ))}
 
-                            </select>
+                                    {categories.map((category) => (
+                                        <option
+                                            key={category}
+                                            value={category}
+                                        >
+                                            {category}
+                                        </option>
+                                    ))}
+
+                                </select>
+                            </label>
                         )}
 
                     </div>
@@ -341,39 +295,40 @@ function ClientPublicProfile() {
                     {/* Completed Projects */}
                     {hiringHistory.length === 0 ? (
 
-                        <p className="mt-6 rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500">
+                        <p className="mt-5 rounded-lg border border-dashed border-gray-300 px-5 py-8 text-center text-sm text-gray-700">
                             No completed projects yet.
                         </p>
 
                     ) : filteredHistory.length > 0 ? (
 
-                        <div className="mt-6 space-y-4">
+                        <div className="mt-5 divide-y divide-gray-200 border-y border-gray-200">
 
                             {filteredHistory.map((task) => (
                                 <article
                                     key={task._id}
-                                    className="rounded-xl border border-gray-200 p-5 transition-colors hover:border-blue-200"
+                                    className="py-4"
                                 >
 
-                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 
-                                        <div>
-                                            <h3 className="font-semibold text-gray-900">
+                                        <div className="min-w-0">
+                                            <h3 className="break-words font-semibold text-gray-950">
                                                 {task.title}
                                             </h3>
 
-                                            <p className="mt-1 text-sm text-gray-500">
+                                            <p className="mt-1 text-sm text-gray-700">
                                                 {task.category}
                                             </p>
                                         </div>
 
-                                        <span className="w-fit rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700">
-                                            ✓ Completed
+                                        <span className="inline-flex min-h-8 w-fit shrink-0 items-center gap-1.5 rounded-md bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-800">
+                                            <span aria-hidden="true">✓</span>
+                                            Completed
                                         </span>
 
                                     </div>
 
-                                    <p className="mt-3 text-xs text-gray-500">
+                                    <p className="mt-2 text-sm text-gray-600">
                                         Completed:{" "}
                                         {task.updatedAt
                                             ? new Date(
@@ -389,7 +344,7 @@ function ClientPublicProfile() {
 
                     ) : (
 
-                        <p className="mt-6 rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500">
+                        <p className="mt-5 rounded-lg border border-dashed border-gray-300 px-5 py-8 text-center text-sm text-gray-700">
                             No completed projects in this category.
                         </p>
 

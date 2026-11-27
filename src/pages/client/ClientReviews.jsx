@@ -6,26 +6,27 @@ export default function ClientReviews() {
   const submissions = [];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+    <main className="space-y-7 sm:space-y-8">
+      <header className="border-b border-gray-200 pb-5">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
           Work Reviews
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-2 max-w-2xl text-base leading-6 text-gray-700">
           Review freelancer submissions and provide feedback.
         </p>
-      </div>
+      </header>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-10">
+      <section aria-label="Freelancer work reviews">
         {submissions.length === 0 ? (
-          <div className="mx-auto flex max-w-md flex-col items-center py-8 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+          <div className="rounded-xl border border-gray-200 bg-white px-5 py-10 sm:px-8 sm:py-12">
+            <div className="mx-auto flex max-w-lg flex-col items-center text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-800">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                className="h-7 w-7 text-blue-600"
+                className="h-6 w-6"
                 aria-hidden="true"
               >
                 <path
@@ -36,62 +37,63 @@ export default function ClientReviews() {
               </svg>
             </div>
 
-            <h2 className="mt-4 text-lg font-semibold text-gray-900">
+            <h2 className="mt-4 text-lg font-semibold tracking-tight text-gray-950">
               Nothing to review yet
             </h2>
-            <p className="mt-2 text-sm leading-6 text-gray-500">
-              When a freelancer submits completed work, you'll be able
-              to inspect the delivery and provide feedback here.
+            <p className="mt-2 text-sm leading-6 text-gray-700">
+              When a freelancer submits completed work, you can inspect the
+              delivery and provide feedback here.
             </p>
 
             <Link
               to="/client/active-work"
-              className="mt-5 rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
             >
               View Active Work
             </Link>
+            </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4">
             {submissions.map((submission) => (
               <article
                 key={submission.id}
-                className="rounded-xl border border-gray-200 p-5"
+                className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
               >
-                <h2 className="font-semibold text-gray-900">
+                <h2 className="break-words text-lg font-semibold tracking-tight text-gray-950">
                   {submission.taskTitle}
                 </h2>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-gray-700">
                   Submitted by {submission.freelancerName}
                 </p>
-                <p className="mt-3 text-sm text-gray-700">
+                <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-gray-700">
                   {submission.deliveryNote}
                 </p>
 
-                <div className="mt-4 flex flex-wrap gap-3">
+                <div className="mt-5 flex flex-col gap-2 border-t border-gray-100 pt-4 sm:flex-row">
                   <button
                     type="button"
                     disabled
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                    className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Approve Work
                   </button>
                   <button
                     type="button"
                     disabled
-                    className="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-500 opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                    className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Request Revision
                   </button>
                 </div>
-                <p className="mt-2 text-xs text-gray-400">
+                <p className="mt-3 text-sm leading-5 text-gray-600">
                   Review actions will be enabled after backend integration.
                 </p>
               </article>
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

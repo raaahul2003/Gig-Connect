@@ -1,17 +1,25 @@
 
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import DashboardSidebar from "../dashboard/DashboardSidebar";
 import DashboardHeader from "../dashboard/DashboardHeader";
 
 function DashboardLayout() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-slate-50 md:flex">
-      <DashboardSidebar />
+    <div className="min-h-screen bg-slate-50 md:grid md:grid-cols-[16rem_minmax(0,1fr)] md:grid-rows-[auto_1fr]">
+      <DashboardHeader
+        mobileMenuOpen={mobileMenuOpen}
+        onToggleMobileMenu={() => setMobileMenuOpen((open) => !open)}
+      />
+      <DashboardSidebar
+        mobileMenuOpen={mobileMenuOpen}
+        onCloseMobileMenu={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="min-w-0 flex-1">
-        <DashboardHeader />
-
-        <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div className="min-w-0 md:col-start-2 md:row-start-2">
+        <div className="mx-auto w-full max-w-[1600px] px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
           <Outlet />
         </div>
       </div>

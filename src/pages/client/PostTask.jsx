@@ -25,9 +25,13 @@ const steps = [
   "Review",
 ];
 
-function FieldError({ error }) {
+function FieldError({ error, id }) {
   if (!error) return null;
-  return <p className="mt-2 text-sm text-red-600">{error}</p>;
+  return (
+    <p id={id} role="alert" className="mt-2 text-sm leading-5 text-red-800">
+      {error}
+    </p>
+  );
 }
 
 function PostTask() {
@@ -229,66 +233,80 @@ function PostTask() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-5 py-10 sm:px-6">
+    <main className="min-h-screen bg-gray-50 px-4 py-7 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-3xl">
         <Link
           to="/"
-          className="text-sm font-medium text-gray-600 hover:text-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-gray-700 transition-colors hover:text-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
         >
           ← Back home
         </Link>
 
-        <header className="mt-6">
-          <p className="text-sm font-semibold text-blue-600">
-            CLIENT WORKSPACE
+        <header className="mt-5">
+          <p className="text-sm font-semibold text-blue-800">
+            Client workspace
           </p>
 
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-950 sm:text-4xl">
             Post a task
           </h1>
 
-          <p className="mt-3 text-gray-600">
+          <p className="mt-3 max-w-2xl text-base leading-6 text-gray-700">
             Explain the work, set your budget, and find the right freelancer.
           </p>
         </header>
 
-        <div className="mt-8 grid grid-cols-4 gap-2">
-          {steps.map((label, index) => (
-            <div key={label}>
+        <nav className="mt-8" aria-label="Task posting steps">
+          <ol className="grid grid-cols-4 gap-2">
+            {steps.map((label, index) => (
+              <li
+                key={label}
+                aria-current={index === step ? "step" : undefined}
+                aria-label={`Step ${index + 1} of ${steps.length}: ${label}`}
+              >
               <div
-                className={`h-1.5 rounded-full ${index <= step ? "bg-blue-600" : "bg-gray-200"
+                className={`h-1.5 rounded-full ${
+                  index <= step ? "bg-blue-700" : "bg-gray-300"
                   }`}
               />
               <p
-                className={`mt-2 text-xs sm:text-sm ${index === step
-                  ? "font-semibold text-blue-700"
-                  : "text-gray-500"
+                className={`mt-2 text-xs leading-4 sm:text-sm ${
+                  index === step
+                    ? "font-semibold text-blue-800"
+                    : "text-gray-600"
                   }`}
               >
-                {String(index + 1).padStart(2, "0")}
-                <span className="hidden sm:inline"> {label}</span>
+                <span className="sm:hidden">
+                  {index === step
+                    ? label
+                    : String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="hidden sm:inline">
+                  {String(index + 1).padStart(2, "0")} {label}
+                </span>
               </p>
-            </div>
-          ))}
-        </div>
+              </li>
+            ))}
+          </ol>
+        </nav>
 
         <form
-          className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8"
+          className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:mt-8 sm:p-8"
           onSubmit={(event) => event.preventDefault()}
         >
           {step === 0 && (
             <section className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold tracking-tight text-gray-950">
                   Tell us about your task
                 </h2>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm leading-6 text-gray-700">
                   Make the work clear so freelancers understand what you need.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="title" className="text-sm font-semibold">
+                <label htmlFor="title" className="text-sm font-semibold text-gray-900">
                   Task title
                 </label>
                 <input
@@ -296,14 +314,16 @@ function PostTask() {
                   name="title"
                   value={form.title}
                   onChange={updateField}
+                  aria-invalid={Boolean(errors.title)}
+                  aria-describedby={errors.title ? "title-error" : undefined}
                   placeholder="e.g. Design a social media poster"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-500 transition-colors focus-visible:border-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 />
-                <FieldError error={errors.title} />
+                <FieldError id="title-error" error={errors.title} />
               </div>
 
               <div>
-                <label htmlFor="category" className="text-sm font-semibold">
+                <label htmlFor="category" className="text-sm font-semibold text-gray-900">
                   Category
                 </label>
                 <select
@@ -311,7 +331,9 @@ function PostTask() {
                   name="category"
                   value={form.category}
                   onChange={updateField}
-                  className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  aria-invalid={Boolean(errors.category)}
+                  aria-describedby={errors.category ? "category-error" : undefined}
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 transition-colors focus-visible:border-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
                   <option value="">Select a category</option>
                   <option value="Design">Design</option>
@@ -321,11 +343,11 @@ function PostTask() {
                   <option value="Marketing">Marketing</option>
                   <option value="Research">Research</option>
                 </select>
-                <FieldError error={errors.category} />
+                <FieldError id="category-error" error={errors.category} />
               </div>
 
               <div>
-                <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-800">
                       <Sparkles size={16} aria-hidden="true" /> AI Powered
@@ -334,14 +356,15 @@ function PostTask() {
                       type="button"
                       onClick={handleGenerateDescription}
                       disabled={isGenerating}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      aria-busy={isGenerating}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isGenerating && <LoaderCircle className="animate-spin" size={16} aria-hidden="true" />}
                       {isGenerating ? "Generating..." : form.description ? "Regenerate with AI" : "Generate Description with AI"}
                     </button>
                   </div>
-                  <label htmlFor="roughIdea" className="mt-3 block text-sm font-medium text-blue-900">
-                    Rough task idea
+                  <label htmlFor="roughIdea" className="mt-4 block text-sm font-semibold text-gray-900">
+                    Rough task idea <span className="font-normal text-gray-600">(optional)</span>
                   </label>
                   <textarea
                     id="roughIdea"
@@ -349,15 +372,27 @@ function PostTask() {
                     value={roughIdea}
                     maxLength={5000}
                     onChange={(event) => setRoughIdea(event.target.value)}
+                    aria-describedby={
+                      generationError
+                        ? "rough-idea-help generation-error"
+                        : "rough-idea-help"
+                    }
                     placeholder="Describe the work in your own words. AI will organize only what you provide."
-                    className="mt-2 w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base leading-6 text-gray-900 placeholder:text-gray-500 transition-colors focus-visible:border-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                   />
-                  {generationError && <p role="alert" className="mt-2 text-sm text-red-600">{generationError}</p>}
+                  <p id="rough-idea-help" className="mt-2 text-sm leading-5 text-gray-600">
+                    Use this optional prompt to help draft the task description.
+                  </p>
+                  {generationError && (
+                    <p id="generation-error" role="alert" className="mt-2 text-sm leading-5 text-red-800">
+                      {generationError}
+                    </p>
+                  )}
                 </div>
 
                 <label
                   htmlFor="description"
-                  className="text-sm font-semibold"
+                  className="mt-5 block text-sm font-semibold text-gray-900"
                 >
                   Task description
                 </label>
@@ -367,10 +402,12 @@ function PostTask() {
                   rows={5}
                   value={form.description}
                   onChange={updateField}
+                  aria-invalid={Boolean(errors.description)}
+                  aria-describedby={errors.description ? "description-error" : undefined}
                   placeholder="Describe the task, context, and expected outcome. Share links to any reference images..."
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base leading-6 text-gray-900 placeholder:text-gray-500 transition-colors focus-visible:border-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 />
-                <FieldError error={errors.description} />
+                <FieldError id="description-error" error={errors.description} />
               </div>
             </section>
           )}
@@ -378,16 +415,16 @@ function PostTask() {
           {step === 1 && (
             <section className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold tracking-tight text-gray-950">
                   Set expectations
                 </h2>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm leading-6 text-gray-700">
                   Explain the skills needed and what the freelancer must deliver.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="skills" className="text-sm font-semibold">
+                <label htmlFor="skills" className="text-sm font-semibold text-gray-900">
                   Required skills
                 </label>
                 <input
@@ -395,16 +432,18 @@ function PostTask() {
                   name="skills"
                   value={form.skills}
                   onChange={updateField}
+                  aria-invalid={Boolean(errors.skills)}
+                  aria-describedby={errors.skills ? "skills-error" : undefined}
                   placeholder="e.g. Figma, typography, visual design"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-500 transition-colors focus-visible:border-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 />
-                <FieldError error={errors.skills} />
+                <FieldError id="skills-error" error={errors.skills} />
               </div>
 
               <div>
                 <label
                   htmlFor="deliverables"
-                  className="text-sm font-semibold"
+                  className="text-sm font-semibold text-gray-900"
                 >
                   Expected deliverables
                 </label>
@@ -414,10 +453,14 @@ function PostTask() {
                   rows={5}
                   value={form.deliverables}
                   onChange={updateField}
+                  aria-invalid={Boolean(errors.deliverables)}
+                  aria-describedby={
+                    errors.deliverables ? "deliverables-error" : undefined
+                  }
                   placeholder="What files, results or completed work should be delivered?"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base leading-6 text-gray-900 placeholder:text-gray-500 transition-colors focus-visible:border-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 />
-                <FieldError error={errors.deliverables} />
+                <FieldError id="deliverables-error" error={errors.deliverables} />
               </div>
             </section>
           )}
@@ -425,16 +468,16 @@ function PostTask() {
           {step === 2 && (
             <section className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold tracking-tight text-gray-950">
                   Budget and timing
                 </h2>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm leading-6 text-gray-700">
                   Set a realistic budget and deadline for the work.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="budget" className="text-sm font-semibold">
+                <label htmlFor="budget" className="text-sm font-semibold text-gray-900">
                   Budget (₹)
                 </label>
                 <input
@@ -445,14 +488,16 @@ function PostTask() {
                   step="1"
                   value={form.budget}
                   onChange={updateField}
+                  aria-invalid={Boolean(errors.budget)}
+                  aria-describedby={errors.budget ? "budget-error" : undefined}
                   placeholder="Enter your budget"
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-500 transition-colors focus-visible:border-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 />
-                <FieldError error={errors.budget} />
+                <FieldError id="budget-error" error={errors.budget} />
               </div>
 
               <div>
-                <label htmlFor="deadline" className="text-sm font-semibold">
+                <label htmlFor="deadline" className="text-sm font-semibold text-gray-900">
                   Deadline
                 </label>
                 <input
@@ -462,24 +507,28 @@ function PostTask() {
                   min={new Date().toLocaleDateString("en-CA")}
                   value={form.deadline}
                   onChange={updateField}
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  aria-invalid={Boolean(errors.deadline)}
+                  aria-describedby={
+                    errors.deadline ? "deadline-error" : undefined
+                  }
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 transition-colors focus-visible:border-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 />
-                <FieldError error={errors.deadline} />
+                <FieldError id="deadline-error" error={errors.deadline} />
               </div>
 
-              <label className="flex items-start gap-3 rounded-xl border border-gray-200 p-4">
+              <label className="flex min-h-16 cursor-pointer items-start gap-3 rounded-xl border border-gray-200 p-4 transition-colors hover:bg-gray-50">
                 <input
                   type="checkbox"
                   name="isUrgent"
                   checked={form.isUrgent}
                   onChange={updateField}
-                  className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  className="mt-1 h-5 w-5 shrink-0 accent-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 />
                 <span>
                   <span className="block text-sm font-semibold text-gray-900">
                     Mark this task as urgent
                   </span>
-                  <span className="mt-1 block text-sm text-gray-500">
+                  <span className="mt-1 block text-sm leading-5 text-gray-700">
                     Highlight this task for freelancers who can start quickly.
                   </span>
                 </span>
@@ -489,14 +538,14 @@ function PostTask() {
 
           {step === 3 && (
             <section>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold tracking-tight text-gray-950">
                 Review your task
               </h2>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm leading-6 text-gray-700">
                 Check your details before publishing.
               </p>
 
-              <dl className="mt-6 divide-y divide-gray-100">
+              <dl className="mt-5 divide-y divide-gray-200">
                 {[
                   ["Title", form.title],
                   ["Category", form.category],
@@ -509,10 +558,10 @@ function PostTask() {
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="grid gap-1 py-4 sm:grid-cols-[160px_1fr]"
+                    className="grid gap-1 py-4 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-4"
                   >
-                    <dt className="text-sm text-gray-500">{label}</dt>
-                    <dd className="whitespace-pre-wrap break-words text-sm font-medium text-gray-900">
+                    <dt className="text-sm font-medium text-gray-700">{label}</dt>
+                    <dd className="whitespace-pre-wrap break-words text-sm leading-6 font-medium text-gray-950">
                       {value || "Not provided"}
                     </dd>
                   </div>
@@ -522,7 +571,7 @@ function PostTask() {
               {errors.publish && (
                 <p
                   role="alert"
-                  className="mt-5 rounded-xl bg-amber-50 p-4 text-sm text-amber-800"
+                  className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800"
                 >
                   {errors.publish}
                 </p>
@@ -538,7 +587,7 @@ function PostTask() {
                 setStep((current) => Math.max(current - 1, 0));
               }}
               disabled={step === 0}
-              className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Previous
             </button>
@@ -547,7 +596,7 @@ function PostTask() {
               <button
                 type="button"
                 onClick={goNext}
-                className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
               >
                 Continue
               </button>
@@ -556,14 +605,14 @@ function PostTask() {
                 type="button"
                 onClick={publishTask}
                 disabled={isPublishing}
-                className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isPublishing ? "Publishing..." : "Publish task"}
               </button>
             )}
           </div>
 
-          <p className="mt-4 text-center text-xs leading-5 text-gray-500">
+          <p className="mt-4 text-center text-sm leading-5 text-gray-600">
             Your task will be saved when you publish.
           </p>
         </form>

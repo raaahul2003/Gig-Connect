@@ -173,80 +173,107 @@ export default function Messages() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+    <main className="mx-auto w-full max-w-7xl space-y-5">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
           Messages
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Communicate with clients and freelancers about your active projects.
+        <p className="mt-1 text-base leading-6 text-gray-700">
+          Keep project conversations and updates in one place.
         </p>
-      </div>
+      </header>
 
-      <div className="grid min-h-[560px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow md:grid-cols-[300px_minmax(0,1fr)]">
-        <aside className="border-b border-gray-200 md:border-b-0 md:border-r">
-          <div className="border-b border-gray-100 p-4">
-            <h2 className="font-semibold text-gray-900">
+      <div className="grid min-h-[560px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:h-[70vh] md:min-h-[560px] md:max-h-[760px] md:grid-cols-[320px_minmax(0,1fr)]">
+        <aside
+          className={`${selectedConversation ? "hidden md:flex" : "flex"} min-h-0 flex-col border-b border-gray-200 md:border-b-0 md:border-r`}
+        >
+          <div className="shrink-0 border-b border-gray-200 p-4 sm:p-5">
+            <h2 className="text-lg font-semibold text-gray-950">
               Conversations
             </h2>
 
+            <label htmlFor="conversation-search" className="sr-only">
+              Search conversations
+            </label>
             <input
+              id="conversation-search"
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search conversations..."
-              aria-label="Search conversations"
-              className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              placeholder="Search by name or project"
+              className="mt-3 min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
+          {error && !selectedConversation && !loading && (
+            <p
+              role="alert"
+              className="m-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900"
+            >
+              {error}
+            </p>
+          )}
+
           {loading ? (
-            <p className="p-6 text-center text-sm text-gray-500">
+            <p
+              role="status"
+              className="m-auto p-6 text-center text-sm text-gray-700"
+            >
               Loading conversations...
             </p>
           ) : filteredConversations.length === 0 ? (
-            <div className="p-6 text-center">
-              <p className="text-sm font-medium text-gray-800">
-                No conversations found
+            <div role="status" className="m-auto p-6 text-center">
+              <p className="text-sm font-semibold text-gray-900">
+                {search.trim()
+                  ? "No matching conversations"
+                  : "No conversations yet"}
               </p>
-              <p className="mt-2 text-xs leading-5 text-gray-500">
-                Conversations will appear here when a freelancer is accepted
-                for your project.
+              <p className="mt-2 text-sm leading-5 text-gray-700">
+                {search.trim()
+                  ? "Try another name or project title."
+                  : "Project conversations will appear here when available."}
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <ul
+              aria-label="Conversation list"
+              className="min-h-0 flex-1 divide-y divide-gray-200 overflow-y-auto"
+            >
               {filteredConversations.map((conversation) => (
-                <button
-                  key={conversation.id}
-                  type="button"
-                  onClick={() => setSelectedId(conversation.id)}
-                  className={`w-full p-4 text-left transition hover:bg-gray-50 ${selectedId === conversation.id ? "bg-blue-50" : ""
+                <li key={conversation.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(conversation.id)}
+                    aria-pressed={selectedId === conversation.id}
+                    className={`w-full border-l-2 p-4 text-left transition-colors hover:bg-gray-50 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-700 ${
+                      selectedId === conversation.id
+                        ? "border-l-blue-700 bg-blue-50"
+                        : "border-l-transparent"
                     }`}
-                >
-                  <p className="truncate text-sm font-medium text-gray-900">
-                    {conversation.name}
-                  </p>
-
-                  <p className="mt-1 truncate text-xs text-gray-500">
-                    {conversation.taskTitle}
-                  </p>
-                </button>
+                  >
+                    <span className="block truncate text-base font-semibold text-gray-950">
+                      {conversation.name}
+                    </span>
+                    <span className="mt-1 block truncate text-sm text-gray-700">
+                      {conversation.taskTitle}
+                    </span>
+                  </button>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </aside>
 
-        <section className="flex min-w-0 flex-col">
+        <section className="flex min-h-0 min-w-0 flex-col">
           {!selectedConversation ? (
-            <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+            <div className="hidden flex-1 flex-col items-center justify-center px-6 py-16 text-center md:flex">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
-                  className="h-7 w-7 text-blue-600"
+                  className="h-6 w-6 text-blue-800"
                   aria-hidden="true"
                 >
                   <path
@@ -257,34 +284,56 @@ export default function Messages() {
                 </svg>
               </div>
 
-              <h2 className="mt-4 font-semibold text-gray-900">
-                Your messages will appear here
+              <h2 className="mt-4 text-base font-semibold text-gray-950">
+                Select a conversation
               </h2>
 
-              <p className="mt-2 max-w-sm text-sm leading-6 text-gray-500">
-                Select a project conversation to read and send messages.
+              <p className="mt-2 max-w-sm text-sm leading-6 text-gray-700">
+                Choose a project from the list to read and send messages.
               </p>
             </div>
           ) : (
             <>
-              <div className="border-b border-gray-200 p-4">
-                <h2 className="font-semibold text-gray-900">
+              <header className="shrink-0 border-b border-gray-200 px-4 py-3 sm:px-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError("");
+                    setSelectedId(null);
+                  }}
+                  className="mb-2 inline-flex min-h-11 items-center text-sm font-semibold text-blue-800 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 md:hidden"
+                >
+                  ← All conversations
+                </button>
+                <h2 className="truncate text-base font-semibold text-gray-950 sm:text-lg">
                   {selectedConversation.name}
                 </h2>
-
-                <p className="mt-1 text-xs text-gray-500">
-                  Project: {selectedConversation.taskTitle}
+                <p className="mt-1 truncate text-sm text-gray-700">
+                  {selectedConversation.taskTitle}
                 </p>
-              </div>
+              </header>
 
-              <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+              <div
+                role="log"
+                aria-label={`Messages with ${selectedConversation.name}`}
+                aria-live="polite"
+                aria-relevant="additions text"
+                className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4 sm:p-5"
+              >
                 {messagesLoading ? (
-                  <p className="m-auto text-sm text-gray-500">
+                  <p
+                    role="status"
+                    className="m-auto text-sm text-gray-700"
+                  >
                     Loading messages...
                   </p>
                 ) : messages.length === 0 ? (
-                  <p className="m-auto text-sm text-gray-500">
-                    No messages in this conversation yet.
+                  <p
+                    role="status"
+                    className="m-auto text-center text-sm leading-6 text-gray-700"
+                  >
+                    No messages in this conversation yet. Send a message to
+                    start the discussion.
                   </p>
                 ) : (
                   messages.map((message) => {
@@ -296,50 +345,68 @@ export default function Messages() {
                     const isMine =
                       currentUserId &&
                       String(senderId) === currentUserId;
+                    const messageTime = formatTime(message.createdAt);
 
                     return (
-                      <div
+                      <article
                         key={message._id}
-                        className={`max-w-[85%] rounded-xl px-4 py-3 text-sm ${isMine
-                          ? "self-end bg-blue-600 text-white"
-                          : "self-start bg-gray-100 text-gray-800"
-                          }`}
+                        className={`max-w-[88%] rounded-xl px-4 py-3 text-sm leading-5 sm:max-w-[80%] ${
+                          isMine
+                            ? "self-end rounded-br-sm bg-blue-700 text-white"
+                            : "self-start rounded-bl-sm bg-gray-100 text-gray-900"
+                        }`}
                       >
                         <p className="whitespace-pre-wrap break-words">
                           {message.text}
                         </p>
 
-                        <p className="mt-1 text-right text-xs opacity-70">
-                          {formatTime(message.createdAt)}
-                        </p>
-                      </div>
+                        {messageTime && (
+                          <time
+                            dateTime={message.createdAt}
+                            className={`mt-2 block text-right text-xs ${
+                              isMine ? "text-blue-100" : "text-gray-600"
+                            }`}
+                          >
+                            {isMine ? "You" : selectedConversation.name}
+                            {" · "}
+                            {messageTime}
+                          </time>
+                        )}
+                      </article>
                     );
                   })
                 )}
               </div>
 
               {error && (
-                <p className="px-4 pb-2 text-sm text-red-600">
+                <p
+                  role="alert"
+                  className="mx-4 mb-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900 sm:mx-5"
+                >
                   {error}
                 </p>
               )}
 
               <form
                 onSubmit={sendMessage}
-                className="flex gap-2 border-t border-gray-200 p-3"
+                className="flex shrink-0 gap-2 border-t border-gray-200 p-3 sm:p-4"
               >
+                <label htmlFor="message-draft" className="sr-only">
+                  Write a message
+                </label>
                 <input
+                  id="message-draft"
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   placeholder="Write a message..."
-                  aria-label="Write a message"
-                  className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+                  className="min-h-11 min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
                 />
 
                 <button
                   type="submit"
                   disabled={!draft.trim() || sending || messagesLoading}
-                  className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                  aria-busy={sending}
+                  className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
                   {sending ? "Sending..." : "Send"}
                 </button>
@@ -348,6 +415,6 @@ export default function Messages() {
           )}
         </section>
       </div>
-    </div>
+    </main>
   );
 }

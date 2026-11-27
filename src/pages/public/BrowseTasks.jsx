@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getTasks } from "../../services/taskService";
-import ReactMarkdown from "react-markdown";
 
 const categories = [
   "All Tasks",
@@ -12,6 +11,7 @@ const categories = [
   "Writing",
   "Data Entry",
   "Marketing",
+  "Research"
 ];
 
 function BrowseTasks() {
@@ -67,49 +67,88 @@ function BrowseTasks() {
     };
   }, []);
 
-  const filteredTasks = tasks.filter((task) => {
-    if (task.status !== "open") return false;
+  const filteredTasks = tasks
+    .filter((task) => {
+      if (task.status !== "open") return false;
 
-    const matchesSearch = task.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
+      const searchText = search.trim().toLowerCase();
 
-    const matchesCategory =
-      category === "All Tasks" || task.category === category;
+      const matchesSearch =
+        task.title?.toLowerCase().includes(searchText) ||
+        task.description?.toLowerCase().includes(searchText) ||
+        task.skills?.some((skill) =>
+          skill.toLowerCase().includes(searchText)
+        );
 
-    return matchesSearch && matchesCategory;
-  });
+      const matchesCategory =
+        category === "All Tasks" || task.category === category;
+
+
+      return (
+        matchesSearch &&
+        matchesCategory
+      );
+    })
+    .sort((a, b) => {
+      if (sort === "budget-high") {
+        return Number(b.budget) - Number(a.budget);
+      }
+
+      if (sort === "budget-low") {
+        return Number(a.budget) - Number(b.budget);
+      }
+
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
 
   return (
     <main className="min-h-screen bg-gray-50">
       <section className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-          <p className="text-xs font-bold tracking-[0.16em] text-blue-600 sm:text-sm">
-            THE MARKETPLACE
-          </p>
-
-          <h1 className="mt-3 max-w-3xl text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <h1 className="max-w-3xl text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             Find your next opportunity
           </h1>
 
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base">
             Discover tasks that match your skills, schedule, and interests.
           </p>
 
-          <div className="mt-6 flex max-w-3xl flex-col gap-3 sm:mt-8 sm:flex-row">
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search tasks by title..."
-              aria-label="Search tasks by title"
-              className="min-h-12 min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-base outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-            />
+          <div className="mt-5 flex max-w-4xl flex-col gap-3 sm:mt-6 sm:flex-row">
+            <div className="min-w-0 flex-1">
+              <label
+                htmlFor="task-search"
+                className="mb-1.5 block text-sm font-medium text-gray-800"
+              >
+                Search tasks
+              </label>
+              <div className="relative">
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <circle cx="10.8" cy="10.8" r="6.8" />
+                  <path strokeLinecap="round" d="m16 16 4.2 4.2" />
+                </svg>
+                <input
+                  id="task-search"
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search titles, skills, or descriptions"
+                  aria-label="Search tasks by title, skills, or description"
+                  className="min-h-12 w-full rounded-lg border border-gray-300 bg-white px-4 pl-11 text-sm text-gray-900 outline-none transition placeholder:text-gray-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+            </div>
 
             {user?.role === "client" && (
               <Link
                 to="/post-task"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-600 px-6 py-3 text-center font-semibold text-white transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="inline-flex min-h-12 items-center justify-center self-end rounded-lg bg-blue-600 px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:mb-0"
               >
                 Post a Task
               </Link>
@@ -118,31 +157,34 @@ function BrowseTasks() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-        <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2" aria-label="Filter tasks by category">
+      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="flex flex-col gap-4 border-b border-gray-200 pb-4 sm:pb-5 lg:flex-row lg:items-center lg:justify-between">
+          <nav
+            className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+            aria-label="Filter tasks by category"
+          >
             {categories.map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setCategory(item)}
                 aria-pressed={category === item}
-                className={`min-h-10 rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${category === item
-                  ? "bg-blue-600 text-white"
-                  : "border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:text-blue-600"
+                className={`min-h-10 shrink-0 rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 ${category === item
+                  ? "bg-blue-700 text-white"
+                  : "border border-transparent text-gray-700 hover:border-gray-200 hover:bg-white hover:text-blue-800"
                   }`}
               >
                 {item}
               </button>
             ))}
-          </div>
+          </nav>
 
-          <label className="flex w-full items-center justify-between gap-3 text-sm font-medium text-gray-600 sm:w-auto sm:justify-start">
+          <label className="flex min-h-11 w-full items-center justify-between gap-3 text-sm font-medium text-gray-800 sm:w-auto sm:justify-start">
             Sort by
             <select
               value={sort}
               onChange={(event) => setSort(event.target.value)}
-              className="min-h-10 min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="min-h-11 min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             >
               <option value="newest">Newest</option>
               <option value="budget-high">Highest budget</option>
@@ -151,18 +193,49 @@ function BrowseTasks() {
           </label>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 sm:mt-10">
+        <div className="mt-6 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
             Available tasks
           </h2>
 
-          <span className="text-sm text-gray-500" aria-live="polite">
-            {filteredTasks.length} tasks
+          <span className="text-sm font-medium text-gray-700" aria-live="polite">
+            {filteredTasks.length} {filteredTasks.length === 1 ? "task" : "tasks"}
           </span>
         </div>
 
-        {filteredTasks.length === 0 ? (
-          <div className="mt-5 rounded-2xl border border-dashed border-gray-300 bg-white px-5 py-12 text-center sm:mt-6 sm:px-6 sm:py-16">
+        {loading ? (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="animate-pulse rounded-xl border border-gray-200 bg-white p-5"
+              >
+                <div className="h-4 w-24 rounded bg-gray-200" />
+                <div className="mt-5 h-6 w-3/4 rounded bg-gray-200" />
+                <div className="mt-4 h-6 w-2/3 rounded bg-gray-200" />
+                <div className="mt-6 h-5 w-28 rounded bg-gray-200" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div
+            role="alert"
+            className="mt-5 rounded-xl border border-red-200 bg-red-50 px-5 py-10 text-center"
+          >
+            <h3 className="text-lg font-semibold text-red-800">
+              Unable to load tasks
+            </h3>
+            <p className="mt-2 text-sm text-red-700">{error}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-5 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+            >
+              Refresh page
+            </button>
+          </div>
+        ) : filteredTasks.length === 0 ? (
+          <div className="mt-5 rounded-xl border border-dashed border-gray-300 bg-white px-5 py-10 text-center sm:px-6 sm:py-12">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-2xl">
               <span aria-hidden="true">⌕</span>
             </div>
@@ -192,51 +265,61 @@ function BrowseTasks() {
             {filteredTasks.map((task) => (
               <article
                 key={task._id}
-                className="flex min-w-0 flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md sm:p-6"
+                className="flex min-w-0 flex-col rounded-xl border border-gray-200 bg-white p-5 transition-colors hover:border-blue-300 sm:p-5"
               >
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-800">
+                    {task.category}
+                  </span>
+
                   {task.isQuickTask && (
-                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                    <span className="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-800">
                       Quick Task
                     </span>
                   )}
 
                   {task.isUrgent && (
-                    <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                    <span className="rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
                       Urgent
                     </span>
                   )}
                 </div>
 
-                <h3 className="mt-4 break-words text-lg font-semibold leading-6 text-gray-900">
+                <h3 className="mt-3 break-words text-lg font-semibold leading-6 text-gray-900">
                   {task.title}
                 </h3>
 
-                <div className="mt-2 line-clamp-4 break-words text-sm leading-6 text-gray-600">
-                  <ReactMarkdown>{task.description || ""}</ReactMarkdown>
-                </div>
+                {task.skills?.length > 0 && (
+                  <ul
+                    className="mt-3 flex flex-wrap gap-1.5"
+                    aria-label="Required skills"
+                  >
+                    {task.skills.slice(0, 3).map((skill) => (
+                      <li
+                        key={skill}
+                        className="rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700"
+                      >
+                        {skill}
+                      </li>
+                    ))}
+                    {task.skills.length > 3 && (
+                      <li className="px-1 py-1 text-xs font-medium text-gray-600">
+                        +{task.skills.length - 3} more
+                      </li>
+                    )}
+                  </ul>
+                )}
 
-
-                <div className="mt-4">
-                  <p className="text-xs text-gray-500">
-                    Category
-                  </p>
-                  <p className="text-sm font-medium text-gray-700">
-                    {task.category}
-                  </p>
-                </div>
-
-
-                <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="mt-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-xs text-gray-500">
-                      Posted by
+                    <p className="text-xs text-gray-600">
+                      Client
                     </p>
 
                     {task.client?._id ? (
                       <Link
                         to={`/clients/${task.client._id}`}
-                        className="truncate text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                        className="block truncate text-sm font-semibold text-blue-700 hover:text-blue-800 hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                       >
                         {task.client.clientType === "company"
                           ? task.client.clientProfile?.companyName || task.client.name
@@ -249,7 +332,7 @@ function BrowseTasks() {
                     )}
                   </div>
 
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700">
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-800">
                     <svg
                       className="h-3.5 w-3.5"
                       viewBox="0 0 24 24"
@@ -267,19 +350,22 @@ function BrowseTasks() {
                   </span>
                 </div>
 
-
-
-
-                <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
-                  <span className="font-semibold text-gray-900">
-                    ₹{task.budget}
-                  </span>
+                <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-200 pt-4">
+                  <div>
+                    <p className="text-xs font-medium text-gray-600">
+                      Budget
+                    </p>
+                    <p className="mt-1 text-xl font-bold tracking-tight text-gray-950">
+                      ₹{Number(task.budget).toLocaleString("en-IN")}
+                    </p>
+                  </div>
 
                   <Link
                     to={`/tasks/${task._id}`}
-                    className="inline-flex min-h-10 items-center rounded-lg px-2 font-semibold text-blue-600 transition hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                   >
-                    View task →
+                    View Task
+                    <span aria-hidden="true">→</span>
                   </Link>
                 </div>
               </article>

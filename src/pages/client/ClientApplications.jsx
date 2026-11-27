@@ -1,8 +1,6 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { getApplicationsForClient, updateApplicationStatus } from "../../services/applicationService";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ClientApplications() {
 
@@ -13,6 +11,7 @@ export default function ClientApplications() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("All");
   const [taskFilter, setTaskFilter] = useState("all");
+  const [expandedApplicationId, setExpandedApplicationId] = useState(null);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -119,112 +118,133 @@ export default function ClientApplications() {
       );
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/60 p-5 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600">
-          Hiring workspace
-        </p>
-        <h1 className="mt-2 text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+    <main className="space-y-6 sm:space-y-8">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
           Freelancer applications
         </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+        <p className="mt-2 max-w-3xl text-base leading-6 text-gray-700">
           Compare each freelancer's proposal, price, and delivery time before
           choosing who will work on your task.
         </p>
-        <p className="mt-4 rounded-xl border border-blue-100 bg-white/80 px-4 py-3 text-sm leading-6 text-gray-600">
-          <span className="font-semibold text-gray-800">Good to know:</span>{" "}
+        <p className="mt-4 max-w-3xl border-l-2 border-blue-600 pl-3 text-sm leading-6 text-gray-700">
+          <span className="font-semibold text-gray-900">Note:</span>{" "}
           accepting a freelancer assigns them to the task and automatically
           declines the other pending applications for that task.
         </p>
-      </div>
+      </header>
 
-      <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Filter applications by status">
-        {["All", "Pending", "Accepted", "Rejected"].map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setStatus(item)}
-            aria-pressed={status === item}
-            className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${status === item
-              ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-              : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-              }`}
-          >
-            {item}
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs ${status === item
-                ? "bg-white/20 text-white"
-                : "bg-gray-100 text-gray-500"
-                }`}
-            >
-              {statusCounts[item]}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="sm:max-w-sm">
-            <h2 className="text-sm font-semibold text-gray-900">
-              Filter by task
-            </h2>
-            <p className="mt-1 text-xs text-gray-500">
-              Select one of your tasks to see its freelancer applications.
+      <section
+        aria-label="Filter applications"
+        className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
+      >
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(260px,360px)] lg:items-end">
+          <div className="min-w-0">
+            <p className="mb-2 text-sm font-semibold text-gray-900">
+              Application status
             </p>
-          </div>
-          <label className="relative block w-full sm:max-w-md">
-            <span className="sr-only">Filter applications by task</span>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-gray-400"
-              aria-hidden="true"
+            <nav
+              aria-label="Filter applications by status"
+              className="grid grid-cols-2 gap-2 sm:grid-cols-4"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="m9 18 6-6-6-6" />
-            </svg>
-            <select
-              value={taskFilter}
-              onChange={(event) => setTaskFilter(event.target.value)}
-              className="min-h-11 w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-4 pr-10 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="all">All tasks ({applications.length})</option>
-              {taskOptions.map((task) => (
-                <option key={task.id} value={task.id}>
-                  {task.title} ({task.count}{" "}
-                  {task.count === 1 ? "application" : "applications"})
-                </option>
+              {["All", "Pending", "Accepted", "Rejected"].map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setStatus(item)}
+                  aria-pressed={status === item}
+                  className={`inline-flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 ${
+                    status === item
+                      ? "border-blue-700 bg-blue-700 text-white"
+                      : "border-gray-300 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-900"
+                  }`}
+                >
+                  <span className="truncate">{item}</span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${
+                      status === item
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {statusCounts[item]}
+                  </span>
+                </button>
               ))}
-            </select>
-          </label>
-        </div>
-      </div>
+            </nav>
+          </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-10">
-        {actionError && (
-          <p role="alert" className="mb-4 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {actionError}
-          </p>
-        )}
+          <div>
+            <label
+              htmlFor="application-task-filter"
+              className="mb-2 block text-sm font-semibold text-gray-900"
+            >
+              Filter by task
+            </label>
+            <div className="relative">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-gray-500"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="m9 18 6-6-6-6" />
+              </svg>
+              <select
+                id="application-task-filter"
+                value={taskFilter}
+                onChange={(event) => setTaskFilter(event.target.value)}
+                className="min-h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-3 pr-10 text-sm text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+              >
+                <option value="all">All tasks ({applications.length})</option>
+                {taskOptions.map((task) => (
+                  <option key={task.id} value={task.id}>
+                    {task.title} ({task.count}{" "}
+                    {task.count === 1 ? "application" : "applications"})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {actionError && (
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm leading-5 text-red-800"
+        >
+          {actionError}
+        </p>
+      )}
+
+      <section aria-label="Application results">
         {loading ? (
-          <p className="py-8 text-center text-gray-500">
+          <p
+            role="status"
+            aria-live="polite"
+            className="rounded-xl border border-gray-200 bg-white px-5 py-10 text-center text-sm text-gray-600"
+          >
             Loading applications...
           </p>
         ) : error ? (
-          <p className="py-8 text-center text-red-500">
+          <p
+            role="alert"
+            className="rounded-xl border border-red-200 bg-red-50 px-5 py-8 text-center text-sm text-red-800"
+          >
             {error}
           </p>
         ) : filteredApplications.length === 0 ? (
-          <div className="mx-auto flex max-w-md flex-col items-center py-8 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+          <div className="rounded-xl border border-gray-200 bg-white px-5 py-8 text-center sm:py-10">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-800">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                className="h-7 w-7 text-blue-600"
+                className="h-6 w-6"
                 aria-hidden="true"
               >
                 <path
@@ -235,7 +255,7 @@ export default function ClientApplications() {
               </svg>
             </div>
 
-            <h2 className="mt-4 text-lg font-semibold text-gray-900">
+            <h2 className="mt-4 text-lg font-semibold text-gray-950">
               {applications.length === 0
                 ? "No applications yet"
                 : taskFilter !== "all" && status !== "All"
@@ -244,7 +264,7 @@ export default function ClientApplications() {
                     ? "No applications for this task"
                     : `No ${status.toLowerCase()} applications`}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-gray-500">
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-600">
               {applications.length === 0
                 ? "Freelancer proposals will appear here when someone applies to one of your tasks."
                 : "Try selecting another task or application status to see more proposals."}
@@ -252,7 +272,7 @@ export default function ClientApplications() {
             {applications.length === 0 && (
               <Link
                 to="/client/tasks"
-                className="mt-5 rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
               >
                 View My Tasks
               </Link>
@@ -260,118 +280,152 @@ export default function ClientApplications() {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-3 border-b border-gray-100 pb-4">
-              <div>
-                <h2 className="font-semibold text-gray-900">
-                  {status === "All" ? "All proposals" : `${status} proposals`}
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  {filteredApplications.length}{" "}
-                  {filteredApplications.length === 1 ? "application" : "applications"}
-                </p>
-              </div>
-            </div>
+            <header className="flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold tracking-tight text-gray-950">
+                {status === "All" ? "All proposals" : `${status} proposals`}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {filteredApplications.length}{" "}
+                {filteredApplications.length === 1
+                  ? "application"
+                  : "applications"}
+              </p>
+            </header>
 
-            {filteredApplications.map((application) => (
-              <article
-                key={application._id}
-                className="rounded-2xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-sm sm:p-6"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Freelancer
-                    </p>
-                    <h3 className="mt-1 break-words text-base font-semibold text-gray-900 sm:text-lg">
-                      {application.freelancer?.name || "Freelancer"}
-                    </h3>
-                    {application.freelancer?._id && (
-                      <Link
-                        to={`/freelancers/${application.freelancer._id}`}
-                        className="mt-2 inline-flex text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
-                      >
-                        View Freelancer Profile →
-                      </Link>
-                    )}
-                    <p className="mt-2 text-sm text-gray-600">
-                      Applied for{" "}
-                      <span className="font-medium text-gray-900">
-                        {application.task?.title || "Task"}
-                      </span>
-                    </p>
-                  </div>
-                  <span
-                    className={`w-fit shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${application.status === "pending"
-                      ? "bg-amber-50 text-amber-700"
-                      : application.status === "accepted"
-                        ? "bg-green-50 text-green-700"
-                        : "bg-gray-100 text-gray-600"
+            {filteredApplications.map((application) => {
+              const isExpanded = expandedApplicationId === application._id;
+              const detailsId = `application-details-${application._id}`;
+
+              return (
+                <article
+                  key={application._id}
+                  className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="break-words text-base font-semibold text-gray-950 sm:text-lg">
+                        {application.freelancer?.name || "Freelancer"}
+                      </h3>
+                      {application.freelancer?._id && (
+                        <Link
+                          to={`/freelancers/${application.freelancer._id}`}
+                          className="mt-2 inline-flex min-h-9 items-center text-sm font-semibold text-blue-800 hover:text-blue-900 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+                        >
+                          View Freelancer Profile →
+                        </Link>
+                      )}
+                      <p className="mt-2 text-sm text-gray-700">
+                        Applied for{" "}
+                        <span className="font-semibold text-gray-950">
+                          {application.task?.title || "Task"}
+                        </span>
+                      </p>
+                    </div>
+
+                    <span
+                      className={`inline-flex min-h-9 w-fit shrink-0 items-center rounded-md border px-3 py-1 text-sm font-semibold ${
+                        application.status === "pending"
+                          ? "border-amber-200 bg-amber-50 text-amber-800"
+                          : application.status === "accepted"
+                            ? "border-green-200 bg-green-50 text-green-800"
+                            : "border-gray-200 bg-gray-100 text-gray-800"
                       }`}
+                    >
+                      {application.status?.charAt(0).toUpperCase() +
+                        application.status?.slice(1)}
+                    </span>
+                  </div>
+
+                  <dl className="mt-3 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-gray-100 pt-3 sm:max-w-lg">
+                    <div>
+                      <dt className="text-sm text-gray-600">Proposed price</dt>
+                      <dd className="mt-1 text-sm font-semibold text-gray-950">
+                        ₹{Number(application.bidAmount).toLocaleString("en-IN")}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-sm text-gray-600">
+                        Estimated delivery date
+                      </dt>
+                      <dd className="mt-1 text-sm font-semibold text-gray-950">
+                        {application.deliveryDate
+                          ? new Date(
+                              `${application.deliveryDate.slice(0, 10)}T00:00:00`
+                            ).toLocaleDateString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "Not provided"}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      aria-controls={detailsId}
+                      onClick={() =>
+                        setExpandedApplicationId(
+                          isExpanded ? null : application._id
+                        )
+                      }
+                      className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-semibold text-blue-800 transition-colors hover:bg-blue-50 hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+                    >
+                      {isExpanded ? "See less" : "See more"}
+                    </button>
+                  </div>
+
+                  <div
+                    id={detailsId}
+                    hidden={!isExpanded}
+                    className="mt-3 border-t border-gray-100 pt-4"
                   >
-                    {application.status?.charAt(0).toUpperCase() +
-                      application.status?.slice(1)}
-                  </span>
-                </div>
+                    <section aria-label="Proposal">
+                      <h4 className="text-sm font-semibold text-gray-900">
+                        Proposal
+                      </h4>
+                      <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-gray-700">
+                        {application.proposal}
+                      </p>
+                    </section>
 
-                <div className="mt-5 rounded-xl bg-gray-50 p-4 sm:p-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Proposal
-                  </p>
-                  <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-7 text-gray-700">
-                    {application.proposal}
-                  </p>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:max-w-md">
-                  <div className="rounded-xl border border-gray-100 px-4 py-3">
-                    <p className="text-xs text-gray-500">Proposed price</p>
-                    <p className="mt-1 text-sm font-semibold text-gray-900">
-                      ₹{Number(application.bidAmount).toLocaleString("en-IN")}
-                    </p>
+                    {application.status === "pending" && (
+                      <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4 sm:flex-row">
+                        <button
+                          type="button"
+                          disabled={updatingId === application._id}
+                          onClick={() =>
+                            handleApplicationAction(application._id, "accepted")
+                          }
+                          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {updatingId === application._id
+                            ? "Processing..."
+                            : "Accept freelancer"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={updatingId === application._id}
+                          onClick={() =>
+                            handleApplicationAction(application._id, "rejected")
+                          }
+                          className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {updatingId === application._id
+                            ? "Processing..."
+                            : "Decline proposal"}
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <div className="rounded-xl border border-gray-100 px-4 py-3">
-                    <p className="text-xs text-gray-500">Estimated delivery date</p>
-                    <p className="mt-1 text-sm font-semibold text-gray-900">
-                      {application.deliveryDate
-                        ? new Date(`${application.deliveryDate.slice(0, 10)}T00:00:00`).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })
-                        : "Not provided"}
-                    </p>
-                  </div>
-                </div>
-
-                {application.status === "pending" && (
-                  <div className="mt-5 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row">
-                    <button
-                      type="button"
-                      disabled={updatingId === application._id}
-                      onClick={() =>
-                        handleApplicationAction(application._id, "accepted")
-                      }
-                      className="min-h-11 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {updatingId === application._id ? "Processing..." : "Accept freelancer"}
-                    </button>
-                    <button
-                      type="button"
-                      disabled={updatingId === application._id}
-                      onClick={() =>
-                        handleApplicationAction(application._id, "rejected")
-                      }
-                      className="min-h-11 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {updatingId === application._id ? "Processing..." : "Decline proposal"}
-                    </button>
-                  </div>
-                )}
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

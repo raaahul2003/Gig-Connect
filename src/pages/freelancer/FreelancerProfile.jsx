@@ -250,37 +250,35 @@ function FreelancerProfile() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
-        <p className="text-gray-500">Loading your profile...</p>
-      </div>
+      <main
+        role="status"
+        className="flex min-h-[300px] items-center justify-center text-sm text-gray-700"
+      >
+        Loading your profile...
+      </main>
     );
   }
 
   return (
-    <main>
+    <main className="mx-auto w-full max-w-6xl">
       <header>
-        <p className="text-sm font-semibold text-blue-600">
-          YOUR PROFESSIONAL IDENTITY
-        </p>
-
-        <h1 className="mt-2 text-2xl font-bold text-gray-900">
+        <h1 className="mt-1 text-3xl font-bold tracking-tight text-gray-950 sm:text-4xl">
           Freelancer Profile
         </h1>
 
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 max-w-2xl text-base leading-6 text-gray-700">
           Introduce your skills, experience and projects to potential clients.
         </p>
       </header>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="h-fit rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+      <div className="mt-7 grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="h-fit rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm sm:p-6">
           <div className="text-center">
-            {/* Profile photo */}
-            <div className="mx-auto h-24 w-24 overflow-hidden rounded-full border-4 border-blue-100 bg-blue-50">
+            <div className="mx-auto h-24 w-24 overflow-hidden rounded-full border-2 border-blue-100 bg-blue-50">
               {photoPreview || photoUrl ? (
                 <img
                   src={photoPreview || photoUrl}
-                  alt="Freelancer profile"
+                  alt={`${form.name || "Freelancer"} profile`}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -292,26 +290,24 @@ function FreelancerProfile() {
               )}
             </div>
 
-            {/* Photo upload controls */}
             <div className="mt-4">
-              <label
-                htmlFor="profilePhoto"
-                className="inline-block cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Choose photo
-              </label>
-
               <input
                 id="profilePhoto"
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 onChange={handlePhotoChange}
-                className="hidden"
+                className="peer sr-only"
               />
+              <label
+                htmlFor="profilePhoto"
+                className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-50 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-blue-700"
+              >
+                Choose photo
+              </label>
 
               {selectedPhoto && (
                 <div className="mt-3">
-                  <p className="mb-2 text-xs text-gray-500">
+                  <p className="mb-2 break-all text-sm text-gray-700">
                     Preview: {selectedPhoto.name}
                   </p>
 
@@ -319,7 +315,7 @@ function FreelancerProfile() {
                     type="button"
                     onClick={handlePhotoUpload}
                     disabled={photoUploading}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                   >
                     {photoUploading ? "Uploading..." : "Upload photo"}
                   </button>
@@ -327,55 +323,48 @@ function FreelancerProfile() {
               )}
             </div>
           </div>
-
-
-          <h2 className="mt-4 font-semibold text-gray-900">
+          <h2 className="mt-4 text-lg font-semibold text-gray-950">
             {form.name || "Your name"}
           </h2>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm leading-5 text-gray-700">
             {form.headline || "Your professional headline"}
           </p>
-
-          <div className="mt-5 border-t border-gray-100 pt-5 text-left">
-            <p className="text-sm font-medium text-gray-900">
-              Trusted Freelancer Score
-            </p>
-
-            <p className="mt-2 text-sm leading-5 text-gray-500">
-              This score will be calculated from verified work history and
-              reliability data when those features are implemented.
-            </p>
-          </div>
         </aside>
 
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8"
+          className="space-y-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7"
         >
           <section>
-            <h2 className="font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-950">
               Basic information
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-700">
               Keep your profile clear and professional.
             </p>
           </section>
 
           <div>
-            <label htmlFor="name" className="text-sm font-semibold">
+            <label
+              htmlFor="name"
+              className="block text-sm font-semibold text-gray-900"
+            >
               Full name
             </label>
             <input
               id="name"
               value={form.name}
               readOnly
-              className="mt-2 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-500"
+              className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-700"
             />
           </div>
 
           <div>
-            <label htmlFor="headline" className="text-sm font-semibold">
+            <label
+              htmlFor="headline"
+              className="block text-sm font-semibold text-gray-900"
+            >
               Professional headline
             </label>
             <input
@@ -384,12 +373,15 @@ function FreelancerProfile() {
               value={form.headline}
               onChange={updateField}
               placeholder="e.g. React Developer and UI Designer"
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           <div>
-            <label htmlFor="bio" className="text-sm font-semibold">
+            <label
+              htmlFor="bio"
+              className="block text-sm font-semibold text-gray-900"
+            >
               About you
             </label>
             <textarea
@@ -399,12 +391,15 @@ function FreelancerProfile() {
               value={form.bio}
               onChange={updateField}
               placeholder="Describe your experience, strengths and approach..."
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           <div>
-            <label htmlFor="skills" className="text-sm font-semibold">
+            <label
+              htmlFor="skills"
+              className="block text-sm font-semibold text-gray-900"
+            >
               Skills
             </label>
             <input
@@ -413,9 +408,9 @@ function FreelancerProfile() {
               value={form.skills}
               onChange={updateField}
               placeholder="React, Node.js, MongoDB..."
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
             />
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-sm text-gray-600">
               Separate skills with commas.
             </p>
           </div>
@@ -423,33 +418,42 @@ function FreelancerProfile() {
           {/* Portfolio section */}
           <section className="space-y-5 border-t border-gray-200 pt-6">
             <div>
-              <h2 className="font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-950">
                 Portfolio projects
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-700">
                 Showcase projects that demonstrate your skills.
               </p>
             </div>
 
             {portfolioProjects.length > 0 ? (
-              <div className="space-y-3">
+              <div className="divide-y divide-gray-200 border-y border-gray-200">
                 {portfolioProjects.map((project, index) => (
-                  <div
+                  <article
                     key={index}
-                    className="rounded-xl border border-gray-200 p-4"
+                    className="flex flex-col gap-4 py-4 sm:flex-row"
                   >
-                    <div className="flex flex-col justify-between gap-3 sm:flex-row">
+                    {project.imageUrl && (
+                      <img
+                        src={project.imageUrl}
+                        alt={`${project.title} project preview`}
+                        loading="lazy"
+                        className="h-20 w-20 shrink-0 rounded-lg border border-gray-200 object-cover"
+                      />
+                    )}
+
+                    <div className="flex min-w-0 flex-1 flex-col justify-between gap-3 sm:flex-row">
                       <div className="min-w-0">
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-gray-950">
                           {project.title}
                         </h3>
 
-                        <p className="mt-1 text-sm text-gray-600">
+                        <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-5 text-gray-700">
                           {project.description}
                         </p>
 
                         {project.technologies?.length > 0 && (
-                          <p className="mt-2 text-xs text-blue-600">
+                          <p className="mt-2 text-sm text-blue-800">
                             {project.technologies.join(" · ")}
                           </p>
                         )}
@@ -459,18 +463,19 @@ function FreelancerProfile() {
                             href={project.projectUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-2 inline-block text-sm text-blue-600 hover:underline"
+                            className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-blue-800 underline decoration-transparent underline-offset-2 hover:decoration-current focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                           >
                             View project
                           </a>
                         )}
                       </div>
 
-                      <div className="flex shrink-0 gap-2">
+                      <div className="flex shrink-0 gap-2 sm:items-start">
                         <button
                           type="button"
                           onClick={() => handleEditProject(index)}
-                          className="rounded-lg border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+                          aria-label={`Edit ${project.title}`}
+                          className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                         >
                           Edit
                         </button>
@@ -478,42 +483,50 @@ function FreelancerProfile() {
                         <button
                           type="button"
                           onClick={() => handleDeleteProject(index)}
-                          className="rounded-lg border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                          aria-label={`Delete ${project.title}`}
+                          className="inline-flex min-h-11 items-center justify-center rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-800 transition-colors hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
                         >
                           Delete
                         </button>
                       </div>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
             ) : (
-              <p className="rounded-xl border border-dashed border-gray-300 p-5 text-center text-sm text-gray-500">
+              <p className="rounded-lg border border-dashed border-gray-300 p-5 text-center text-sm text-gray-700">
                 No portfolio projects added yet.
               </p>
             )}
 
-            <div className="space-y-4 rounded-xl bg-gray-50 p-4">
-              <h3 className="font-semibold text-gray-900">
+            <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:p-5">
+              <h3 className="text-base font-semibold text-gray-950">
                 {editingIndex !== null ? "Edit project" : "Add a project"}
               </h3>
 
               <div>
-                <label htmlFor="projectTitle" className="text-sm font-medium">
+                <label
+                  htmlFor="projectTitle"
+                  className="block text-sm font-semibold text-gray-900"
+                >
                   Project title *
                 </label>
                 <input
                   id="projectTitle"
                   name="title"
+                  aria-required="true"
                   value={projectForm.title}
                   onChange={updateProjectField}
                   placeholder="e.g. E-commerce Website"
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               <div>
-                <label htmlFor="projectDescription" className="text-sm font-medium">
+                <label
+                  htmlFor="projectDescription"
+                  className="block text-sm font-semibold text-gray-900"
+                >
                   Description
                 </label>
                 <textarea
@@ -523,12 +536,15 @@ function FreelancerProfile() {
                   value={projectForm.description}
                   onChange={updateProjectField}
                   placeholder="Describe what you built..."
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               <div>
-                <label htmlFor="projectTechnologies" className="text-sm font-medium">
+                <label
+                  htmlFor="projectTechnologies"
+                  className="block text-sm font-semibold text-gray-900"
+                >
                   Technologies
                 </label>
                 <input
@@ -537,15 +553,18 @@ function FreelancerProfile() {
                   value={projectForm.technologies}
                   onChange={updateProjectField}
                   placeholder="React, Node.js, MongoDB"
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-sm text-gray-600">
                   Separate technologies with commas.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="projectImage" className="text-sm font-medium">
+                <label
+                  htmlFor="projectImage"
+                  className="block text-sm font-semibold text-gray-900"
+                >
                   Project image URL
                 </label>
                 <input
@@ -555,12 +574,15 @@ function FreelancerProfile() {
                   value={projectForm.imageUrl}
                   onChange={updateProjectField}
                   placeholder="https://example.com/project-image.png"
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
               <div>
-                <label htmlFor="projectUrl" className="text-sm font-medium">
+                <label
+                  htmlFor="projectUrl"
+                  className="block text-sm font-semibold text-gray-900"
+                >
                   Live project URL
                 </label>
                 <input
@@ -570,7 +592,7 @@ function FreelancerProfile() {
                   value={projectForm.projectUrl}
                   onChange={updateProjectField}
                   placeholder="https://your-project.com"
-                  className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-gray-950 outline-none placeholder:text-gray-500 focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
@@ -578,7 +600,7 @@ function FreelancerProfile() {
                 <button
                   type="button"
                   onClick={handleProjectSubmit}
-                  className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
                   {editingIndex !== null ? "Update project" : "Add project"}
                 </button>
@@ -590,7 +612,7 @@ function FreelancerProfile() {
                       setProjectForm(emptyProject);
                       setEditingIndex(null);
                     }}
-                    className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm hover:bg-white"
+                    className="inline-flex min-h-11 items-center justify-center rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                   >
                     Cancel
                   </button>
@@ -602,7 +624,7 @@ function FreelancerProfile() {
           {error && (
             <p
               role="alert"
-              className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+              className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900"
             >
               {error}
             </p>
@@ -611,7 +633,7 @@ function FreelancerProfile() {
           {message && (
             <p
               role="status"
-              className="rounded-lg bg-green-50 p-3 text-sm text-green-700"
+              className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-900"
             >
               {message}
             </p>
@@ -621,13 +643,14 @@ function FreelancerProfile() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:w-auto"
             >
               {saving ? "Saving..." : "Save profile"}
             </button>
 
-            <p className="mt-3 text-xs text-gray-500">
-              Remember to save your profile after adding, editing or deleting projects.
+            <p className="mt-3 text-sm text-gray-600">
+              Remember to save your profile after adding, editing or deleting
+              projects.
             </p>
           </div>
         </form>

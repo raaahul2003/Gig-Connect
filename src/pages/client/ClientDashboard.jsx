@@ -82,17 +82,17 @@ function ClientDashboard() {
     switch (status) {
       case "open":
       case "pending":
-        return "bg-yellow-100 text-yellow-700";
+        return "bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-200";
       case "in_progress":
       case "accepted":
-        return "bg-blue-100 text-blue-700";
+        return "bg-blue-50 text-blue-800 ring-1 ring-inset ring-blue-200";
       case "completed":
-        return "bg-purple-100 text-purple-700";
+        return "bg-violet-50 text-violet-800 ring-1 ring-inset ring-violet-200";
       case "rejected":
       case "cancelled":
-        return "bg-red-100 text-red-700";
+        return "bg-red-50 text-red-800 ring-1 ring-inset ring-red-200";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-100 text-gray-800 ring-1 ring-inset ring-gray-200";
     }
   };
 
@@ -120,48 +120,44 @@ function ClientDashboard() {
   };
 
   return (
-    <main>
-      {/* Dashboard Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <main className="space-y-7 sm:space-y-8">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-blue-600">
-            YOUR WORKSPACE
-          </p>
-
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
             Manage your tasks
-          </h2>
+          </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-base leading-6 text-gray-700">
             Track your work and collaborate with freelancers.
           </p>
         </div>
 
         <Link
           to="/post-task"
-          className="inline-flex justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 sm:w-auto"
         >
           + Create a task
         </Link>
-      </div>
+      </header>
 
-      {/* Dashboard Metrics */}
       <section
         aria-label="Task statistics"
-        className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4"
       >
         {metrics.map((metric) => (
           <article
             key={metric.label}
-            className="rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-5"
+            className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
           >
-            <p className="text-sm text-gray-500">{metric.label}</p>
+            <p className="text-xs font-medium leading-5 text-gray-700 sm:text-sm">
+              {metric.label}
+            </p>
 
-            <p className="mt-3 text-3xl font-bold text-gray-900">
+            <p className="mt-1 break-words text-xl font-bold tracking-tight text-gray-950 sm:mt-2 sm:text-3xl">
               {loading ? "..." : error ? "—" : metric.value}
             </p>
 
-            <p className="mt-2 text-xs text-gray-400">
+            <p className="mt-2 hidden text-xs text-gray-600 sm:block">
               {metric.label === "Total Budget"
                 ? "Combined budget of your posted tasks"
                 : "Based on your account activity"}
@@ -171,70 +167,79 @@ function ClientDashboard() {
       </section>
 
       {error && (
-        <div className="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800"
+        >
           {error}
         </div>
       )}
 
-      {/* Recent Tasks */}
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Your recent tasks
-            </h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Your latest posted tasks and their progress.
-            </p>
-          </div>
-
-          <Link
-            to="/client/tasks"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
-          >
-            View all tasks →
-          </Link>
-        </div>
-
-        <div className="mt-6">
-          {loading ? (
-            <div className="py-10 text-center text-sm text-gray-500">
-              Loading your tasks...
-            </div>
-          ) : recentTasks.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 px-5 py-12 text-center">
-              <h4 className="font-semibold text-gray-900">
-                No tasks to display
-              </h4>
-              <p className="mx-auto mt-2 max-w-sm text-sm text-gray-500">
-                Your posted tasks will appear here.
-              </p>
-              <Link
-                to="/post-task"
-                className="mt-5 inline-flex font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+      <div className="grid items-start gap-4 xl:grid-cols-2">
+        <section
+          aria-labelledby="recent-tasks-heading"
+          className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
+        >
+          <header className="flex flex-col gap-2 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2
+                id="recent-tasks-heading"
+                className="text-lg font-semibold tracking-tight text-gray-950"
               >
-                Post your first task
-              </Link>
+                Your recent tasks
+              </h2>
+              <p className="mt-1 text-sm leading-5 text-gray-600">
+                Your latest posted tasks and their progress.
+              </p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {recentTasks.map((task) => (
-                <article
-                  key={task._id}
-                  className="rounded-xl border border-gray-200 p-5"
+
+            <Link
+              to="/client/tasks"
+              className="inline-flex min-h-11 w-fit items-center font-semibold text-blue-800 transition-colors hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+            >
+              View all tasks →
+            </Link>
+          </header>
+
+          <div className="divide-y divide-gray-200">
+            {loading ? (
+              <p
+                role="status"
+                aria-live="polite"
+                className="py-8 text-sm text-gray-600"
+              >
+                Loading your tasks...
+              </p>
+            ) : recentTasks.length === 0 ? (
+              <div className="py-8">
+                <h3 className="font-semibold text-gray-900">
+                  No tasks to display
+                </h3>
+                <p className="mt-1 text-sm text-gray-600">
+                  Your posted tasks will appear here.
+                </p>
+                <Link
+                  to="/post-task"
+                  className="mt-4 inline-flex min-h-11 items-center font-semibold text-blue-800 transition-colors hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
                 >
-                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">
+                  Post your first task
+                </Link>
+              </div>
+            ) : (
+              recentTasks.map((task) => (
+                <article key={task._id} className="py-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold leading-6 text-gray-950">
                         {task.title}
-                      </h4>
-                      <p className="mt-1 text-sm text-gray-500">
+                      </h3>
+                      <p className="mt-1 text-sm text-gray-600">
                         {task.category}
                       </p>
                     </div>
 
                     <span
-                      className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(
+                      className={`w-fit shrink-0 rounded-md px-2.5 py-1.5 text-xs font-semibold ${getStatusStyle(
                         task.status
                       )}`}
                     >
@@ -242,72 +247,89 @@ function ClientDashboard() {
                     </span>
                   </div>
 
-                  <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-t border-gray-100 pt-4">
+                  <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-2 border-t border-gray-100 pt-3">
                     <div>
-                      <p className="text-xs text-gray-500">Budget</p>
-                      <p className="mt-1 text-sm font-semibold text-gray-900">
+                      <dt className="text-xs font-medium text-gray-600">
+                        Budget
+                      </dt>
+                      <dd className="mt-1 text-sm font-semibold text-gray-950">
                         ₹{Number(task.budget).toLocaleString("en-IN")}
-                      </p>
+                      </dd>
                     </div>
 
                     <div>
-                      <p className="text-xs text-gray-500">Deadline</p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
+                      <dt className="text-xs font-medium text-gray-600">
+                        Deadline
+                      </dt>
+                      <dd className="mt-1 text-sm font-medium text-gray-900">
                         {formatDate(task.deadline)}
-                      </p>
+                      </dd>
                     </div>
-                  </div>
+                  </dl>
                 </article>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+              ))
+            )}
+          </div>
+        </section>
 
-      {/* Recent Applications */}
-      <section className="mt-8 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow p-6 sm:p-8">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Recent applications
-          </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Freelancers who have applied to your tasks.
-          </p>
-        </div>
-
-        <div className="mt-6">
-          {loading ? (
-            <div className="py-8 text-center text-sm text-gray-500">
-              Loading applications...
-            </div>
-          ) : recentApplications.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-gray-300 px-5 py-10 text-center">
-              <h4 className="font-semibold text-gray-900">
-                No applications yet
-              </h4>
-              <p className="mt-2 text-sm text-gray-500">
-                Applications from freelancers will appear here.
+        <section
+          aria-labelledby="recent-applications-heading"
+          className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 sm:p-5"
+        >
+          <header className="flex flex-col gap-2 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2
+                id="recent-applications-heading"
+                className="text-lg font-semibold tracking-tight text-gray-950"
+              >
+                Recent applications
+              </h2>
+              <p className="mt-1 text-sm leading-5 text-gray-600">
+                Freelancers who have applied to your tasks.
               </p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {recentApplications.map((application) => (
-                <article
-                  key={application._id}
-                  className="rounded-xl border border-gray-200 p-5"
-                >
-                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">
+
+            <Link
+              to="/client/applications"
+              className="inline-flex min-h-11 w-fit items-center font-semibold text-blue-800 transition-colors hover:text-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+            >
+              View all applications →
+            </Link>
+          </header>
+
+          <div className="divide-y divide-gray-200">
+            {loading ? (
+              <p
+                role="status"
+                aria-live="polite"
+                className="py-8 text-sm text-gray-600"
+              >
+                Loading applications...
+              </p>
+            ) : recentApplications.length === 0 ? (
+              <div className="py-8">
+                <h3 className="font-semibold text-gray-900">
+                  No applications yet
+                </h3>
+                <p className="mt-1 text-sm text-gray-600">
+                  Applications from freelancers will appear here.
+                </p>
+              </div>
+            ) : (
+              recentApplications.map((application) => (
+                <article key={application._id} className="py-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold leading-6 text-gray-950">
                         {application.freelancer?.name || "Freelancer"}
-                      </h4>
-                      <p className="mt-1 text-sm text-gray-500">
+                      </h3>
+                      <p className="mt-1 text-sm text-gray-600">
                         Applied for: {application.task?.title || "Task"}
                       </p>
                     </div>
 
                     <span
-                      className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(
+                      className={`w-fit shrink-0 rounded-md px-2.5 py-1.5 text-xs font-semibold ${getStatusStyle(
                         application.status
                       )}`}
                     >
@@ -315,27 +337,31 @@ function ClientDashboard() {
                     </span>
                   </div>
 
-                  <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-t border-gray-100 pt-4">
+                  <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-2 border-t border-gray-100 pt-3">
                     <div>
-                      <p className="text-xs text-gray-500">Bid Amount</p>
-                      <p className="mt-1 text-sm font-semibold text-gray-900">
+                      <dt className="text-xs font-medium text-gray-600">
+                        Bid amount
+                      </dt>
+                      <dd className="mt-1 text-sm font-semibold text-gray-950">
                         ₹{Number(application.bidAmount || 0).toLocaleString("en-IN")}
-                      </p>
+                      </dd>
                     </div>
 
                     <div>
-                      <p className="text-xs text-gray-500">Applied On</p>
-                      <p className="mt-1 text-sm text-gray-900">
+                      <dt className="text-xs font-medium text-gray-600">
+                        Applied on
+                      </dt>
+                      <dd className="mt-1 text-sm text-gray-900">
                         {formatDate(application.createdAt)}
-                      </p>
+                      </dd>
                     </div>
-                  </div>
+                  </dl>
                 </article>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
