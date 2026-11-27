@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { deleteTask, getMyTasks } from "../../services/taskService";
 import { toast } from "react-toastify";
+import api from "../../api/axios";
 
 export default function ClientTasks() {
   const [tasks, setTasks] = useState([]);
@@ -11,6 +12,14 @@ export default function ClientTasks() {
   const [reload, setReload] = useState(0);
   const [statusFilter, setStatusFilter] = useState("all");
   const [deletingTaskId, setDeletingTaskId] = useState(null);
+
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [disputeCategory, setDisputeCategory] = useState(
+    "freelancer_not_delivering"
+  );
+  const [disputeDescription, setDisputeDescription] = useState("");
+  const [disputeEvidence, setDisputeEvidence] = useState("");
+  const [submittingDispute, setSubmittingDispute] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -141,6 +150,39 @@ export default function ClientTasks() {
       );
     } finally {
       setDeletingTaskId(null);
+    }
+  };
+
+  const handleRaiseDispute = async (event) => {
+    event.preventDefault();
+
+    if (!selectedTask || !disputeDescription.trim()) {
+      toast.error("Please provide a dispute description.");
+      return;
+    }
+
+    try {
+      setSubmittingDispute(true);
+
+      await api.post("/disputes", {
+        taskId: selectedTask._id,
+        category: disputeCategory,
+        description: disputeDescription.trim(),
+        evidence: disputeEvidence.trim(),
+      });
+
+      toast.success("Dispute submitted successfully!");
+
+      setSelectedTask(null);
+      setDisputeDescription("");
+      setDisputeEvidence("");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to submit dispute."
+      );
+    } finally {
+      setSubmittingDispute(false);
     }
   };
 
@@ -357,21 +399,145 @@ export default function ClientTasks() {
                     Urgent Task
                   </span>
                 )}
-                <div className="mt-5 flex justify-end border-t border-gray-100 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteTask(task)}
-                    disabled={deletingTaskId === task._id}
-                    className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {deletingTaskId === task._id ? "Deleting..." : "Delete Task"}
-                  </button>
+                <div className="mt-5 flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-4">
+                  {(task.status === "in_progress" ||
+                    task.status === "completed") && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedTask(task);
+                          setDisputeCategory("freelancer_not_delivering");
+                          setDisputeDescription("");
+                          setDisputeEvidence("");
+                        }}
+                        className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                      >
+                        Raise a Dispute
+                      </button>
+                    )}
+
+                  {task.status === "open" && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteTask(task)}
+                      disabled={deletingTaskId === task._id}
+                      className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {deletingTaskId === task._id
+                        ? "Deleting..."
+                        : "Delete Task"}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+      {selectedTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
+          <div className="my-6 w-full max-w-lg rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b p-5">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Raise a Dispute
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  {selectedTask.title}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                disabled={submittingDispute}
+                onClick={() => setSelectedTask(null)}
+                className="rounded-lg px-3 py-2 text-gray-500 hover:bg-gray-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleRaiseDispute} className="space-y-4 p-5">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Reason for dispute
+                </label>
+
+                <select
+                  value={disputeCategory}
+                  onChange={(e) => setDisputeCategory(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 px-3 py-3 text-sm"
+                >
+                  <option value="freelancer_not_delivering">
+                    Freelancer not delivering work
+                  </option>
+                  <option value="poor_quality_work">
+                    Poor quality or incomplete work
+                  </option>
+                  <option value="scope_change">
+                    Changes to agreed scope
+                  </option>
+                  <option value="other">
+                    Other issue
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Explain the issue
+                </label>
+
+                <textarea
+                  required
+                  maxLength={3000}
+                  rows={4}
+                  value={disputeDescription}
+                  onChange={(e) => setDisputeDescription(e.target.value)}
+                  placeholder="Explain what happened..."
+                  className="w-full rounded-lg border border-gray-200 px-3 py-3 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Evidence or additional information
+                </label>
+
+                <textarea
+                  maxLength={3000}
+                  rows={3}
+                  value={disputeEvidence}
+                  onChange={(e) => setDisputeEvidence(e.target.value)}
+                  placeholder="Add any relevant details..."
+                  className="w-full rounded-lg border border-gray-200 px-3 py-3 text-sm"
+                />
+              </div>
+
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  disabled={submittingDispute}
+                  onClick={() => setSelectedTask(null)}
+                  className="rounded-lg border border-gray-200 px-5 py-3 text-sm font-medium text-gray-700"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={submittingDispute}
+                  className="rounded-lg bg-red-600 px-5 py-3 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                >
+                  {submittingDispute
+                    ? "Submitting..."
+                    : "Submit Dispute"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

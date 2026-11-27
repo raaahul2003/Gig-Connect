@@ -1,74 +1,98 @@
 
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 const adminLinks = [
   { label: "Dashboard", to: "/admin/dashboard", icon: "▦" },
   { label: "Users", to: "/admin/users", icon: "♙" },
   { label: "Task Moderation", to: "/admin/tasks", icon: "▤" },
+  { label: "Transactions", to: "/admin/transactions", icon: "₹" },
   { label: "Disputes", to: "/admin/disputes", icon: "⚖" },
   { label: "Settings", to: "/admin/settings", icon: "⚙" },
 ];
 
 export default function AdminLayout() {
-  return (
-    <div className="min-h-screen bg-slate-50 lg:flex">
-      <aside className="flex w-full flex-col border-b border-gray-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
-        <div className="border-b border-gray-100 px-6 py-5">
-          <h1 className="text-xl font-bold tracking-tight text-gray-900">
-            GigConnect<span className="text-blue-600">.</span>
-          </h1>
-          <p className="mt-1 text-xs font-medium uppercase tracking-wider text-gray-400">
+
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.dispatchEvent(new Event("auth-changed"));
+    navigate("/login", { replace: true });
+  }
+
+return (
+  <div className="min-h-screen bg-slate-50 lg:flex">
+    <aside className="flex w-full flex-col border-b border-gray-200 bg-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
+      <div className="border-b border-gray-100 px-6 py-5">
+        <h1 className="text-xl font-bold tracking-tight text-gray-900">
+          GigConnect<span className="text-blue-600">.</span>
+        </h1>
+        <p className="mt-1 text-xs font-medium uppercase tracking-wider text-gray-400">
+          Administration
+        </p>
+      </div>
+
+      <nav
+        aria-label="Admin navigation"
+        className="flex gap-2 overflow-x-auto p-3 lg:flex-1 lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto"
+      >
+        {adminLinks.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            className={({ isActive }) =>
+              `flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${isActive
+                ? "bg-blue-50 font-semibold text-blue-700 ring-1 ring-inset ring-blue-100"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-950"
+              }`
+            }
+          >
+            <span aria-hidden="true" className="w-5 text-center">
+              {link.icon}
+            </span>
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="hidden border-t border-gray-100 p-4 lg:block">
+        <p className="text-xs leading-5 text-gray-500">
+          GigConnect Admin Panel
+        </p>
+      </div>
+    </aside>
+
+    <div className="min-w-0 flex-1">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200/80 bg-white/90 px-4 shadow-sm backdrop-blur-lg sm:px-6 lg:px-8">
+        <div>
+          <p className="text-sm font-medium text-gray-800">
             Administration
           </p>
         </div>
 
-        <nav
-          aria-label="Admin navigation"
-          className="flex gap-2 overflow-x-auto p-3 lg:flex-1 lg:flex-col lg:overflow-x-hidden lg:overflow-y-auto"
-        >
-          {adminLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                  isActive
-                    ? "bg-blue-50 font-semibold text-blue-700 ring-1 ring-inset ring-blue-100"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-950"
-                }`
-              }
-            >
-              <span aria-hidden="true" className="w-5 text-center">
-                {link.icon}
-              </span>
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="hidden border-t border-gray-100 p-4 lg:block">
-          <p className="text-xs leading-5 text-gray-500">
-            GigConnect Admin Panel
-          </p>
-        </div>
-      </aside>
-
-      <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200/80 bg-white/90 px-4 shadow-sm backdrop-blur-lg sm:px-6 lg:px-8">
-          <div>
-            <p className="text-sm font-medium text-gray-800">
-              Administration
-            </p>
-          </div>
+        <div className="flex items-center gap-3">
           <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600">
             Admin UI
           </span>
-        </header>
 
-        <main className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
-          <Outlet />
-        </main>
-      </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            title="Logout"
+            aria-label="Logout"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+          >
+            <LogOut size={20} />
+          </button>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">
+        <Outlet />
+      </main>
     </div>
-  );
+  </div>
+);
 }

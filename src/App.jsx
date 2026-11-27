@@ -47,6 +47,7 @@ import FreelancerPublicProfile from './pages/public/FreelancerPublicProfile'
 import ClientProfile from './pages/client/ClientProfile'
 import ClientPublicProfile from './pages/public/ClientPublicProfile'
 import ResetPassword from "./pages/ResetPassword";
+import AdminTransactions from './pages/admin/AdminTransactions'
 import { Analytics } from '@vercel/analytics/react'
 
 function App() {
@@ -102,6 +103,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRole="admin" />}>
             <Route path='/admin' element={<AdminLayout />}>
               <Route path='dashboard' element={<AdminDashboard />} />
+              <Route path='transactions' element={<AdminTransactions />} />
               <Route path='users' element={<AdminUsers />} />
               <Route path='tasks' element={<AdminTasks />} />
               <Route path='disputes' element={<AdminDisputes />} />

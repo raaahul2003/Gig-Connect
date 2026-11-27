@@ -1,17 +1,53 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../../api/axios";
 
 const initialSettings = {
   platformName: "GigConnect",
   supportEmail: "",
-  commission: "10",
+  commission: "5",
   requireTaskReview: true,
   maintenanceMode: false,
 };
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState(initialSettings);
+  const [savedSettings, setSavedSettings] = useState(initialSettings);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  async function fetchSettings() {
+    try {
+      setLoading(true);
+
+      const response = await api.get("/admin/settings");
+      const data = response.data.settings;
+
+      const formattedSettings = {
+        platformName: data.platformName || "GigConnect",
+        supportEmail: data.supportEmail || "",
+        commission: String(data.commission ?? 5),
+        requireTaskReview: data.requireTaskReview ?? true,
+        maintenanceMode: data.maintenanceMode ?? false,
+      };
+
+      setSettings(formattedSettings);
+      setSavedSettings(formattedSettings);
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "Failed to load settings."
+      );
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function updateSetting(event) {
     const { name, value, type, checked } = event.target;
@@ -24,19 +60,18 @@ export default function AdminSettings() {
     setMessage("");
   }
 
-  function handleSave(event) {
+  async function handleSave(event) {
     event.preventDefault();
 
-    if (
-      !settings.platformName.trim() ||
-      !settings.supportEmail.trim()
-    ) {
+    if (!settings.platformName.trim() || !settings.supportEmail.trim()) {
       setMessage("Enter the platform name and support email.");
+      setMessageType("error");
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(settings.supportEmail)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(settings.supportEmail.trim())) {
       setMessage("Enter a valid support email address.");
+      setMessageType("error");
       return;
     }
 
@@ -49,17 +84,54 @@ export default function AdminSettings() {
       commission > 100
     ) {
       setMessage("Commission must be between 0 and 100.");
+      setMessageType("error");
       return;
     }
 
-    setMessage(
-      "Validation successful. Settings are not saved to a server yet."
-    );
+    try {
+      setSaving(true);
+      setMessage("");
+
+      const response = await api.put("/admin/settings", {
+        ...settings,
+        commission,
+      });
+
+      const data = response.data.settings;
+
+      const formattedSettings = {
+        platformName: data.platformName,
+        supportEmail: data.supportEmail,
+        commission: String(data.commission),
+        requireTaskReview: data.requireTaskReview,
+        maintenanceMode: data.maintenanceMode,
+      };
+
+      setSettings(formattedSettings);
+      setSavedSettings(formattedSettings);
+      setMessage("Platform settings saved successfully!");
+      setMessageType("success");
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "Failed to save settings."
+      );
+      setMessageType("error");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleReset() {
-    setSettings(initialSettings);
+    setSettings(savedSettings);
     setMessage("");
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-64 items-center justify-center">
+        <p className="text-sm text-gray-500">Loading platform settings...</p>
+      </div>
+    );
   }
 
   return (
@@ -75,7 +147,7 @@ export default function AdminSettings() {
 
       <form
         onSubmit={handleSave}
-        className="space-y-7 rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow p-5 sm:p-7"
+        className="space-y-7 rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7"
       >
         <section>
           <h3 className="font-semibold text-gray-900">
@@ -93,7 +165,7 @@ export default function AdminSettings() {
                 value={settings.platformName}
                 onChange={updateSetting}
                 required
-                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500"
               />
             </label>
 
@@ -106,7 +178,7 @@ export default function AdminSettings() {
                 onChange={updateSetting}
                 required
                 placeholder="support@example.com"
-                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500"
               />
             </label>
           </div>
@@ -117,7 +189,7 @@ export default function AdminSettings() {
             Marketplace Policies
           </h3>
           <p className="mt-1 text-sm text-gray-500">
-            Configure the proposed commission and task review policy.
+            Configure commission and task review preferences.
           </p>
 
           <div className="mt-5 max-w-sm">
@@ -132,12 +204,12 @@ export default function AdminSettings() {
                 value={settings.commission}
                 onChange={updateSetting}
                 required
-                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+                className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2.5 outline-none focus:border-blue-500"
               />
             </label>
-            <p className="mt-2 text-xs leading-5 text-gray-500">
-              Proposed policy only. This does not calculate or deduct actual
-              fees until backend payment logic is implemented.
+            <p className="mt-2 text-xs text-gray-500">
+              Current payment calculations still use the existing 5% backend
+              commission until dynamic commission integration is implemented.
             </p>
           </div>
 
@@ -147,21 +219,23 @@ export default function AdminSettings() {
               name="requireTaskReview"
               checked={settings.requireTaskReview}
               onChange={updateSetting}
-              className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              className="mt-1 h-4 w-4 accent-blue-600"
             />
             <span>
               <span className="block text-sm font-medium text-gray-800">
                 Require task moderation
               </span>
               <span className="mt-1 block text-sm text-gray-500">
-                Propose reviewing tasks before publication.
+                Preference saved for future moderation policy integration.
               </span>
             </span>
           </label>
         </section>
 
         <section className="border-t border-gray-100 pt-6">
-          <h3 className="font-semibold text-gray-900">Platform Availability</h3>
+          <h3 className="font-semibold text-gray-900">
+            Platform Availability
+          </h3>
 
           <label className="mt-4 flex cursor-pointer items-start gap-3">
             <input
@@ -169,22 +243,28 @@ export default function AdminSettings() {
               name="maintenanceMode"
               checked={settings.maintenanceMode}
               onChange={updateSetting}
-              className="mt-1 h-4 w-4 accent-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+              className="mt-1 h-4 w-4 accent-blue-600"
             />
             <span>
               <span className="block text-sm font-medium text-gray-800">
                 Maintenance mode
               </span>
               <span className="mt-1 block text-sm text-gray-500">
-                UI preference only. This toggle does not take the live
-                platform offline.
+                Preference saved. This does not yet take the live platform offline.
               </span>
             </span>
           </label>
         </section>
 
         {message && (
-          <p role="status" className="text-sm text-blue-700">
+          <p
+            role="status"
+            className={`text-sm ${
+              messageType === "success"
+                ? "text-green-700"
+                : "text-red-600"
+            }`}
+          >
             {message}
           </p>
         )}
@@ -193,15 +273,18 @@ export default function AdminSettings() {
           <button
             type="button"
             onClick={handleReset}
-            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+            disabled={saving}
+            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
             Reset
           </button>
+
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transition-colors"
+            disabled={saving}
+            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Save Settings
+            {saving ? "Saving..." : "Save Settings"}
           </button>
         </div>
       </form>
